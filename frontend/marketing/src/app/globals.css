@@ -1,0 +1,125 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-ibm-plex-sans: "IBM Plex Sans", sans-serif;
+  --font-ibm-plex-mono: "IBM Plex Mono", monospace;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-family: var(--font-ibm-plex-sans);
+    background-color: #eceee8;
+    color: #0f1110;
+  }
+
+  /* All numbers, prices, stats, timestamps use mono */
+  .font-mono {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Nav frosted glass on scroll */
+  .nav-scrolled {
+    background-color: rgba(236, 238, 232, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  /* Fade masks for carousel edges */
+  .fade-edges {
+    mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black 8%,
+      black 92%,
+      transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black 8%,
+      black 92%,
+      transparent 100%
+    );
+  }
+
+  /* Eyebrow label style — used across all sections */
+  .eyebrow {
+    @apply font-mono text-xs tracking-eyebrow uppercase text-green;
+  }
+
+  /* Staggered animation helpers */
+  .animate-delay-100 { animation-delay: 100ms; }
+  .animate-delay-200 { animation-delay: 200ms; }
+  .animate-delay-300 { animation-delay: 300ms; }
+  .animate-delay-350 { animation-delay: 350ms; }
+  .animate-delay-480 { animation-delay: 480ms; }
+  .animate-delay-600 { animation-delay: 600ms; }
+
+  .opacity-0-init {
+    opacity: 0;
+  }
+
+  /* Blog article body typography */
+  .prose-tradalyst h2 {
+    @apply font-sans text-[22px] font-bold text-text tracking-[-0.01em] leading-snug mt-10 mb-4;
+  }
+  .prose-tradalyst h3 {
+    @apply font-sans text-[17px] font-semibold text-text leading-snug mt-8 mb-3;
+  }
+  .prose-tradalyst p {
+    @apply font-sans text-[15px] text-text-secondary leading-relaxed mb-5;
+  }
+  .prose-tradalyst ul {
+    @apply mb-5 space-y-2 pl-5;
+  }
+  .prose-tradalyst ul li {
+    @apply font-sans text-[15px] text-text-secondary leading-relaxed list-disc;
+  }
+  .prose-tradalyst ol {
+    @apply mb-5 space-y-2 pl-5;
+  }
+  .prose-tradalyst ol li {
+    @apply font-sans text-[15px] text-text-secondary leading-relaxed list-decimal;
+  }
+  .prose-tradalyst strong {
+    @apply font-semibold text-text;
+  }
+  .prose-tradalyst em {
+    @apply italic;
+  }
+  .prose-tradalyst hr {
+    @apply border-black/[0.08] my-10;
+  }
+  .prose-tradalyst table {
+    @apply w-full border-collapse mb-6;
+  }
+  .prose-tradalyst th {
+    @apply font-mono text-[11px] uppercase tracking-[0.08em] text-text-muted px-3 py-2 border-b border-black/[0.1] text-left;
+  }
+  .prose-tradalyst td {
+    @apply font-sans text-[13px] text-text-secondary px-3 py-2 border-b border-black/[0.06];
+  }
+  .prose-tradalyst blockquote {
+    @apply border-l-0 pl-0 italic text-text-secondary;
+  }
+  .prose-tradalyst a {
+    @apply text-green underline underline-offset-2 hover:text-green-hover transition-colors duration-150;
+  }
+  .prose-tradalyst code {
+    @apply font-mono text-[13px] bg-black/[0.05] px-[5px] py-[2px] rounded-sm;
+  }
+}
