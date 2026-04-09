@@ -1,0 +1,277 @@
+/**
+ * TypeScript interfaces matching actual Django serializer field names.
+ * Field names must stay in sync with backend serializers.
+ */
+
+// ── Users ─────────────────────────────────────────────────────────────────────
+
+export type UserRole = "trader" | "mentor" | "admin";
+
+export interface UserProfile {
+  id: number;
+  email: string;
+  display_name: string;
+  bio: string;
+  role: UserRole;
+  plan?: "free" | "pro";
+  onboarding_completed?: boolean;
+  date_joined: string;
+  language_preference?: "es" | "en";
+  theme_preference?: "light" | "dark";
+  pinned_assets?: string[];
+}
+
+export interface LoginResponse {
+  detail: string;
+  user: UserProfile;
+}
+
+export interface RegisterResponse {
+  detail: string;
+  user: UserProfile;
+}
+
+// ── Trades ────────────────────────────────────────────────────────────────────
+
+export type Direction  = "long" | "short";
+export type TradeResult = "win" | "loss" | "breakeven" | "";
+export type Emotion    =
+  | "calm" | "confident" | "fearful" | "greedy"
+  | "anxious" | "fomo" | "revenge" | "neutral" | "";
+
+export interface Trade {
+  id: number;
+  pair: string;
+  direction: Direction;
+  entry_price: string;      // NUMERIC(20,8) serialised as string
+  exit_price: string | null;
+  quantity: string;
+  entry_time: string;        // ISO 8601
+  exit_time: string | null;
+  pnl: string | null;
+  risk_reward_ratio: string | null;
+  result: TradeResult;
+  emotion: Emotion;
+  notes: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PaginatedTrades {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: Trade[];
+}
+
+// Create / update payloads
+export interface TradeCreatePayload {
+  pair: string;
+  direction: Direction;
+  entry_price: string;
+  exit_price?: string;
+  quantity: string;
+  entry_time: string;
+  exit_time?: string;
+  result?: TradeResult;
+  emotion?: Emotion;
+  notes?: string;
+}
+
+export type TradeUpdatePayload = Partial<TradeCreatePayload>;
+
+// ── Trade stats (GET /api/trades/stats/) ─────────────────────────────────────
+
+export interface TradeStats {
+  total_trades: number;
+  closed_trades: number;
+  winning_trades: number;
+  losing_trades: number;
+  breakeven_trades: number;
+  win_rate: number;            // 0–100
+  total_pnl: string;           // Decimal → string
+  avg_pnl_per_trade: string;
+  avg_risk_reward: string | null;
+  max_drawdown: string;
+  best_trade_pnl: string | null;
+  worst_trade_pnl: string | null;
+  most_traded_pair: string | null;
+}
+
+// ── AI Analysis ───────────────────────────────────────────────────────────────
+
+export interface AiInsight {
+  id: number;
+  content: string;
+  period_start: string;
+  period_end: string;
+  trade_count: number;
+  created_at: string;
+}
+
+export interface ChatMessage {
+  id: number;
+  role: "user" | "assistant";
+  content: string;
+  created_at: string;
+}
+
+export interface ChatSendPayload {
+  message: string;
+}
+
+export interface ChatSendResponse {
+  user_message: ChatMessage;
+  assistant_message: ChatMessage;
+}
+
+// ── Prices ────────────────────────────────────────────────────────────────────
+
+export interface PriceQuote {
+  price: number;
+  change_24h: number | null;
+  source: "coingecko" | "finnhub";
+  market_cap?: number;
+  high?: number;
+  low?: number;
+}
+
+/** GET /api/prices/?symbols=BTC,ETH → { "BTC": PriceQuote, "ETH": PriceQuote } */
+export type PricesResponse = Record<string, PriceQuote>;
+
+// ── Mentors ───────────────────────────────────────────────────────────────────
+
+export interface MentorAssignmentStats {
+  total_trades: number;
+  win_rate: number;
+  total_pnl: number;
+  last_trade_date: string | null;
+}
+
+export interface MentorAssignment {
+  id: number;
+  trader: number;
+  mentor: number;
+  trader_detail: { id: number; email: string; display_name: string };
+  mentor_detail: { id: number; email: string; display_name: string };
+  is_active: boolean;
+  created_at: string;
+  stats: MentorAssignmentStats;
+}
+
+export interface MentorRequest {
+  id: number;
+  mentor: number;
+  trader: number;
+  mentor_detail: { id: number; email: string; display_name: string };
+  trader_detail: { id: number; email: string; display_name: string };
+  status: "pending" | "accepted" | "rejected";
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MentorAnnotation {
+  id: number;
+  trade: number;
+  mentor: number;
+  mentor_email: string;
+  body: string;
+  created_at: string;
+  updated_at: string;
+}
+
+// ── Dashboard helpers ─────────────────────────────────────────────────────────
+
+export interface PnlPoint {
+  date: string;    // "YYYY-MM-DD"
+  cumPnl: number;  // cumulative P&L at this point
+}
+
+export interface HeatmapDay {
+  date: string;
+  pnl: number;
+  tradeCount: number;
+  bestTrade: { pair: string; pnl: number } | null;
+  emotions: Record<string, number>;
+}
+
+export type DateRange = "today" | "week" | "month" | "all";
+
+// ── Common ────────────────────────────────────────────────────────────────────
+
+export interface ApiValidationError {
+  [field: string]: string | string[];
+}
+
+// ── Admin ─────────────────────────────────────────────────────────────────────
+
+export interface AdminStats {
+  users: {
+    total: number;
+    traders: number;
+    mentors: number;
+    admins: number;
+    free: number;
+    pro: number;
+    new_this_week: number;
+    new_last_week: number;
+  };
+  trades: {
+    total: number;
+    this_week: number;
+    last_week: number;
+    today: number;
+  };
+  mentorships: {
+    active: number;
+    pending_requests: number;
+  };
+  top_traders: Array<{
+    id: number;
+    display_name: string;
+    email: string;
+    trade_count: number;
+    win_rate: number;
+    plan: "free" | "pro";
+    last_active: string | null;
+  }>;
+  signups_last_30_days: Array<{ date: string; count: number }>;
+  recent_activity: Array<{
+    type: "registration" | "assignment";
+    display_name?: string;
+    mentor_name?: string;
+    trader_name?: string;
+    timestamp: string;
+  }>;
+}
+
+export interface AdminUserEnhanced {
+  id: number;
+  email: string;
+  display_name: string;
+  role: "trader" | "mentor" | "admin";
+  plan: "free" | "pro";
+  is_active: boolean;
+  date_joined: string;
+  trade_count: number;
+  last_active: string;
+  mentor_name: string | null;
+  student_count: number | null;
+}
+
+export interface AdminMentorshipsData {
+  assignments: Array<{
+    id: number;
+    mentor: { id: number; display_name: string; email: string };
+    trader: { id: number; display_name: string; email: string; trade_count: number; plan: string };
+    assigned_at: string;
+    is_active: boolean;
+  }>;
+  requests: Array<{
+    id: number;
+    mentor: { id: number; display_name: string; email: string };
+    trader: { id: number; display_name: string; email: string };
+    status: "pending" | "accepted" | "rejected";
+    created_at: string;
+  }>;
+}
