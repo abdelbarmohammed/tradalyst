@@ -1,0 +1,9 @@
+from rest_framework.pagination import PageNumberPagination
+
+
+class StandardResultsPagination(PageNumberPagination):
+    """Default paginator for all list endpoints. Views can override page_size."""
+
+    page_size = 20
+    page_size_query_param = "page_size"
+    max_page_size = 100
