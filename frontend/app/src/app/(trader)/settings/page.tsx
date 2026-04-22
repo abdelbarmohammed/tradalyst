@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { AlertCircle, Check, Download, Trash2, X } from "lucide-react";
 import { get, patch, post } from "@/lib/api";
+import { MARKETING_URL } from "@/lib/urls";
 import { logout } from "@/lib/auth";
 import type { UserProfile, Trade, PaginatedTrades } from "@/types";
 
@@ -302,7 +303,7 @@ function PlanTab({ user }: { user: UserProfile }) {
               Actualiza a Pro para desbloquear análisis de IA ilimitados, acceso a mentor y exportación avanzada.
             </p>
             <a
-              href="https://tradalyst.com/precios"
+              href={`${MARKETING_URL}/precios`}
               className="inline-block font-sans text-[13px] font-semibold bg-green hover:bg-green-hover text-white px-5 py-[9px] rounded transition-colors"
             >
               Ver planes →

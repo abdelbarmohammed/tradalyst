@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useInView } from "@/hooks/useInView";
+import { APP_URL } from "@/lib/urls";
 
 export default function FinalCta() {
   const { ref, inView } = useInView<HTMLDivElement>(0.2);
@@ -46,7 +47,7 @@ export default function FinalCta() {
           }`}
         >
           <Link
-            href="https://app.tradalyst.com/registro"
+            href={`${APP_URL}/registro`}
             className="inline-block font-sans text-[15px] font-semibold bg-green hover:bg-green-hover text-white px-8 py-[14px] rounded transition-colors duration-150"
           >
             Empezar gratis — sin tarjeta

@@ -3,6 +3,7 @@
 import { Check, X } from "lucide-react";
 import Link from "next/link";
 import { useInView } from "@/hooks/useInView";
+import { APP_URL } from "@/lib/urls";
 
 const FREE_FEATURES = [
   { text: "Diario ilimitado de operaciones", included: true },
@@ -85,7 +86,7 @@ export default function PricingPreview() {
             </ul>
 
             <Link
-              href="https://app.tradalyst.com/registro"
+              href={`${APP_URL}/registro`}
               className="block w-full text-center font-sans text-sm font-semibold border border-black/[0.15] hover:border-black/[0.25] text-text px-5 py-[11px] rounded transition-colors duration-150"
             >
               Empezar gratis
@@ -132,7 +133,7 @@ export default function PricingPreview() {
             </ul>
 
             <Link
-              href="https://app.tradalyst.com/registro"
+              href={`${APP_URL}/registro`}
               className="block w-full text-center font-sans text-sm font-semibold bg-green hover:bg-green-hover text-white px-5 py-[11px] rounded transition-colors duration-150"
             >
               Probar 7 días gratis

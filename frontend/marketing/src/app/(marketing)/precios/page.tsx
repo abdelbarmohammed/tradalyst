@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Check, X, ChevronDown } from "lucide-react";
+import { APP_URL } from "@/lib/urls";
 
 // ─── Plan features ───────────────────────────────────────────────────────────
 
@@ -170,7 +171,7 @@ export default function PreciosPage() {
                 ))}
               </ul>
               <Link
-                href="https://app.tradalyst.com/registro"
+                href={`${APP_URL}/registro`}
                 className="block w-full text-center font-sans text-sm font-semibold border border-black/[0.15] hover:border-black/[0.3] text-text px-5 py-3 rounded transition-colors duration-150"
               >
                 Empezar gratis
@@ -209,7 +210,7 @@ export default function PreciosPage() {
                 ))}
               </ul>
               <Link
-                href="https://app.tradalyst.com/registro"
+                href={`${APP_URL}/registro`}
                 className="block w-full text-center font-sans text-sm font-semibold bg-green hover:bg-green-hover text-white px-5 py-3 rounded transition-colors duration-150"
               >
                 Probar 7 días gratis
@@ -327,7 +328,7 @@ export default function PreciosPage() {
             La diferencia entre un trader que mejora y uno que no es el análisis.
           </p>
           <Link
-            href="https://app.tradalyst.com/registro"
+            href={`${APP_URL}/registro`}
             className="inline-block font-sans text-sm font-semibold bg-green hover:bg-green-hover text-white px-7 py-3 rounded transition-colors duration-150"
           >
             Empezar gratis

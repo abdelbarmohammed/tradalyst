@@ -3,6 +3,7 @@ import Link from "next/link";
 import { remark } from "remark";
 import remarkHtml from "remark-html";
 import { getAllPosts, getPostBySlug } from "@/lib/blog";
+import { APP_URL } from "@/lib/urls";
 
 interface Props {
   params: { slug: string };
@@ -93,7 +94,7 @@ export default async function BlogPost({ params }: Props) {
               sobreoperar — y te los muestra con datos reales.
             </p>
             <Link
-              href="https://app.tradalyst.com/registro"
+              href={`${APP_URL}/registro`}
               className="inline-block font-sans text-sm font-semibold bg-green hover:bg-green-hover text-white px-5 py-[10px] rounded transition-colors duration-150"
             >
               Empezar gratis

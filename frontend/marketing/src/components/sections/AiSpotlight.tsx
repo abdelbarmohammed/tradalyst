@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { BrainCircuit, MessageSquare, Zap } from "lucide-react";
 import { useInView } from "@/hooks/useInView";
+import { APP_URL } from "@/lib/urls";
 
 const INSIGHT_TEXT =
   "En los últimos 30 días has abierto 14 operaciones marcadas como FOMO. 11 fueron pérdidas. Tu mejor rendimiento ocurre los martes entre las 10h y las 13h cuando registras «confiado» como estado emocional. Considera reducir operaciones después de las 15h — tu tasa de error sube un 38%.";
@@ -168,7 +169,7 @@ export default function AiSpotlight() {
               }`}
             >
               <a
-                href="https://app.tradalyst.com/registro"
+                href={`${APP_URL}/registro`}
                 className="inline-block font-sans text-sm font-semibold bg-green hover:bg-green-hover text-white px-5 py-[11px] rounded transition-colors duration-150"
               >
                 Obtén tu análisis

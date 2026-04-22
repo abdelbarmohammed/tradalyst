@@ -1,4 +1,5 @@
 import DashboardMockup from "@/components/ui/DashboardMockup";
+import { APP_URL } from "@/lib/urls";
 
 export default function Hero() {
   return (
@@ -37,7 +38,7 @@ export default function Hero() {
 
             <div className="flex flex-wrap items-center gap-3 mt-8 opacity-0 animate-fade-up animate-delay-480">
               <a
-                href="https://app.tradalyst.com/registro"
+                href={`${APP_URL}/registro`}
                 className="font-sans text-sm font-semibold bg-green hover:bg-green-hover text-white px-5 py-[11px] rounded transition-colors duration-150"
               >
                 Empezar gratis

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Logo from "@/components/ui/Logo";
+import { APP_URL } from "@/lib/urls";
 
 type FieldError = { email?: string; password?: string; form?: string };
 
@@ -41,15 +42,13 @@ export default function LoginPage() {
         const data = await res.json();
         // Response is flat UserProfileSerializer: { id, email, display_name, role, ... }
         const role: string = data.role ?? "trader";
-        const appBase =
-          process.env.NEXT_PUBLIC_APP_URL ?? "https://app.tradalyst.com";
 
         if (role === "mentor") {
-          window.location.href = `${appBase}/mentor`;
+          window.location.href = `${APP_URL}/mentor`;
         } else if (role === "admin") {
-          window.location.href = `${appBase}/admin`;
+          window.location.href = `${APP_URL}/admin`;
         } else {
-          window.location.href = `${appBase}/dashboard`;
+          window.location.href = `${APP_URL}/dashboard`;
         }
         return;
       }

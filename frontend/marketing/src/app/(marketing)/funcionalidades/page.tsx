@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import { APP_URL } from "@/lib/urls";
 
 export const metadata: Metadata = {
   title: "Funcionalidades — Tradalyst",
@@ -25,7 +26,7 @@ export default function Funcionalidades() {
               Ver cómo funciona
             </Link>
             <Link
-              href="https://app.tradalyst.com/registro"
+              href={`${APP_URL}/registro`}
               className="inline-block font-sans text-sm font-semibold bg-green hover:bg-green-hover text-white px-6 py-3 rounded transition-colors duration-150"
             >
               Probar gratis

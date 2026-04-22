@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import Logo from "@/components/ui/Logo";
+import { APP_URL } from "@/lib/urls";
 
 type FieldError = {
   name?: string;
@@ -81,7 +82,7 @@ export default function RegistroPage() {
       );
 
       if (res.ok) {
-        window.location.href = "https://app.tradalyst.com/onboarding";
+        window.location.href = `${APP_URL}/onboarding`;
         return;
       }
 

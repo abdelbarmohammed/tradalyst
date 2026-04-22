@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { MARKETING_URL } from "@/lib/urls";
 import {
   LayoutDashboard,
   BookOpen,
@@ -27,7 +28,7 @@ export default function Sidebar() {
     <aside className="hidden lg:flex flex-col w-sidebar flex-shrink-0 bg-surface border-r border-white/[0.06] h-screen sticky top-0">
       {/* Logo */}
       <div className="px-5 py-5 border-b border-white/[0.06]">
-        <Link href="/dashboard" aria-label="Tradalyst — Dashboard">
+        <Link href={MARKETING_URL} aria-label="Tradalyst — inicio">
           <svg height="22" width="auto" viewBox="0 0 172.22 40.63" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <g>
               <g fill="#ffffff">

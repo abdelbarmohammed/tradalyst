@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import Logo from "@/components/ui/Logo";
+import { APP_URL } from "@/lib/urls";
 
 const NAV_LINKS = [
   { href: "/funcionalidades", label: "Funcionalidades" },
@@ -50,13 +51,13 @@ export default function Nav() {
         {/* Actions — desktop */}
         <div className="hidden md:flex items-center gap-3 flex-shrink-0 ml-auto">
           <Link
-            href="https://app.tradalyst.com/login"
+            href={`${APP_URL}/login`}
             className="font-sans text-sm font-medium text-text-secondary hover:text-text transition-colors duration-150 px-3 py-2"
           >
             Iniciar sesión
           </Link>
           <Link
-            href="https://app.tradalyst.com/registro"
+            href={`${APP_URL}/registro`}
             className="font-sans text-sm font-semibold bg-green hover:bg-green-hover text-white px-4 py-2 rounded transition-colors duration-150"
           >
             Empezar gratis
@@ -88,14 +89,14 @@ export default function Nav() {
           ))}
           <div className="pt-2 border-t border-black/[0.06] flex flex-col gap-2">
             <Link
-              href="https://app.tradalyst.com/login"
+              href={`${APP_URL}/login`}
               className="font-sans text-sm font-medium text-text-secondary py-2"
               onClick={() => setMobileOpen(false)}
             >
               Iniciar sesión
             </Link>
             <Link
-              href="https://app.tradalyst.com/registro"
+              href={`${APP_URL}/registro`}
               className="font-sans text-sm font-semibold bg-green text-white px-4 py-2 rounded text-center"
               onClick={() => setMobileOpen(false)}
             >
