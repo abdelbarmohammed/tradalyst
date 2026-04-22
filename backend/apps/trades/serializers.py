@@ -14,7 +14,7 @@ class TradeSerializer(serializers.ModelSerializer):
             "entry_time", "exit_time", "pnl", "risk_reward_ratio",
             "result", "emotion", "notes", "created_at", "updated_at",
         )
-        read_only_fields = ("id", "created_at", "updated_at")
+        read_only_fields = ("id", "pnl", "created_at", "updated_at")
 
     def validate(self, attrs: dict) -> dict:
         exit_time = attrs.get("exit_time") or getattr(self.instance, "exit_time", None)

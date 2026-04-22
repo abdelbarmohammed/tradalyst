@@ -52,3 +52,14 @@ class Trade(models.Model):
 
     def __str__(self) -> str:
         return f"{self.user.email} | {self.pair} {self.direction} @ {self.entry_price}"
+
+    def save(self, *args, **kwargs) -> None:
+        """Auto-calculate pnl when both entry and exit prices are present."""
+        if self.exit_price is not None and self.entry_price is not None and self.quantity is not None:
+            if self.direction == Direction.LONG:
+                self.pnl = (self.exit_price - self.entry_price) * self.quantity
+            else:
+                self.pnl = (self.entry_price - self.exit_price) * self.quantity
+        else:
+            self.pnl = None
+        super().save(*args, **kwargs)

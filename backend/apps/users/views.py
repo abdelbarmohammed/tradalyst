@@ -10,6 +10,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 
 from core.constants import ACCESS_TOKEN_LIFETIME_MINUTES, REFRESH_TOKEN_LIFETIME_DAYS
+from .authentication import TradalystRefreshToken
 from .models import CustomUser
 from .permissions import IsAdmin
 from .serializers import (
@@ -55,7 +56,7 @@ class RegisterView(APIView):
         serializer = RegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        refresh = RefreshToken.for_user(user)
+        refresh = TradalystRefreshToken.for_user(user)
         response = Response(UserProfileSerializer(user).data, status=status.HTTP_201_CREATED)
         _set_auth_cookies(response, refresh)
         return response
@@ -77,7 +78,7 @@ class LoginView(APIView):
                 {"detail": "Invalid credentials."},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
-        refresh = RefreshToken.for_user(user)
+        refresh = TradalystRefreshToken.for_user(user)
         response = Response(UserProfileSerializer(user).data)
         _set_auth_cookies(response, refresh)
         return response
@@ -107,7 +108,7 @@ class CookieTokenRefreshView(APIView):
                 status=status.HTTP_401_UNAUTHORIZED,
             )
         try:
-            refresh = RefreshToken(raw_refresh)
+            refresh = TradalystRefreshToken(raw_refresh)
         except TokenError as exc:
             return Response({"detail": str(exc)}, status=status.HTTP_401_UNAUTHORIZED)
         response = Response({"detail": "Token refreshed."})

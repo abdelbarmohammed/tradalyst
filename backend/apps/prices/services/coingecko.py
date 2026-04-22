@@ -40,7 +40,7 @@ class CoinGeckoService:
         cache_key = f"coingecko_{'_'.join(sorted(symbol_to_id.values()))}"
         cached = cache.get(cache_key)
         if cached is not None:
-            return {s: cached[cid] for s, cid in symbol_to_id.items() if cid in cached}
+            return {s: cached[s] for s in symbols if s in cached}
 
         try:
             response = requests.get(
@@ -59,8 +59,7 @@ class CoinGeckoService:
             logger.error("CoinGecko request failed: %s", exc)
             return {}
 
-        cache.set(cache_key, data, timeout=PRICE_CACHE_TTL)
-        return {
+        transformed = {
             symbol: {
                 "price": data[coin_id]["usd"],
                 "change_24h": data[coin_id].get("usd_24h_change"),
@@ -70,3 +69,5 @@ class CoinGeckoService:
             for symbol, coin_id in symbol_to_id.items()
             if coin_id in data
         }
+        cache.set(cache_key, transformed, timeout=PRICE_CACHE_TTL)
+        return transformed

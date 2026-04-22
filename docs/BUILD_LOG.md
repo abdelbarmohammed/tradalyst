@@ -2,7 +2,7 @@
 
 > Living record of what has been built, updated after every major milestone.
 > Will serve as source material for the Spanish memoria documentation.
-> Last updated: 2026-04-20
+> Last updated: 2026-04-22
 
 ---
 
@@ -373,6 +373,339 @@ All endpoints are prefixed with `/api/`. All require authentication unless marke
 
 ---
 
+---
+
+## Milestone 7 — Backend: JWT Role Claim + P&L Auto-calculation
+
+**Date:** 2026-04-22
+
+### What Was Changed
+
+**`apps/users/authentication.py`** — new `TradalystRefreshToken` class:
+- Subclasses `RefreshToken` from simplejwt
+- Overrides `for_user()` to inject `role` into the JWT payload: `token["role"] = user.role`
+- Used in all three auth views (`RegisterView`, `LoginView`, `CookieTokenRefreshView`) instead of the plain `RefreshToken`
+
+**Why this matters:** The frontend's `middleware.ts` reads the JWT's `role` claim to enforce role-based routing at the edge. Without this injection, the claim was absent and all authenticated users were treated identically.
+
+**`apps/users/serializers.py`** — `UserProfileSerializer` updated:
+- Added `plan` and `onboarding_completed` to `fields`
+- Both fields added to `read_only_fields` except `onboarding_completed`, which the trader patches at the end of onboarding
+
+**`apps/trades/models.py`** — `save()` override for auto P&L:
+- When `exit_price`, `entry_price`, and `quantity` are all present, P&L is computed automatically:
+  - Long: `(exit_price - entry_price) × quantity`
+  - Short: `(entry_price - exit_price) × quantity`
+- If any field is missing (open trade), `pnl` is set to `None`
+- Previously, P&L was left `None` unless the frontend explicitly sent a value
+
+**`apps/trades/serializers.py`** — `pnl` made read-only:
+- `pnl` added to `read_only_fields` so the frontend cannot override the server-computed value
+
+### Key Decisions
+
+- **Role in JWT is required for edge middleware** — Next.js middleware runs before any page load and needs the role claim to redirect correctly. simplejwt does not add custom claims by default; a subclass is the clean solution.
+- **P&L in model `save()`** — computing P&L server-side ensures consistency regardless of how trades are created (API, Django admin, management commands). The calculation is deterministic and has no side effects.
+
+---
+
+## Milestone 8 — Backend: Bug Fixes
+
+**Date:** 2026-04-22
+
+### Fixes Applied
+
+**CoinGecko cache format bug (`apps/prices/services/coingecko.py`):**
+- **Root cause:** The service cached the raw CoinGecko API response (format: `{ coin_id: { "usd": price } }`), but on a cache hit it returned `cached[coin_id]` — a dict with a `usd` key, not a `price` key. The frontend expected `price`, causing `TypeError: Cannot read properties of undefined`.
+- **Fix:** Cache the already-transformed dict (format: `{ symbol: { "price": ..., "change_24h": ... } }`) instead of the raw response. Cache-hit path returns `cached[symbol]` directly.
+
+---
+
+## Milestone 9 — Frontend: App Foundation (`frontend/app/`)
+
+**Date:** 2026-04-22
+
+### What Was Built
+
+**Technology:**
+- Next.js 14 (App Router) + TypeScript strict mode
+- Tailwind CSS with custom design tokens (see `tailwind.config.ts`)
+- IBM Plex Sans + IBM Plex Mono via `next/font`
+
+**Design tokens (from brand identity):**
+
+| Token | Value | Use |
+|-------|-------|-----|
+| `base` | `#1e1e1e` | Page backgrounds |
+| `surface` | `#272727` | Cards, panels |
+| `elevated` | `#303030` | Inputs, nested surfaces |
+| `green` | `#2fac66` | CTAs, profit, AI highlights |
+| `green-hover` | `#27954f` | Hover state for green buttons |
+| `loss` | `#f06060` | Negative P&L only |
+| `primary` | `#f5f5f5` | Main text |
+| `secondary` | `#c0c0c0` | Supporting text |
+| `muted` | `#6b6b6b` | Labels, disabled states |
+
+**`src/lib/api.ts`** — Central fetch wrapper:
+- `get<T>`, `post<T>`, `patch<T>`, `del<T>` helpers
+- All calls include `credentials: "include"` (sends httpOnly cookies)
+- Base URL from `NEXT_PUBLIC_API_URL` environment variable
+- Throws `ApiError` with status code on non-2xx responses
+
+**`src/lib/format.ts`** — Number and date formatters:
+- `formatPnl(n)` — `+1,234.56` with sign, IBM Plex Mono class
+- `formatPrice(n)` — 2–8 decimal places based on magnitude
+- `formatDate(iso)` — locale-aware date display
+
+**`src/types/index.ts`** — TypeScript interfaces for every API response:
+- `UserProfile`, `LoginResponse`, `RegisterResponse`
+- `Trade`, `PaginatedTrades`, `TradeCreatePayload`, `TradeUpdatePayload`
+- `TradeStats`, `AiInsight`, `ChatMessage`, `ChatSendPayload`, `ChatSendResponse`
+- `PriceQuote`, `PricesResponse`
+- `MentorAssignment`, `MentorAnnotation`
+- `PnlPoint`, `HeatmapDay`, `DateRange`, `ApiValidationError`
+
+**`src/middleware.ts`** — Edge auth + role enforcement:
+- Runs before every page load
+- Reads `access_token` cookie, decodes JWT (without signature verification — edge runtime limitation)
+- Redirects unauthenticated users to `/login`
+- Enforces role separation: trader routes require `role === "trader"`, etc.
+- Login/register pages redirect already-authenticated users to their dashboard
+
+**Route groups:**
+- `(trader)/` — dashboard, journal, AI, analytics, settings, onboarding
+- `(mentor)/` — mentor page (placeholder)
+- `(admin)/` — admin page (placeholder)
+
+---
+
+## Milestone 10 — Frontend: Login Page
+
+**Date:** 2026-04-22
+**File:** `src/app/login/page.tsx`
+
+### What Was Built
+
+- Full dark-themed login form: email + password fields, submit button
+- POSTs `{ email, password }` to `/api/auth/login/` with `credentials: "include"`
+- On success: reads `role` from JSON response, redirects by role:
+  - `trader` → `/dashboard`
+  - `mentor` → `/mentor`
+  - `admin` → `/admin`
+- On failure (400/401): shows "Email o contraseña incorrectos." inline below the form
+- `LoginForm` component wraps `useSearchParams()` inside `<Suspense fallback={null}>` — required by Next.js 14 to avoid prerender errors
+- Link to registration page, tradalyst wordmark at top
+
+### Test Account
+
+```
+email:    trader@test.com
+password: Test1234!
+role:     trader
+```
+
+---
+
+## Milestone 11 — Frontend: Dashboard Page
+
+**Date:** 2026-04-22
+**File:** `src/app/(trader)/dashboard/page.tsx`
+
+### What Was Built
+
+Six data rows, all loading real API data with skeleton states:
+
+| Row | Data source | Description |
+|-----|-------------|-------------|
+| PricesStrip | `GET /api/prices/?symbols=BTC,ETH,SOL,EURUSD,AAPL` | Live prices, 24h change pill |
+| Stats cards | `GET /api/trades/stats/` | Total P&L, win rate, trade count, avg R/R |
+| P&L chart | `GET /api/trades/?page_size=1000` | Cumulative P&L line chart (SVG, no library) |
+| Heatmap | Same trades fetch | Daily P&L intensity by colour |
+| Recent trades | Same trades fetch | Last 10 entries, pair + result + P&L |
+| AI insight | `GET /api/analysis/insights/` | Latest insight excerpt, CTA to `/ai` |
+
+**Skeleton loading:** every card shows a `bg-elevated animate-pulse` placeholder while fetching. No layout shift on load.
+
+**PricesStrip guards:** `q.price != null` check before calling `.toLocaleString()` — prevents crash if a symbol is not in the CoinGecko map.
+
+---
+
+## Milestone 12 — Frontend: Journal Pages
+
+**Date:** 2026-04-22
+**Files:** `src/app/(trader)/journal/`
+
+### Pages Built
+
+**`/journal` — Trade list:**
+- Paginated list with filters: pair (text), direction, result, emotion, date range
+- 10 rows per page, previous/next pagination controls
+- Each row: pair, direction badge, entry date, entry/exit price, P&L with colour
+- Link to individual trade detail
+- "Nueva operación" button → `/journal/new`
+- Empty state when no trades match filters
+
+**`/journal/new` — Create trade:**
+- Full trade form: pair, direction toggle, entry/exit price, quantity, entry/exit time, result pills, emotion pills, notes textarea
+- Client-side validation before POST
+- `POST /api/trades/` on submit
+- Redirects to `/journal` on success
+
+**`/journal/[id]` — Trade detail:**
+- All fields displayed in read-only layout
+- P&L shown with sign and colour
+- Emotion + result displayed as styled pills
+- "Editar" button → `/journal/[id]/edit`
+- "Eliminar" button with confirmation modal → `DELETE /api/trades/[id]/`
+
+**`/journal/[id]/edit` — Edit trade:**
+- Same form as `/journal/new` pre-filled with existing values
+- `PATCH /api/trades/[id]/` on submit
+- Redirects to `/journal/[id]` on success
+
+---
+
+## Milestone 13 — Frontend: AI Analysis Page
+
+**Date:** 2026-04-22
+**File:** `src/app/(trader)/ai/page.tsx`
+
+### What Was Built
+
+Two-panel layout (40% insights / 60% chat):
+
+**Left panel — Insights:**
+- `GET /api/analysis/insights/` on load
+- Most recent insight shown expanded (full content)
+- Older insights in collapsible `InsightAccordion` rows (date + preview → click to expand)
+- "Generar nuevo análisis" button → `POST /api/analysis/insights/generate/`
+- Shows `InsufficientDataMessage` if the API returns 400 (fewer than 5 trades)
+- Skeleton placeholder while loading
+
+**Right panel — Chat:**
+- `GET /api/analysis/chat/` on load — restores full persistent history
+- `MessageBubble` component: user messages right-aligned with green bg, assistant messages left-aligned with elevated bg
+- `TypingBubble`: 3 animated dots while waiting for assistant response
+- Optimistic updates: user message added to UI immediately, removed on error
+- Auto-scroll to bottom via `bottomRef.current?.scrollIntoView({ behavior: "smooth" })`
+- Textarea: Enter sends, Shift+Enter inserts newline, auto-resizes up to 120px
+- Suggested prompts grid (4 cards) when chat is empty
+- `POST /api/analysis/chat/send/` with `{ message }`
+
+---
+
+## Milestone 14 — Frontend: Analytics Page
+
+**Date:** 2026-04-22
+**File:** `src/app/(trader)/analytics/page.tsx`
+
+### What Was Built
+
+Client-side analytics computed from a single `GET /api/trades/?page_size=1000` fetch. All charts are pure SVG — no external charting libraries.
+
+**4 stat cards at top:**
+- Total P&L (signed, coloured)
+- Win Rate %
+- Total operations count
+- Best day P&L
+
+**Charts:**
+
+| Chart | Type | Description |
+|-------|------|-------------|
+| P&L por período | BarChart SVG | Week/month toggle, negative bars rendered below zero line |
+| P&L por activo | HorizontalBar | Each pair with fill proportion and value |
+| Win Rate por emoción | HorizontalBar | Rates by emotion state |
+| Operaciones por hora | BarChart SVG | Binned by 4-hour windows |
+| Long vs Short | Stat pair | Win rate and trade count per direction |
+| Drawdown | BarChart SVG | Cumulative P&L with peak-to-trough visualisation |
+
+**BarChart SVG component:**
+- Vertical bars with proportional height to max absolute value
+- Zero line at bottom for positive-only data; centred for mixed data
+- Y-axis labels at 0, mid, max
+- Bar colour: green if ≥ 0, loss red if < 0
+
+**HorizontalBar component:**
+- Label left, fill bar proportional to value vs max, numeric value right
+- Colour: green for win rate bars
+
+---
+
+## Milestone 15 — Frontend: Settings Page
+
+**Date:** 2026-04-22
+**File:** `src/app/(trader)/settings/page.tsx`
+
+### What Was Built
+
+5-tab settings page (tab state in URL hash):
+
+**Perfil tab:**
+- `GET /api/users/me/` on load to pre-fill fields
+- `display_name` + `bio` fields
+- `PATCH /api/users/me/` on save
+- Success/error feedback inline
+
+**Seguridad tab:**
+- Current password + new password + confirm fields
+- `POST /api/auth/change-password/` — endpoint stubbed, returns placeholder until backend implements it
+- Client-side validation: new passwords must match
+
+**Mentor tab:**
+- Placeholder explaining Pro plan feature
+- Link to Plan tab to upgrade
+
+**Plan tab:**
+- Reads `user.plan` from profile (`free` or `pro`)
+- Free plan: feature comparison table + "Actualizar a Pro" CTA (Stripe pending)
+- Pro plan: active badge + cancel subscription link
+
+**Cuenta tab:**
+- "Exportar CSV" button — client-side Blob generation from `GET /api/trades/?page_size=10000`
+  - Columns: `id, pair, direction, entry_time, exit_time, entry_price, exit_price, quantity, pnl, result, emotion, notes`
+  - Downloads as `tradalyst-trades.csv` via `URL.createObjectURL()`
+- "Eliminar cuenta" danger zone — modal requires typing `ELIMINAR` to confirm
+  - `DELETE /api/users/me/` → logout → redirect to `/login` (endpoint pending)
+
+---
+
+## Milestone 16 — Frontend: Onboarding Wizard
+
+**Date:** 2026-04-22
+**File:** `src/app/(trader)/onboarding/page.tsx`
+
+### What Was Built
+
+3-step wizard shown to new traders before they reach the dashboard:
+
+**`StepDots` component:**
+- Animated pill indicator: completed steps show small green circle, current step shows wide green pill, future steps show dim circle
+- `current + 1 / total` counter
+
+**Step 0 — Trader type:**
+- 4 type pills: Crypto (₿), Forex (€), Acciones (📈), Todos (∞)
+- Selecting a type pre-fills the `pair` field in Step 1 with a sensible default (e.g. Crypto → `BTC`)
+- "Continuar" disabled until a type is selected
+
+**Step 1 — First trade (optional):**
+- Full trade form identical to `/journal/new`: pair, direction buttons, entry/exit price, quantity, datetime-local, result pills, emotion pills, notes
+- Client-side validation on required fields (pair, entry price, quantity)
+- `POST /api/trades/` on submit
+- "Prefiero explorar primero" skip link → jumps to Step 2 without logging a trade
+- After successful submit: calls `completeOnboarding()` which PATCHes `{ onboarding_completed: true }` to `/api/users/me/`
+
+**Step 2 — Confirmation:**
+- Green check icon in circle
+- Conditional message: if trade was logged → "Tu primera operación está registrada. La IA necesita al menos 5 operaciones para generar tu primer análisis." If skipped → "Cuando tengas 5 operaciones registradas, la IA generará tu primer análisis automáticamente."
+- "Ir al dashboard" → `router.push("/dashboard")`
+
+**`completeOnboarding()` flow:**
+1. `PATCH /api/users/me/ { onboarding_completed: true }` — marks onboarding done so middleware stops redirecting here
+2. `setStep(2)` — always advances regardless of whether the PATCH succeeded (non-blocking)
+
+---
+
 ## What Is Not Built Yet
 
 ### Backend
@@ -381,13 +714,13 @@ All endpoints are prefixed with `/api/`. All require authentication unless marke
 - Admin dashboard stats endpoint (platform-wide aggregates)
 - Password reset flow (email-based)
 - Email verification on registration
+- Change password endpoint (`POST /api/auth/change-password/`) — stubbed in frontend settings
 
 ### Frontend
-- Both Next.js applications (`frontend/marketing/` and `frontend/app/`) — not scaffolded yet
-- All UI components, pages, and hooks
-- `middleware.ts` for edge-level JWT role enforcement
-- `src/lib/api.ts` central fetch client
-- Design system implementation (IBM Plex Sans/Mono, dark theme)
+- Marketing site (`frontend/marketing/`) — needs full page build
+- Mentor pages (`/mentor/*`) — currently a placeholder
+- Admin pages (`/admin/*`) — currently a placeholder
+- Mobile responsive behaviour
 
 ### Infrastructure
 - Nginx configuration (`nginx/conf.d/`)
@@ -400,5 +733,4 @@ All endpoints are prefixed with `/api/`. All require authentication unless marke
 - Final logo mark (icon variant)
 - Stripe payment integration (Pro plan)
 - Privacy policy + Terms pages (required for RGPD compliance)
-- Mobile responsive behaviour
 - Full mentor and admin page specs

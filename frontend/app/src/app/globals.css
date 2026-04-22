@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Font variables ──────────────────────────────────────────────────────── */
+:root {
+  --font-ibm-plex-sans: "IBM Plex Sans", sans-serif;
+  --font-ibm-plex-mono: "IBM Plex Mono", monospace;
+}
+
+/* ── Base resets ─────────────────────────────────────────────────────────── */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-family: var(--font-ibm-plex-sans);
+    background-color: #1e1e1e;
+    color: #e8ebe8;
+  }
+
+  /* Tabular nums for all mono elements */
+  .font-mono {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Input / textarea base — dark theme */
+  input, textarea, select {
+    font-family: var(--font-ibm-plex-sans);
+    color: #e8ebe8;
+    background-color: #1e1e1e;
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+}
+
+/* ── Utilities ───────────────────────────────────────────────────────────── */
+@layer utilities {
+  /* Eyebrow label — green mono uppercase */
+  .eyebrow {
+    @apply font-mono text-[10px] uppercase tracking-eyebrow text-green;
+  }
+
+  /* Card base — dark surface with border */
+  .card {
+    @apply bg-surface border border-white/[0.08];
+  }
+
+  /* Card elevated */
+  .card-elevated {
+    @apply bg-elevated border border-white/[0.08];
+  }
+
+  /* P&L color helpers */
+  .pnl-positive { @apply text-profit; }
+  .pnl-negative { @apply text-loss; }
+
+  /* Pill — direction badges */
+  .pill-long  { @apply bg-green/15 text-green font-mono text-[10px] px-2 py-[2px]; }
+  .pill-short { @apply bg-loss/15 text-loss font-mono text-[10px] px-2 py-[2px]; }
+  .pill-win   { @apply bg-green/15 text-green font-mono text-[10px] px-2 py-[2px]; }
+  .pill-loss  { @apply bg-loss/15 text-loss font-mono text-[10px] px-2 py-[2px]; }
+  .pill-be    { @apply bg-white/[0.06] text-secondary font-mono text-[10px] px-2 py-[2px]; }
+
+  /* Skeleton shimmer */
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      rgba(255,255,255,0.04) 25%,
+      rgba(255,255,255,0.08) 50%,
+      rgba(255,255,255,0.04) 75%
+    );
+    background-size: 200% 100%;
+    @apply animate-shimmer;
+  }
+
+  /* Animation delay helpers */
+  .delay-100 { animation-delay: 100ms; }
+  .delay-200 { animation-delay: 200ms; }
+  .delay-300 { animation-delay: 300ms; }
+  .delay-400 { animation-delay: 400ms; }
+  .delay-500 { animation-delay: 500ms; }
+
+  /* Focus ring — accessible */
+  .focus-ring {
+    @apply outline-none focus-visible:ring-1 focus-visible:ring-green/60;
+  }
+
+  /* Sidebar nav item */
+  .nav-item {
+    @apply flex items-center gap-3 px-3 py-[9px] font-sans text-[13px] text-secondary
+           hover:text-primary hover:bg-white/[0.05] transition-colors duration-150;
+  }
+  .nav-item-active {
+    @apply text-primary bg-white/[0.07];
+  }
+}

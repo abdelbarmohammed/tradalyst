@@ -25,7 +25,7 @@ a dashboard, insight cards, and a live AI chat interface.
 | URL | What | Tech |
 |-----|------|------|
 | `tradalyst.com` | Marketing site + blog | Next.js 14 (light theme) |
-| `app.tradalyst.com` | Trading journal app | Next.js 14 (dark theme) |
+| `app.tradalyst.com` | Trading journal app | Next.js 14 (light default, dark mode toggle) |
 | `api.tradalyst.com` | REST API | Django + DRF |
 
 All three subdomains point to the same Hetzner VPS.
@@ -377,7 +377,7 @@ Full endpoint list: `docs/architecture/api_endpoints.md`
 ## Design System (Quick Reference)
 
 **Marketing site:** Light theme — base `#eceee8`, surface `#f5f6f2`
-**App:** Dark theme — base `#1e1e1e`, surface `#272727`, elevated `#303030`
+**App:** Light theme default with dark mode toggle — light base `#eceee8`, dark base `#1e1e1e`, surface `#272727`, elevated `#303030`. Theme preference saved to `theme_preference` field on user record.
 **Accent:** Green `#2fac66` — CTAs, active states, profit, AI highlights ONLY
 **Loss:** `#d94040` (light bg) / `#f06060` (dark bg) — ONLY for negative P&L
 **Never:** Purple, blue, amber, gradients on buttons/backgrounds, border-radius > 6px
@@ -433,3 +433,14 @@ See `.env.example` in each directory for the full list.
 | API endpoints | `docs/architecture/api_endpoints.md` | All 37 endpoints with shapes |
 | Architecture decisions | `docs/decisions/` | ADRs for every major decision |
 | Brand identity | `tradalyst-brand-identity.html` | Full design system |
+
+## Frontend Design Anti-Patterns — Never Use These
+
+- No colored left borders on cards — ever
+- No gradient backgrounds on buttons or cards
+- No box-shadow as a decorative element — only for elevation
+- No rounded corners larger than 2px on cards, 0px preferred
+- No emoji in UI — use Lucide icons only
+- No placeholder/lorem text in any component
+- No generic "feature card with icon + title + description" 
+  layouts — make data the visual instead

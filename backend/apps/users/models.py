@@ -11,6 +11,16 @@ class Role(models.TextChoices):
     ADMIN = "admin", "Admin"
 
 
+class ThemePreference(models.TextChoices):
+    LIGHT = "light", "Light"
+    DARK = "dark", "Dark"
+
+
+class Plan(models.TextChoices):
+    FREE = "free", "Free"
+    PRO = "pro", "Pro"
+
+
 class CustomUserManager(BaseUserManager):
     def create_user(self, email: str, password: str | None = None, **extra_fields) -> "CustomUser":
         """Create and save a regular user with the given email and password."""
@@ -40,6 +50,12 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)
+    onboarding_completed = models.BooleanField(default=False)
+    theme_preference = models.CharField(
+        max_length=5, choices=ThemePreference.choices, default=ThemePreference.LIGHT
+    )
+    plan = models.CharField(max_length=4, choices=Plan.choices, default=Plan.FREE)
+    trial_ends_at = models.DateTimeField(null=True, blank=True)
 
     objects = CustomUserManager()
 
