@@ -56,23 +56,23 @@ export default function MentorHomePage() {
         </div>
       ) : (
         <div className="card divide-y divide-white/[0.05]">
-          {assignments.map(({ trader, assigned_at }) => (
+          {assignments.map(({ trader_detail, created_at }) => (
             <div
-              key={trader.id}
+              key={trader_detail.id}
               className="flex items-center justify-between gap-4 px-5 py-4 hover:bg-white/[0.03] transition-colors"
             >
               <div className="min-w-0">
                 <p className="font-sans text-[14px] font-semibold text-primary truncate">
-                  {trader.display_name || trader.email}
+                  {trader_detail.display_name || trader_detail.email}
                 </p>
                 <p className="font-mono text-[10px] text-muted mt-[2px]">
-                  {trader.email} · Desde {formatDateMedium(assigned_at)}
+                  {trader_detail.email} · Desde {formatDateMedium(created_at)}
                 </p>
               </div>
 
               <div className="flex items-center gap-2 flex-shrink-0">
                 <Link
-                  href={`/mentor/${trader.id}/dashboard`}
+                  href={`/mentor/${trader_detail.id}/dashboard`}
                   className="flex items-center gap-[6px] font-mono text-[11px] text-secondary hover:text-primary border border-white/[0.1] px-3 py-[7px] transition-colors"
                   title="Dashboard"
                 >
@@ -80,7 +80,7 @@ export default function MentorHomePage() {
                   <span className="hidden sm:inline">Dashboard</span>
                 </Link>
                 <Link
-                  href={`/mentor/${trader.id}`}
+                  href={`/mentor/${trader_detail.id}`}
                   className="flex items-center gap-[6px] font-mono text-[11px] text-secondary hover:text-primary border border-white/[0.1] px-3 py-[7px] transition-colors"
                   title="Diario"
                 >

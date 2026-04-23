@@ -90,8 +90,8 @@ export default function MentorTraderDashboardPage() {
         ),
       ]);
 
-      const match = assignmentsRes.results.find((a) => String(a.trader.id) === traderId);
-      if (match) setTraderName(match.trader.display_name || match.trader.email);
+      const match = assignmentsRes.results.find((a) => String(a.trader_detail.id) === traderId);
+      if (match) setTraderName(match.trader_detail.display_name || match.trader_detail.email);
 
       setStats(computeStats(allTrades));
       setPnlCurve(computePnlCurve(allTrades));

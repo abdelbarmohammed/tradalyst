@@ -140,17 +140,20 @@ export type PricesResponse = Record<string, PriceQuote>;
 
 export interface MentorAssignment {
   id: number;
-  mentor: { id: number; email: string; display_name: string };
-  trader: { id: number; email: string; display_name: string };
-  assigned_at: string;
+  trader: number;
+  mentor: number;
+  trader_detail: { id: number; email: string; display_name: string };
+  mentor_detail: { id: number; email: string; display_name: string };
   is_active: boolean;
+  created_at: string;
 }
 
 export interface MentorAnnotation {
   id: number;
   trade: number;
-  mentor: { id: number; display_name: string };
-  content: string;
+  mentor: number;
+  mentor_email: string;
+  body: string;
   created_at: string;
   updated_at: string;
 }

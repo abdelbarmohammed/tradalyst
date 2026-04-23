@@ -8,10 +8,11 @@ logger = logging.getLogger(__name__)
 
 class MentorAssignmentSerializer(serializers.ModelSerializer):
     mentor_detail = UserProfileSerializer(source="mentor", read_only=True)
+    trader_detail = UserProfileSerializer(source="trader", read_only=True)
 
     class Meta:
         model = MentorAssignment
-        fields = ("id", "trader", "mentor", "mentor_detail", "is_active", "created_at")
+        fields = ("id", "trader", "mentor", "mentor_detail", "trader_detail", "is_active", "created_at")
         read_only_fields = ("id", "trader", "created_at")
 
     def validate_mentor(self, mentor):

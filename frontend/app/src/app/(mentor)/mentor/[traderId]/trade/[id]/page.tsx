@@ -62,7 +62,7 @@ export default function MentorTradeDetailPage() {
     setSubmitting(true);
     setNoteError(null);
     try {
-      const created = await post<MentorAnnotation>(`/api/mentors/trades/${id}/annotations/`, { content });
+      const created = await post<MentorAnnotation>(`/api/mentors/trades/${id}/annotations/`, { body: content });
       setAnnotations((prev) => [created, ...prev]);
       setNewNote("");
     } catch (err) {
@@ -221,7 +221,7 @@ export default function MentorTradeDetailPage() {
               annotations.map((annotation) => (
                 <div key={annotation.id} className="bg-base border border-white/[0.06] p-3">
                   <p className="font-sans text-[13px] text-secondary leading-relaxed whitespace-pre-wrap">
-                    {annotation.content}
+                    {annotation.body}
                   </p>
                   <p className="font-mono text-[9px] text-muted mt-2">
                     {formatDateTime(annotation.created_at)}

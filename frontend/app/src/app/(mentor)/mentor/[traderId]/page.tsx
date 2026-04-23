@@ -68,8 +68,8 @@ export default function MentorTraderJournalPage() {
   useEffect(() => {
     get<{ count: number; results: MentorAssignment[] }>("/api/mentors/my-traders/")
       .then((res) => {
-        const match = res.results.find((a) => String(a.trader.id) === traderId);
-        if (match) setTraderName(match.trader.display_name || match.trader.email);
+        const match = res.results.find((a) => String(a.trader_detail.id) === traderId);
+        if (match) setTraderName(match.trader_detail.display_name || match.trader_detail.email);
       })
       .catch(() => {});
   }, [traderId]);
