@@ -47,6 +47,8 @@ SECURE_HSTS_SECONDS = 31536000
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 
-# httpOnly JWT cookie settings — SameSite=None required for cross-subdomain (api.* ↔ app.*).
+# httpOnly JWT cookie settings — SameSite=None + Domain=.tradalyst.com required so
+# api.tradalyst.com can set cookies that app.tradalyst.com middleware can read.
 COOKIE_SECURE: bool = True
 COOKIE_SAMESITE: str = "None"
+COOKIE_DOMAIN: str = ".tradalyst.com"

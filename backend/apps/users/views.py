@@ -25,6 +25,7 @@ logger = logging.getLogger(__name__)
 
 def _set_auth_cookies(response: Response, refresh: RefreshToken) -> None:
     """Write access and refresh JWTs as httpOnly cookies on the response."""
+    domain = getattr(settings, "COOKIE_DOMAIN", None)
     response.set_cookie(
         "access_token",
         str(refresh.access_token),
@@ -32,6 +33,7 @@ def _set_auth_cookies(response: Response, refresh: RefreshToken) -> None:
         secure=settings.COOKIE_SECURE,
         samesite=settings.COOKIE_SAMESITE,
         max_age=ACCESS_TOKEN_LIFETIME_MINUTES * 60,
+        domain=domain,
     )
     response.set_cookie(
         "refresh_token",
@@ -40,6 +42,7 @@ def _set_auth_cookies(response: Response, refresh: RefreshToken) -> None:
         secure=settings.COOKIE_SECURE,
         samesite=settings.COOKIE_SAMESITE,
         max_age=REFRESH_TOKEN_LIFETIME_DAYS * 24 * 60 * 60,
+        domain=domain,
     )
 
 
