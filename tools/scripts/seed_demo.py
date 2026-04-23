@@ -38,8 +38,8 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s  %(message)s")
 logger = logging.getLogger(__name__)
 
 # ── Reproducible randomness ───────────────────────────────────────────────────
-# seed=2 produces ~63% WR with the Jan 24 – Apr 24 2026 window and 2026 prices
-random.seed(2)
+# seed=5 produces ~63% WR with the Jan 24 – Apr 24 2026 window and 2026 prices
+random.seed(5)
 
 # ── Account definitions ───────────────────────────────────────────────────────
 ACCOUNTS = [
