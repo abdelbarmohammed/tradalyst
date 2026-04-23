@@ -48,8 +48,9 @@ def _set_auth_cookies(response: Response, refresh: RefreshToken) -> None:
 
 def _clear_auth_cookies(response: Response) -> None:
     """Delete both auth cookies from the client."""
-    response.delete_cookie("access_token")
-    response.delete_cookie("refresh_token")
+    domain = getattr(settings, "COOKIE_DOMAIN", None)
+    response.delete_cookie("access_token", domain=domain)
+    response.delete_cookie("refresh_token", domain=domain)
 
 
 class RegisterView(APIView):
@@ -88,6 +89,8 @@ class LoginView(APIView):
 
 
 class LogoutView(APIView):
+    permission_classes = [permissions.AllowAny]
+
     def post(self, request: Request) -> Response:
         raw_refresh = request.COOKIES.get("refresh_token")
         if raw_refresh:
