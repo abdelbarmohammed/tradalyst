@@ -33,15 +33,15 @@ TRADER_EMAIL = "trader@tradalyst.com"
 # ── Reuse the same config as seed_demo.py ────────────────────────────────────
 
 ASSETS = {
-    "BTC/USDT": {"base_price": 55_000.0, "annual_drift": 0.60, "volatility": 0.025,
+    "BTC/USDT": {"base_price": 100_000.0, "annual_drift": 0.06, "volatility": 0.025,
                  "qty_min": 0.02, "qty_max": 0.15, "price_decimals": 2, "qty_decimals": 4},
-    "ETH/USDT": {"base_price": 2_800.0, "annual_drift": 0.45, "volatility": 0.028,
+    "ETH/USDT": {"base_price": 3_500.0, "annual_drift": 0.04, "volatility": 0.028,
                  "qty_min": 0.2, "qty_max": 4.0, "price_decimals": 2, "qty_decimals": 4},
-    "SOL/USDT": {"base_price": 130.0, "annual_drift": 0.90, "volatility": 0.035,
+    "SOL/USDT": {"base_price": 200.0, "annual_drift": 0.05, "volatility": 0.035,
                  "qty_min": 2.0, "qty_max": 40.0, "price_decimals": 3, "qty_decimals": 2},
-    "EUR/USD":  {"base_price": 1.085, "annual_drift": -0.02, "volatility": 0.004,
+    "EUR/USD":  {"base_price": 1.10, "annual_drift": 0.00, "volatility": 0.004,
                  "qty_min": 1_000.0, "qty_max": 10_000.0, "price_decimals": 5, "qty_decimals": 0},
-    "AAPL":     {"base_price": 185.0, "annual_drift": 0.25, "volatility": 0.012,
+    "AAPL":     {"base_price": 230.0, "annual_drift": 0.03, "volatility": 0.012,
                  "qty_min": 2.0, "qty_max": 25.0, "price_decimals": 2, "qty_decimals": 0},
 }
 
@@ -89,7 +89,7 @@ def d(value: float, decimals: int) -> Decimal:
 
 def asset_price(asset: str, dt: datetime) -> float:
     cfg = ASSETS[asset]
-    ref = datetime(2024, 1, 1, tzinfo=timezone.utc)
+    ref = datetime(2026, 1, 24, tzinfo=timezone.utc)
     days = (dt - ref).days
     drift = (1 + cfg["annual_drift"]) ** (days / 365)
     base = cfg["base_price"] * drift

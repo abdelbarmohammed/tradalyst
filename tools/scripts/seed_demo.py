@@ -67,17 +67,17 @@ ACCOUNTS = [
 # Approximate 2024 annual averages. The script adds daily drift and noise.
 ASSETS = {
     "BTC/USDT": {
-        "base_price": 55_000.0,
-        "annual_drift": 0.60,          # +60% over the year (BTC ~40k→97k in 2024)
-        "volatility": 0.025,            # daily % vol
+        "base_price": 100_000.0,       # BTC ~95k–105k in early 2026
+        "annual_drift": 0.06,           # modest drift over 90-day window
+        "volatility": 0.025,
         "qty_min": 0.02,
         "qty_max": 0.15,
         "price_decimals": 2,
         "qty_decimals": 4,
     },
     "ETH/USDT": {
-        "base_price": 2_800.0,
-        "annual_drift": 0.45,
+        "base_price": 3_500.0,         # ETH ~3,200–3,800 in early 2026
+        "annual_drift": 0.04,
         "volatility": 0.028,
         "qty_min": 0.2,
         "qty_max": 4.0,
@@ -85,8 +85,8 @@ ASSETS = {
         "qty_decimals": 4,
     },
     "SOL/USDT": {
-        "base_price": 130.0,
-        "annual_drift": 0.90,
+        "base_price": 200.0,           # SOL ~180–220 in early 2026
+        "annual_drift": 0.05,
         "volatility": 0.035,
         "qty_min": 2.0,
         "qty_max": 40.0,
@@ -94,8 +94,8 @@ ASSETS = {
         "qty_decimals": 2,
     },
     "EUR/USD": {
-        "base_price": 1.085,
-        "annual_drift": -0.02,
+        "base_price": 1.10,            # EUR/USD ~1.08–1.12 in early 2026
+        "annual_drift": 0.00,
         "volatility": 0.004,
         "qty_min": 1_000.0,
         "qty_max": 10_000.0,
@@ -103,8 +103,8 @@ ASSETS = {
         "qty_decimals": 0,
     },
     "AAPL": {
-        "base_price": 185.0,
-        "annual_drift": 0.25,
+        "base_price": 230.0,           # AAPL ~220–240 in early 2026
+        "annual_drift": 0.03,
         "volatility": 0.012,
         "qty_min": 2.0,
         "qty_max": 25.0,
@@ -306,8 +306,8 @@ def get_or_create_user(
 def asset_price(asset: str, dt: datetime) -> float:
     """Generate a realistic price for the given asset at the given date."""
     cfg = ASSETS[asset]
-    # Days offset from a fixed reference point (Jan 1 2024)
-    ref = datetime(2024, 1, 1, tzinfo=timezone.utc)
+    # Days offset from start of the 90-day seed window (Jan 24 2026)
+    ref = datetime(2026, 1, 24, tzinfo=timezone.utc)
     days = (dt - ref).days
     # Compound drift
     drift_factor = (1 + cfg["annual_drift"]) ** (days / 365)
