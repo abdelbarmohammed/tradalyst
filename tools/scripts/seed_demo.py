@@ -38,7 +38,8 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s  %(message)s")
 logger = logging.getLogger(__name__)
 
 # ── Reproducible randomness ───────────────────────────────────────────────────
-random.seed(42)
+# seed=2 produces ~63% WR with the Jan 24 – Apr 24 2026 window and 2026 prices
+random.seed(2)
 
 # ── Account definitions ───────────────────────────────────────────────────────
 ACCOUNTS = [
@@ -385,9 +386,9 @@ def render_reason(emotion: str, entry: float) -> str:
 # ── Trade generation ───────────────────────────────────────────────────────────
 
 def generate_trades(trader: CustomUser, n: int = 135) -> list[Trade]:
-    """Generate n realistic trades spread over 90 days."""
-    end_dt = datetime.now(timezone.utc).replace(hour=21, minute=0, second=0, microsecond=0)
-    start_dt = end_dt - timedelta(days=90)
+    """Generate n realistic trades spread over 90 days (Jan 24 – Apr 24 2026)."""
+    end_dt   = datetime(2026, 4, 24, 21, 0, 0, tzinfo=timezone.utc)
+    start_dt = datetime(2026, 1, 24,  0, 0, 0, tzinfo=timezone.utc)
 
     # Build a list of timestamps distributed across trading days
     timestamps: list[datetime] = []
