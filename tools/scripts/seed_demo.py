@@ -134,9 +134,9 @@ EMOTION_DIST_TILT = [
 
 # Base win rates per emotion (before situational modifiers)
 WIN_RATE = {
-    "confident": 0.83,
+    "confident": 0.92,
     "fomo":      0.33,
-    "fearful":   0.68,
+    "fearful":   0.82,
     "revenge":   0.30,
 }
 
@@ -365,12 +365,12 @@ def is_win(emotion: str, is_tuesday: bool, consecutive_losses: int) -> bool:
     rate = WIN_RATE[emotion]
     # Tuesday penalty — more losses mid-week (interesting AI pattern)
     if is_tuesday:
-        rate *= 0.62
+        rate *= 0.68
     # Tilt after losses
     if consecutive_losses >= 3:
-        rate *= 0.50
+        rate *= 0.60
     elif consecutive_losses == 2:
-        rate *= 0.70
+        rate *= 0.78
     return random.random() < rate
 
 
