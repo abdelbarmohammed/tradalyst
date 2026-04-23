@@ -408,7 +408,8 @@ def generate_trades(trader: CustomUser, n: int = 135) -> list[Trade]:
                 timestamps.append(ts)
         day += timedelta(days=1)
 
-    timestamps = sorted(timestamps[:n])
+    # Sample n timestamps spread across the full 90-day window
+    timestamps = sorted(random.sample(timestamps, min(n, len(timestamps))))
 
     trades: list[Trade] = []
     consecutive_losses = 0
