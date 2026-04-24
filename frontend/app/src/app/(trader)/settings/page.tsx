@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { AlertCircle, Check, Download, Trash2, X, UserCheck, Clock, BookOpen } from "lucide-react";
 import { get, patch, post, del } from "@/lib/api";
 import { MARKETING_URL } from "@/lib/urls";
@@ -53,6 +55,13 @@ function PerfilTab({ user, onUpdated }: { user: UserProfile; onUpdated: (u: User
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const t = useTranslations("settings.profile");
+
+  function switchLocale(locale: string) {
+    document.cookie = `NEXT_LOCALE=${locale};path=/;max-age=31536000`;
+    router.refresh();
+  }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -64,7 +73,7 @@ function PerfilTab({ user, onUpdated }: { user: UserProfile; onUpdated: (u: User
       onUpdated(updated);
       setSuccess(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al guardar.");
+      setError(err instanceof Error ? err.message : t("errorSave"));
     } finally {
       setSaving(false);
     }
@@ -72,30 +81,46 @@ function PerfilTab({ user, onUpdated }: { user: UserProfile; onUpdated: (u: User
 
   return (
     <form onSubmit={handleSave} className="space-y-4 max-w-md">
-      {success && <SaveBanner message="Cambios guardados correctamente." />}
+      {success && <SaveBanner message={t("saved")} />}
       {error && <ErrorBanner message={error} />}
 
-      <Field label="Nombre">
+      <Field label={t("name")}>
         <input type="text" value={name} onChange={(e) => setName(e.target.value)} className={inputCls} />
       </Field>
 
-      <Field label="Email">
+      <Field label={t("email")}>
         <input type="email" value={user.email} disabled className={inputDisabledCls} />
-        <p className="font-mono text-[9px] text-muted">El email no se puede cambiar.</p>
+        <p className="font-mono text-[9px] text-muted">{t("emailNote")}</p>
       </Field>
 
-      <Field label="Bio (opcional)">
+      <Field label={t("bio")}>
         <textarea
           value={bio}
           onChange={(e) => setBio(e.target.value)}
           rows={3}
           className="bg-base border border-white/[0.10] px-3 py-[9px] font-sans text-[12px] text-primary placeholder:text-muted focus:outline-none focus:border-white/25 transition-colors w-full resize-none"
-          placeholder="Cuéntanos algo sobre ti…"
+          placeholder={t("bioPlaceholder")}
         />
       </Field>
 
+      <div className="flex flex-col gap-1">
+        <label className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted">{t("language")}</label>
+        <div className="flex gap-[2px] w-fit">
+          {(["es", "en"] as const).map((loc) => (
+            <button
+              key={loc}
+              type="button"
+              onClick={() => switchLocale(loc)}
+              className="font-mono text-[11px] px-4 py-[7px] border border-white/[0.10] text-secondary hover:text-primary transition-colors"
+            >
+              {loc.toUpperCase()}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <button type="submit" disabled={saving} className="font-sans text-[13px] font-semibold bg-green hover:bg-green-hover text-white px-6 py-[9px] transition-colors disabled:opacity-50">
-        {saving ? "Guardando…" : "Guardar cambios"}
+        {saving ? t("saving") : t("save")}
       </button>
     </form>
   );
@@ -432,6 +457,7 @@ export default function SettingsPage() {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState("perfil");
+  const t = useTranslations("settings");
 
   const fetchUser = useCallback(async () => {
     try {
@@ -445,25 +471,26 @@ export default function SettingsPage() {
   useEffect(() => { fetchUser(); }, [fetchUser]);
 
   const isMentor = user?.role === "mentor";
+  const tNav = useTranslations("nav");
 
   const TABS = isMentor
     ? [
-        { value: "perfil",     label: "Perfil" },
-        { value: "seguridad",  label: "Seguridad" },
-        { value: "alumnos",    label: "Mis alumnos" },
-        { value: "cuenta",     label: "Cuenta" },
+        { value: "perfil",     label: t("tabProfile") },
+        { value: "seguridad",  label: t("tabSecurity") },
+        { value: "alumnos",    label: tNav("myStudents") },
+        { value: "cuenta",     label: t("tabData") },
       ]
     : [
-        { value: "perfil",    label: "Perfil" },
-        { value: "seguridad", label: "Seguridad" },
-        { value: "mentor",    label: "Mentor" },
+        { value: "perfil",    label: t("tabProfile") },
+        { value: "seguridad", label: t("tabSecurity") },
+        { value: "mentor",    label: t("tabMentor") },
         { value: "plan",      label: "Plan" },
-        { value: "cuenta",    label: "Cuenta" },
+        { value: "cuenta",    label: t("tabData") },
       ];
 
   return (
     <div className="max-w-[800px] mx-auto space-y-6">
-      <h1 className="font-sans text-[22px] font-bold text-primary leading-tight">Ajustes</h1>
+      <h1 className="font-sans text-[22px] font-bold text-primary leading-tight">{t("title")}</h1>
 
       <div className="flex gap-[2px] bg-surface border border-white/[0.08] w-fit overflow-hidden">
         {TABS.map(({ value, label }) => (

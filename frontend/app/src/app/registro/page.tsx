@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { AlertCircle, BarChart2, GraduationCap, Check } from "lucide-react";
 import { MARKETING_URL } from "@/lib/urls";
 
@@ -11,27 +12,45 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 const inputCls = (error: boolean) =>
   `w-full bg-elevated border ${error ? "border-loss/60" : "border-white/[0.10]"} px-4 py-[11px] font-mono text-[13px] text-primary placeholder:text-muted focus:outline-none focus:border-white/25 transition-colors`;
 
-function passwordStrength(pw: string): { score: number; label: string; color: string } {
+function passwordStrength(pw: string, labels: string[]): { score: number; label: string; color: string } {
   if (!pw) return { score: 0, label: "", color: "" };
   let score = 0;
   if (pw.length >= 8) score++;
   if (/[A-Z]/.test(pw)) score++;
   if (/[0-9]/.test(pw)) score++;
   if (/[^A-Za-z0-9]/.test(pw)) score++;
-  const map = [
-    { label: "Muy débil", color: "#d94040" },
-    { label: "Débil",     color: "#d94040" },
-    { label: "Regular",   color: "#f59e0b" },
-    { label: "Buena",     color: "#2fac66" },
-    { label: "Fuerte",    color: "#2fac66" },
-  ];
-  return { score, ...map[score] };
+  const colors = ["#d94040", "#d94040", "#f59e0b", "#2fac66", "#2fac66"];
+  return { score, label: labels[score] ?? "", color: colors[score] ?? "#d94040" };
+}
+
+function LanguageToggle() {
+  const router = useRouter();
+
+  function switchLocale(locale: string) {
+    document.cookie = `NEXT_LOCALE=${locale};path=/;max-age=31536000`;
+    router.refresh();
+  }
+
+  return (
+    <div className="absolute top-4 right-4 flex gap-1">
+      {(["ES", "EN"] as const).map((loc) => (
+        <button
+          key={loc}
+          onClick={() => switchLocale(loc.toLowerCase())}
+          className="font-mono text-[10px] px-[6px] py-[3px] text-muted hover:text-primary transition-colors"
+        >
+          {loc}
+        </button>
+      ))}
+    </div>
+  );
 }
 
 type Role = "trader" | "mentor";
 
 export default function RegistroPage() {
   const router = useRouter();
+  const t = useTranslations("auth.register");
 
   const [role, setRole]       = useState<Role>("trader");
   const [name, setName]       = useState("");
@@ -43,21 +62,28 @@ export default function RegistroPage() {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
 
-  const strength = useMemo(() => passwordStrength(password), [password]);
+  const strengthLabels = [
+    t("strengthVeryWeak"),
+    t("strengthWeak"),
+    t("strengthFair"),
+    t("strengthGood"),
+    t("strengthStrong"),
+  ];
+  const strength = useMemo(() => passwordStrength(password, strengthLabels), [password, strengthLabels]);
 
   const requirements = [
-    { text: "8 caracteres mínimo",    met: password.length >= 8 },
-    { text: "Al menos un número",     met: /[0-9]/.test(password) },
-    { text: "Al menos una mayúscula", met: /[A-Z]/.test(password) },
+    { text: t("req8chars"),    met: password.length >= 8 },
+    { text: t("reqNumber"),    met: /[0-9]/.test(password) },
+    { text: t("reqUppercase"), met: /[A-Z]/.test(password) },
   ];
 
   function validate(): boolean {
     const errs: Record<string, string> = {};
-    if (!name.trim())        errs.name     = "El nombre es obligatorio.";
-    if (!email.trim())       errs.email    = "El email es obligatorio.";
-    if (password.length < 8) errs.password = "Mínimo 8 caracteres.";
-    if (password !== confirm) errs.confirm  = "Las contraseñas no coinciden.";
-    if (!terms)              errs.terms    = "Debes aceptar los términos para continuar.";
+    if (!name.trim())        errs.name     = t("validationName");
+    if (!email.trim())       errs.email    = t("validationEmail");
+    if (password.length < 8) errs.password = t("validationPassword");
+    if (password !== confirm) errs.confirm  = t("validationPasswordMatch");
+    if (!terms)              errs.terms    = t("validationTerms");
     setFieldErrors(errs);
     return Object.keys(errs).length === 0;
   }
@@ -90,21 +116,22 @@ export default function RegistroPage() {
 
       const body = await res.json().catch(() => ({}));
       if (body?.email) {
-        setFieldErrors({ email: "Ya existe una cuenta con este email." });
+        setFieldErrors({ email: t("errorEmailTaken") });
       } else if (body?.password) {
         setFieldErrors({ password: Array.isArray(body.password) ? body.password[0] : body.password });
       } else {
-        setError("Ocurrió un error al crear la cuenta. Inténtalo de nuevo.");
+        setError(t("errorGeneral"));
       }
     } catch {
-      setError("No se pudo conectar con el servidor.");
+      setError(t("errorNetwork"));
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="min-h-screen bg-base flex items-center justify-center p-4">
+    <div className="relative min-h-screen bg-base flex items-center justify-center p-4">
+      <LanguageToggle />
       <div className="w-full max-w-[420px]">
         {/* Logo */}
         <div className="flex justify-center mb-8">
@@ -132,7 +159,7 @@ export default function RegistroPage() {
         {/* Card */}
         <div className="bg-surface border border-white/[0.08] p-6">
           <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted mb-5">
-            Crear cuenta
+            {t("title")}
           </p>
 
           {/* Role selector */}
@@ -140,8 +167,8 @@ export default function RegistroPage() {
             {(["trader", "mentor"] as const).map((r) => {
               const selected = role === r;
               const Icon = r === "trader" ? BarChart2 : GraduationCap;
-              const label = r === "trader" ? "Soy trader" : "Soy mentor";
-              const desc  = r === "trader" ? "Llevo un diario de operaciones" : "Guío a otros traders";
+              const label = r === "trader" ? t("roleTrader") : t("roleMentor");
+              const desc  = r === "trader" ? t("roleTraderDesc") : t("roleMentorDesc");
               return (
                 <button
                   key={r}
@@ -181,7 +208,7 @@ export default function RegistroPage() {
             {/* Display name */}
             <div className="flex flex-col gap-1">
               <label className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted">
-                Nombre completo
+                {t("name")}
               </label>
               <input
                 type="text"
@@ -200,7 +227,7 @@ export default function RegistroPage() {
             {/* Email */}
             <div className="flex flex-col gap-1">
               <label className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted">
-                Email
+                {t("email")}
               </label>
               <input
                 type="email"
@@ -219,7 +246,7 @@ export default function RegistroPage() {
             {/* Password */}
             <div className="flex flex-col gap-1">
               <label className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted">
-                Contraseña
+                {t("password")}
               </label>
               <input
                 type="password"
@@ -271,7 +298,7 @@ export default function RegistroPage() {
             {/* Confirm password */}
             <div className="flex flex-col gap-1">
               <label className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted">
-                Confirmar contraseña
+                {t("confirmPassword")}
               </label>
               <input
                 type="password"
@@ -298,23 +325,23 @@ export default function RegistroPage() {
                   disabled={loading}
                 />
                 <span className="font-sans text-[11px] text-muted leading-relaxed">
-                  He leído y acepto los{" "}
+                  {t("termsText")}{" "}
                   <a
                     href={`${MARKETING_URL}/terminos`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-green hover:underline"
                   >
-                    Términos de uso
+                    {t("termsLink")}
                   </a>{" "}
-                  y la{" "}
+                  {t("andThe")}{" "}
                   <a
                     href={`${MARKETING_URL}/privacidad`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-green hover:underline"
                   >
-                    Política de privacidad
+                    {t("privacyLink")}
                   </a>
                   .
                 </span>
@@ -329,13 +356,13 @@ export default function RegistroPage() {
               disabled={loading}
               className="w-full mt-2 font-sans text-[13px] font-semibold bg-green hover:bg-green-hover text-white py-[11px] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? "Creando cuenta…" : "Crear cuenta gratis"}
+              {loading ? t("submitting") : t("submit")}
             </button>
 
             <p className="font-mono text-[11px] text-muted text-center pt-1">
-              ¿Ya tienes cuenta?{" "}
+              {t("hasAccount")}{" "}
               <Link href="/login" className="text-green hover:underline">
-                Iniciar sesión
+                {t("loginLink")}
               </Link>
             </p>
           </form>

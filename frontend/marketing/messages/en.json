@@ -1,0 +1,408 @@
+{
+  "nav": {
+    "features": "Features",
+    "pricing": "Pricing",
+    "blog": "Blog",
+    "about": "About",
+    "login": "Log in",
+    "signup": "Start free",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
+  },
+  "footer": {
+    "tagline": "The journal that catches what you miss.",
+    "copyright": "© Tradalyst 2025",
+    "links": {
+      "features": "Features",
+      "pricing": "Pricing",
+      "blog": "Blog",
+      "about": "About",
+      "privacy": "Privacy",
+      "terms": "Terms"
+    }
+  },
+  "hero": {
+    "eyebrow": "Trading journal · Behavioural AI",
+    "headline": "The journal that catches what you miss.",
+    "description": "Log your trades, add your reasoning, and let the AI find the patterns that are costing you money.",
+    "ctaPrimary": "Start free",
+    "ctaSecondary": "See how it works",
+    "socialProof": "2,400+ traders · No credit card required"
+  },
+  "trustBar": {
+    "traders": "Active traders",
+    "operations": "Trades logged",
+    "aiEngine": "AI engine",
+    "rating": "Average rating"
+  },
+  "problem": {
+    "card1": {
+      "title": "You've been logging trades for months. You're not learning from them.",
+      "sub": "The data is there. The pattern too. But without analysis, it's just numbers."
+    },
+    "card2": {
+      "title": "Your win rate looks decent. Your behaviour tells a different story.",
+      "sub": "FOMO, revenge trading, overtrading on bad days — the numbers alone won't tell you."
+    },
+    "card3": {
+      "title": "You know something's off. You just can't pinpoint what.",
+      "sub": "Without a journal that reads your reasoning, the mistake keeps repeating."
+    }
+  },
+  "howItWorks": {
+    "eyebrow": "How it works",
+    "heading": "Three steps. Zero friction.",
+    "description": "From trade to insight in under 60 seconds.",
+    "step1": {
+      "action": "Log",
+      "title": "Add your trade: asset, direction, price, result, and reasoning. 60 seconds.",
+      "tags": ["Crypto", "Forex", "Stocks"]
+    },
+    "step2": {
+      "action": "Analyse",
+      "title": "The AI reads your full history — numbers and notes — and detects behavioural patterns.",
+      "tags": ["Claude AI", "Behavioural analysis"]
+    },
+    "step3": {
+      "action": "Improve",
+      "title": "Get weekly insights and talk directly to your AI about your trades.",
+      "tags": ["Insights", "AI Chat"]
+    },
+    "insightCard": {
+      "label": "AI · Weekly insight",
+      "text": "Your Tuesday trades perform {pct}% better than the rest of the week. Trades flagged as FOMO have a 19% win rate.",
+      "pct": "38"
+    }
+  },
+  "aiSpotlight": {
+    "eyebrow": "AI · Claude",
+    "heading": "Not just what you traded. Why you traded it.",
+    "insightLabel": "AI · Weekly insight",
+    "insightTime": "2 days ago",
+    "insightText": "Over the last 30 days you opened 14 trades flagged as FOMO. 11 were losses. Your best performance happens on Tuesdays between 10am and 1pm when you log 'confident' as your emotional state. Consider cutting trades after 3pm — your error rate rises 38%.",
+    "tags": ["FOMO Trading ↑", "Tue 10am–1pm ★", "R:R Improving", "BTC Long Bias"],
+    "capability1": {
+      "title": "Behavioural analysis",
+      "desc": "Detects FOMO, revenge trading, and overtrading before they become chronic losses."
+    },
+    "capability2": {
+      "title": "Direct AI chat",
+      "desc": "Ask your AI about your trades. It answers with real data from your history."
+    },
+    "capability3": {
+      "title": "Weekly insights",
+      "desc": "Every week, a fresh analysis with the most relevant patterns from the period."
+    },
+    "cta": "Get your analysis"
+  },
+  "analytics": {
+    "eyebrow": "Your performance, in data",
+    "heading": "The charts other journals don't have.",
+    "description": "All filterable. All interactive. All based on your real data.",
+    "chart1": {
+      "label": "P&L Curve",
+      "title": "Last 90 days",
+      "statLabel": "Cumulative P&L"
+    },
+    "chart2": {
+      "label": "Activity",
+      "title": "Heatmap · 8 weeks",
+      "statLabel": "Trades"
+    },
+    "chart3": {
+      "label": "Win rate by emotion",
+      "title": "Behavioural breakdown",
+      "statLabel": "FOMO vs Confident delta"
+    },
+    "chart4": {
+      "label": "Drawdown",
+      "title": "Maximum drawdown",
+      "statLabel": "Peak drawdown"
+    },
+    "emotions": {
+      "confident": "Confident",
+      "neutral": "Neutral",
+      "fearful": "Uncertain",
+      "fomo": "FOMO"
+    }
+  },
+  "features": {
+    "eyebrow": "Features",
+    "heading": "Everything you need to trade better.",
+    "feature1": {
+      "title": "Full journal",
+      "desc": "Crypto, forex, and stocks in one place. Reasoning and emotional state per trade.",
+      "badge": "Full CRUD"
+    },
+    "feature2": {
+      "title": "Behavioural AI",
+      "desc": "Detects FOMO, revenge trading, and overtrading before they become chronic losses.",
+      "badge": "Powered by Claude",
+      "miniInsightLabel": "Insight",
+      "miniInsightText": "FOMO: 19% win rate · Confident: 67% win rate"
+    },
+    "feature3": {
+      "title": "Mentor view",
+      "desc": "Assign a mentor. They can review and annotate your trades — without touching your data.",
+      "badge": "Pro",
+      "mentorActive": "active",
+      "mentorNote": "\"Watch the sizing on your FOMO trades — it's too high.\""
+    },
+    "feature4": {
+      "title": "Performance dashboard",
+      "desc": "P&L curve, heatmap, win rate and more. All filterable.",
+      "badge": "Real-time",
+      "monthStart": "Jan",
+      "monthEnd": "Dec"
+    }
+  },
+  "testimonials": {
+    "heading": "What traders who already keep a journal say.",
+    "t1": {
+      "name": "Javier M.",
+      "role": "Crypto trader · Barcelona",
+      "quote": "I'd been trading BTC for 8 months and thought I was disciplined. Tradalyst showed me that 73% of my losses happened in the last two hours of the day. I changed that habit and my win rate went from 41% to 63% in eight weeks."
+    },
+    "t2": {
+      "name": "Sara L.",
+      "role": "Forex trader · Madrid",
+      "quote": "The AI caught that my FOMO-flagged trades had an 18% win rate, versus 61% for everything else. I knew I was trading on impulse, but seeing the exact number changed everything. Tradalyst made me honest with myself."
+    },
+    "t3": {
+      "name": "Miguel A.",
+      "role": "IBEX day trader · Valencia",
+      "quote": "My mentor can annotate my trades without touching anything. Last week he flagged a pattern I hadn't seen: I systematically overtrade on Mondays after a bad weekend. I'd had that habit for two years without realising it."
+    },
+    "t4": {
+      "name": "Lucía G.",
+      "role": "Crypto trader · Sevilla",
+      "quote": "I added reasoning to every trade and within a month the AI found that my R:R on 'confident' trades averages 2.4, but drops to 0.7 on 'uncertain' ones. Now I only enter when I genuinely have conviction."
+    },
+    "t5": {
+      "name": "Pablo T.",
+      "role": "Multi-asset trader · Bilbao",
+      "quote": "The breakdown by emotion and time of day alongside the full trade history — no spreadsheet ever gave me that. In three months I cut my losses in half."
+    },
+    "t6": {
+      "name": "Elena R.",
+      "role": "Swing trader · Zaragoza",
+      "quote": "I tried keeping a journal in Excel for two years. Always gave up. Tradalyst takes 60 seconds per trade and the AI does the analysis I could never manage myself. I haven't missed a single entry in 11 months."
+    }
+  },
+  "pricing": {
+    "eyebrow": "Pricing",
+    "heading": "No surprises. No $80/month.",
+    "description": "Start free today. Upgrade to Pro when you're ready.",
+    "free": {
+      "label": "FREE",
+      "price": "€0",
+      "period": "forever",
+      "description": "Get started with no commitment.",
+      "cta": "Start free"
+    },
+    "pro": {
+      "label": "PRO",
+      "badge": "Most popular",
+      "price": "€9.99",
+      "period": "per month · cancel any time",
+      "description": "For the trader who's serious about improving.",
+      "cta": "Try 7 days free"
+    },
+    "moreLink": "More questions?",
+    "fullComparison": "Full feature comparison →",
+    "features": {
+      "free1": "Unlimited trade journal",
+      "free2": "Basic performance dashboard",
+      "free3": "Up to 3 AI analyses per month",
+      "free4": "Real-time prices (crypto)",
+      "free5": "Unlimited AI chat",
+      "free6": "Mentor view",
+      "free7": "Advanced analytics",
+      "pro1": "Everything in Free",
+      "pro2": "Unlimited AI insights",
+      "pro3": "Unlimited AI chat",
+      "pro4": "Full behavioural analysis",
+      "pro5": "Mentor view included",
+      "pro6": "Advanced analytics",
+      "pro7": "Forex and stocks in real time"
+    }
+  },
+  "finalCta": {
+    "heading": "Your next trade is already in the data.",
+    "description": "Join the traders who already know what others can't see.",
+    "cta": "Start free — no credit card"
+  },
+  "pricingPage": {
+    "title": "Pricing — Tradalyst",
+    "description": "No surprises. No $80/month. Start free, upgrade to Pro when you're ready.",
+    "eyebrow": "Pricing",
+    "heading": "Simple. Honest. No $80/month.",
+    "toggle": {
+      "monthly": "Monthly",
+      "annual": "Annual",
+      "save": "Save 20%"
+    },
+    "free": {
+      "label": "FREE",
+      "price": "€0",
+      "period": "forever",
+      "description": "Get started with no commitment. No credit card.",
+      "cta": "Start free"
+    },
+    "pro": {
+      "label": "PRO",
+      "badge": "Most popular",
+      "price": "€9.99",
+      "priceAnnual": "€7.99",
+      "period": "per month · cancel any time",
+      "periodAnnual": "per month, billed annually",
+      "description": "For the trader who's serious about improving.",
+      "trial": "7-day free trial · No card until you decide to continue",
+      "cta": "Try 7 days free"
+    },
+    "table": {
+      "feature": "Feature",
+      "free": "Free",
+      "pro": "Pro",
+      "categories": {
+        "journal": "Journal",
+        "ai": "AI",
+        "analytics": "Analytics",
+        "mentor": "Mentor",
+        "prices": "Real-time prices"
+      },
+      "rows": {
+        "unlimitedTrades": "Unlimited trades",
+        "allAssets": "Crypto, forex, and stocks",
+        "emotionReasoning": "Reasoning and emotional tag",
+        "fullHistory": "Full trade history",
+        "weeklyInsights": "Weekly insights",
+        "weeklyInsightsFree": "3/month",
+        "weeklyInsightsPro": "Unlimited",
+        "aiChat": "Direct AI chat",
+        "behavioralAnalysis": "Behavioural analysis",
+        "basicDashboard": "Basic dashboard",
+        "pnlCurve": "Full P&L curve",
+        "heatmap": "Activity heatmap",
+        "breakdown": "Breakdown by asset and emotion",
+        "mentorView": "Mentor view",
+        "annotations": "Per-trade annotations",
+        "cryptoPrices": "Crypto via CoinGecko",
+        "forexPrices": "Forex and stocks via Finnhub"
+      }
+    },
+    "faq": {
+      "heading": "Frequently asked questions",
+      "q1": "Do I need a credit card to get started?",
+      "a1": "No. The Free plan is free forever with no payment details required. You just need an email address to sign up.",
+      "q2": "Can I cancel at any time?",
+      "a2": "Yes. No lock-in, no penalty. Cancel from your account in one click and you won't be charged again.",
+      "q3": "What happens to my data if I cancel?",
+      "a3": "Your history stays yours. You can export it as a CSV at any time, before or after cancelling.",
+      "q4": "How does the 7-day trial work?",
+      "a4": "Full Pro access for 7 days at no charge. If you don't cancel before the trial ends, the monthly subscription at €9.99 activates.",
+      "q5": "Does the mentor pay too?",
+      "a5": "No. The mentor creates a free account and gets access once a trader assigns them from their Pro plan. Mentor view is a feature of the trader's plan, not the mentor's.",
+      "q6": "What AI does Tradalyst use?",
+      "a6": "Claude, by Anthropic — the same model used by companies like Salesforce, GitLab, and Notion. It's not a generic chatbot — it accesses your real history and responds with concrete data from your journal."
+    },
+    "finalCta": "Start free today. No credit card required."
+  },
+  "blog": {
+    "title": "Blog — Tradalyst",
+    "description": "Articles on trading, psychology, and performance analysis.",
+    "eyebrow": "Blog",
+    "heading": "Learn to trade better.",
+    "readMore": "Read →",
+    "backToBlog": "← Blog",
+    "by": "by",
+    "relatedPosts": "Related articles"
+  },
+  "about": {
+    "title": "About Tradalyst — The journal that catches what you miss",
+    "description": "Tradalyst was born from one trader's frustration with spreadsheets. One person, one project, one honest tool.",
+    "eyebrow": "About Tradalyst",
+    "heading": "The journal that catches what you miss.",
+    "howItStarted": {
+      "title": "How it started",
+      "p1": "Tradalyst started with a spreadsheet and a lot of frustration.",
+      "p2": "I'd spent months trying to keep a trading journal in Excel. I had columns for the asset, entry price, exit price, P&L. It was technically correct and completely useless for what actually mattered: understanding why I was making the decisions I was making.",
+      "p3": "What I needed wasn't more rows — it was analysis. Knowing which time of day I lost the most. Whether my high-conviction trades actually outperformed the ones I opened on impulse. What pattern was repeating week after week without me noticing.",
+      "p4": "That question became Tradalyst. A journal that doesn't just store data — it analyses it."
+    },
+    "oneProject": {
+      "title": "One project, one person",
+      "p1": "Tradalyst is a final-year DAW project at Digitech FP in Málaga, Spain. Built by one person — design, backend, frontend, database, AI integration, production deployment.",
+      "p2": "It's not a VC-backed startup product. It's a tool built because it was needed, by someone who trades the same markets you do."
+    },
+    "whatWeBelieve": {
+      "title": "What we believe",
+      "p1": "Most traders lose money not because their technical analysis is poor. They lose because they don't know themselves as operators.",
+      "p2": "They know they trade badly on Mondays. They feel it. But they don't have the data. They know that when they're anxious they make worse decisions. But they don't know exactly how much worse.",
+      "p3": "Tradalyst turns that intuition into evidence. And evidence changes habits."
+    },
+    "techStack": {
+      "title": "The tech",
+      "p1": "Django REST API on the backend. Next.js on the frontend. PostgreSQL. Claude as the intelligence engine. All deployed on a Hetzner VPS with Nginx — no unnecessary managed services.",
+      "p2": "The stack is deliberate: real performance, controlled costs, full ownership."
+    },
+    "cta": {
+      "title": "Want to try it?",
+      "description": "The Free plan is available right now. No card. No commitment.",
+      "button": "Start free →"
+    }
+  },
+  "privacy": {
+    "title": "Privacy policy — Tradalyst",
+    "eyebrow": "Legal",
+    "heading": "Privacy policy",
+    "updated": "Last updated: April 2026"
+  },
+  "terms": {
+    "title": "Terms of use — Tradalyst",
+    "eyebrow": "Legal",
+    "heading": "Terms of use",
+    "updated": "Last updated: April 2026"
+  },
+  "auth": {
+    "loginRedirect": "Log in to the app",
+    "registerRedirect": "Create a free account",
+    "redirectDescription": "You'll be redirected to app.tradalyst.com"
+  },
+  "featuresPage": {
+    "title": "Features — Tradalyst",
+    "description": "Trade journal, behavioural AI analysis, mentor view, and performance dashboard.",
+    "eyebrow": "Features",
+    "heading": "Everything you need to trade better.",
+    "intro": "A full journal, behavioural AI analysis, mentor access, and a performance dashboard — in one tool.",
+    "row1": {
+      "badge": "Full journal",
+      "title": "Log what the numbers don't tell you.",
+      "body": "Record every trade with your reasoning and emotional state. Crypto, forex, and stocks in one place. Search, filter, and export your full history whenever you want."
+    },
+    "row2": {
+      "badge": "Powered by Claude",
+      "title": "The AI that reads your behaviour, not just your charts.",
+      "body": "Claude analyses your full history — numbers and notes — and detects patterns like FOMO, revenge trading, and overtrading before they become chronic losses."
+    },
+    "row3": {
+      "badge": "Pro",
+      "title": "A second pair of eyes on your trades.",
+      "body": "Assign a mentor to review and annotate your trades. Read-only access — your data always under your control. The mentor can't modify anything, only comment."
+    },
+    "row4": {
+      "badge": "Real-time",
+      "title": "Your performance, in data you can actually read.",
+      "body": "P&L curve, activity heatmap, win rate and more. All filterable by date and asset. See exactly when in the day and week you perform best."
+    },
+    "ctaHeading": "Start understanding your trading today.",
+    "ctaBody": "No credit card. No lock-in. The free account includes the journal and basic dashboard.",
+    "ctaButton": "Start free"
+  },
+  "meta": {
+    "home": {
+      "title": "Tradalyst — The AI trading journal that catches what you miss",
+      "description": "Log your trades, analyse your trading psychology, and get personalised AI insights. Free to start."
+    }
+  }
+}

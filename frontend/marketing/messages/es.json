@@ -1,0 +1,408 @@
+{
+  "nav": {
+    "features": "Funcionalidades",
+    "pricing": "Precios",
+    "blog": "Blog",
+    "about": "Nosotros",
+    "login": "Iniciar sesión",
+    "signup": "Empezar gratis",
+    "openMenu": "Abrir menú",
+    "closeMenu": "Cerrar menú"
+  },
+  "footer": {
+    "tagline": "El diario que detecta lo que tú no ves.",
+    "copyright": "© Tradalyst 2025",
+    "links": {
+      "features": "Funcionalidades",
+      "pricing": "Precios",
+      "blog": "Blog",
+      "about": "Nosotros",
+      "privacy": "Privacidad",
+      "terms": "Términos"
+    }
+  },
+  "hero": {
+    "eyebrow": "Diario de trading · IA conductual",
+    "headline": "El diario que detecta lo que tú no ves.",
+    "description": "Registra tus operaciones, añade tu razonamiento, y deja que la IA encuentre los patrones que te están costando dinero.",
+    "ctaPrimary": "Empezar gratis",
+    "ctaSecondary": "Ver cómo funciona",
+    "socialProof": "2.400+ traders · Sin tarjeta de crédito"
+  },
+  "trustBar": {
+    "traders": "Traders activos",
+    "operations": "Operaciones registradas",
+    "aiEngine": "Motor de IA",
+    "rating": "Valoración media"
+  },
+  "problem": {
+    "card1": {
+      "title": "Llevas meses registrando operaciones. No estás aprendiendo de ellas.",
+      "sub": "Los datos están ahí. El patrón también. Pero sin análisis, son solo números."
+    },
+    "card2": {
+      "title": "Tu win rate parece aceptable. Tu comportamiento dice otra cosa.",
+      "sub": "FOMO, revenge trading, sobreoperar en días malos — los números no te lo cuentan."
+    },
+    "card3": {
+      "title": "Sabes que algo falla. No sabes exactamente qué.",
+      "sub": "Sin un diario que lea tu razonamiento, el error se repite indefinidamente."
+    }
+  },
+  "howItWorks": {
+    "eyebrow": "Cómo funciona",
+    "heading": "Tres pasos. Sin fricción.",
+    "description": "De la operación al insight en menos de 60 segundos.",
+    "step1": {
+      "action": "Registra",
+      "title": "Añade tu operación: activo, dirección, precio, resultado y razonamiento. 60 segundos.",
+      "tags": ["Crypto", "Forex", "Acciones"]
+    },
+    "step2": {
+      "action": "Analiza",
+      "title": "La IA lee tu historial completo — números y texto — y detecta patrones de comportamiento.",
+      "tags": ["Claude AI", "Análisis conductual"]
+    },
+    "step3": {
+      "action": "Mejora",
+      "title": "Recibe insights semanales y habla con tu IA sobre tus operaciones de forma directa.",
+      "tags": ["Insights", "Chat IA"]
+    },
+    "insightCard": {
+      "label": "IA · Insight semanal",
+      "text": "Tus operaciones del martes tienen un {pct}% mejor rendimiento que el resto de la semana. Las marcadas como FOMO tienen 19% win rate.",
+      "pct": "38"
+    }
+  },
+  "aiSpotlight": {
+    "eyebrow": "IA · Claude",
+    "heading": "No solo qué operaste. Por qué lo operaste.",
+    "insightLabel": "IA · Insight semanal",
+    "insightTime": "hace 2 días",
+    "insightText": "En los últimos 30 días has abierto 14 operaciones marcadas como FOMO. 11 fueron pérdidas. Tu mejor rendimiento ocurre los martes entre las 10h y las 13h cuando registras «confiado» como estado emocional. Considera reducir operaciones después de las 15h — tu tasa de error sube un 38%.",
+    "tags": ["FOMO Trading ↑", "Martes 10h–13h ★", "R:R Mejorando", "BTC Long Bias"],
+    "capability1": {
+      "title": "Análisis conductual",
+      "desc": "Detecta FOMO, revenge trading y sobreoperar antes de que se conviertan en pérdidas crónicas."
+    },
+    "capability2": {
+      "title": "Chat directo con la IA",
+      "desc": "Pregúntale a tu IA sobre tus operaciones. Responde con datos reales de tu historial."
+    },
+    "capability3": {
+      "title": "Insights semanales",
+      "desc": "Cada semana, un análisis nuevo con los patrones más relevantes del período."
+    },
+    "cta": "Obtén tu análisis"
+  },
+  "analytics": {
+    "eyebrow": "Tu rendimiento, en datos",
+    "heading": "Los gráficos que los otros diarios no tienen.",
+    "description": "Todo filtrable. Todo interactivo. Todo basado en tus datos reales.",
+    "chart1": {
+      "label": "Curva P&L",
+      "title": "Últimos 90 días",
+      "statLabel": "P&L acumulado"
+    },
+    "chart2": {
+      "label": "Actividad",
+      "title": "Heatmap · 8 semanas",
+      "statLabel": "Operaciones"
+    },
+    "chart3": {
+      "label": "Win rate por emoción",
+      "title": "Breakdown conductual",
+      "statLabel": "Diferencia FOMO vs Confiado"
+    },
+    "chart4": {
+      "label": "Drawdown",
+      "title": "Máximo retroceso",
+      "statLabel": "Drawdown máximo"
+    },
+    "emotions": {
+      "confident": "Confiado",
+      "neutral": "Neutral",
+      "fearful": "Incierto",
+      "fomo": "FOMO"
+    }
+  },
+  "features": {
+    "eyebrow": "Funcionalidades",
+    "heading": "Todo lo que necesitas para operar mejor.",
+    "feature1": {
+      "title": "Diario completo",
+      "desc": "Crypto, forex y acciones en un solo lugar. Razonamiento y estado emocional por operación.",
+      "badge": "CRUD completo"
+    },
+    "feature2": {
+      "title": "IA conductual",
+      "desc": "Detecta FOMO, revenge trading y sobreoperar antes de que se conviertan en pérdidas crónicas.",
+      "badge": "Powered by Claude",
+      "miniInsightLabel": "Insight",
+      "miniInsightText": "FOMO: 19% win rate · Confiado: 67% win rate"
+    },
+    "feature3": {
+      "title": "Vista mentor",
+      "desc": "Asigna un mentor. Puede revisar y anotar tus operaciones — sin tocar tus datos.",
+      "badge": "Pro",
+      "mentorActive": "activo",
+      "mentorNote": "«Revisa el sizing en los trades de FOMO — está demasiado alto.»"
+    },
+    "feature4": {
+      "title": "Dashboard de rendimiento",
+      "desc": "Curva P&L, heatmap, winrate y más. Todo filtrable.",
+      "badge": "Tiempo real",
+      "monthStart": "Ene",
+      "monthEnd": "Dic"
+    }
+  },
+  "testimonials": {
+    "heading": "Lo que dicen los traders que ya llevan diario.",
+    "t1": {
+      "name": "Javier M.",
+      "role": "Crypto trader · Barcelona",
+      "quote": "Llevaba 8 meses operando BTC y pensaba que era disciplinado. Tradalyst me enseñó que el 73% de mis pérdidas ocurrían en las dos últimas horas del día. Cambié ese hábito y mi win rate pasó del 41% al 63% en ocho semanas."
+    },
+    "t2": {
+      "name": "Sara L.",
+      "role": "Forex trader · Madrid",
+      "quote": "La IA detectó que mis operaciones marcadas como FOMO tenían un win rate del 18%, frente al 61% del resto. Sabía que operaba por impulso, pero ver el número exacto lo cambió todo. Tradalyst me obligó a ser honesta conmigo misma."
+    },
+    "t3": {
+      "name": "Miguel A.",
+      "role": "Daytrader IBEX · Valencia",
+      "quote": "Mi mentor puede anotar mis operaciones sin tocar nada. La semana pasada marcó un patrón que yo no había visto: sobreopero sistemáticamente los lunes después de un fin de semana malo. Llevaba dos años con ese error sin saberlo."
+    },
+    "t4": {
+      "name": "Lucía G.",
+      "role": "Crypto trader · Sevilla",
+      "quote": "Añadí razonamiento en cada operación y al mes la IA identificó que mi R:R en operaciones «confiadas» es 2,4 de media, pero en «inciertas» baja a 0,7. Ahora solo entro cuando realmente lo tengo claro."
+    },
+    "t5": {
+      "name": "Pablo T.",
+      "role": "Multi-asset trader · Bilbao",
+      "quote": "El breakdown por emoción y por hora del día en el mismo panel que el historial completo — ninguna hoja de cálculo me daba eso. En tres meses reduje mis pérdidas a la mitad."
+    },
+    "t6": {
+      "name": "Elena R.",
+      "role": "Swing trader acciones · Zaragoza",
+      "quote": "Intenté llevar un diario en Excel dos años. Siempre lo abandonaba. Tradalyst tarda 60 segundos por operación y la IA hace el análisis que yo nunca conseguía hacer. Llevo 11 meses sin saltarme ni una entrada."
+    }
+  },
+  "pricing": {
+    "eyebrow": "Precios",
+    "heading": "Sin sorpresas. Sin $80/mes.",
+    "description": "Empieza gratis hoy. Pasa a Pro cuando estés listo.",
+    "free": {
+      "label": "FREE",
+      "price": "€0",
+      "period": "para siempre",
+      "description": "Para empezar sin compromiso.",
+      "cta": "Empezar gratis"
+    },
+    "pro": {
+      "label": "PRO",
+      "badge": "Más popular",
+      "price": "€9,99",
+      "period": "al mes · cancela cuando quieras",
+      "description": "Para el trader que quiere mejorar en serio.",
+      "cta": "Probar 7 días gratis"
+    },
+    "moreLink": "¿Más preguntas?",
+    "fullComparison": "Ver comparativa completa →",
+    "features": {
+      "free1": "Diario ilimitado de operaciones",
+      "free2": "Dashboard básico de rendimiento",
+      "free3": "Hasta 3 análisis de IA al mes",
+      "free4": "Precios en tiempo real (crypto)",
+      "free5": "Chat ilimitado con IA",
+      "free6": "Vista mentor",
+      "free7": "Analítica avanzada",
+      "pro1": "Todo lo del plan Free",
+      "pro2": "Insights de IA ilimitados",
+      "pro3": "Chat ilimitado con IA",
+      "pro4": "Análisis conductual completo",
+      "pro5": "Vista mentor incluida",
+      "pro6": "Analítica avanzada",
+      "pro7": "Forex y acciones en tiempo real"
+    }
+  },
+  "finalCta": {
+    "heading": "Tu próxima operación ya está en los datos.",
+    "description": "Únete a los traders que ya saben lo que otros no pueden ver.",
+    "cta": "Empezar gratis — sin tarjeta"
+  },
+  "pricingPage": {
+    "title": "Precios — Tradalyst",
+    "description": "Sin sorpresas. Sin $80/mes. Empieza gratis, pasa a Pro cuando estés listo.",
+    "eyebrow": "Precios",
+    "heading": "Simple. Honesto. Sin $80/mes.",
+    "toggle": {
+      "monthly": "Mensual",
+      "annual": "Anual",
+      "save": "Ahorra 20%"
+    },
+    "free": {
+      "label": "FREE",
+      "price": "€0",
+      "period": "para siempre",
+      "description": "Para empezar sin compromiso. Sin tarjeta de crédito.",
+      "cta": "Empezar gratis"
+    },
+    "pro": {
+      "label": "PRO",
+      "badge": "Más popular",
+      "price": "€9,99",
+      "priceAnnual": "€7,99",
+      "period": "al mes · cancela cuando quieras",
+      "periodAnnual": "al mes, facturado anualmente",
+      "description": "Para el trader que quiere mejorar en serio.",
+      "trial": "7 días de prueba gratis · Sin tarjeta hasta que decidas continuar",
+      "cta": "Probar 7 días gratis"
+    },
+    "table": {
+      "feature": "Funcionalidad",
+      "free": "Free",
+      "pro": "Pro",
+      "categories": {
+        "journal": "Diario",
+        "ai": "IA",
+        "analytics": "Analítica",
+        "mentor": "Mentor",
+        "prices": "Precios en tiempo real"
+      },
+      "rows": {
+        "unlimitedTrades": "Operaciones ilimitadas",
+        "allAssets": "Crypto, forex y acciones",
+        "emotionReasoning": "Razonamiento y etiqueta emocional",
+        "fullHistory": "Historial completo",
+        "weeklyInsights": "Insights semanales",
+        "weeklyInsightsFree": "3/mes",
+        "weeklyInsightsPro": "Ilimitados",
+        "aiChat": "Chat directo con la IA",
+        "behavioralAnalysis": "Análisis conductual",
+        "basicDashboard": "Dashboard básico",
+        "pnlCurve": "Curva P&L completa",
+        "heatmap": "Heatmap de actividad",
+        "breakdown": "Breakdown por activo y emoción",
+        "mentorView": "Vista mentor",
+        "annotations": "Anotaciones por operación",
+        "cryptoPrices": "Crypto via CoinGecko",
+        "forexPrices": "Forex y acciones via Finnhub"
+      }
+    },
+    "faq": {
+      "heading": "Preguntas frecuentes",
+      "q1": "¿Necesito tarjeta de crédito para empezar?",
+      "a1": "No. El plan Free es gratis para siempre sin datos de pago. Solo necesitas un email para registrarte.",
+      "q2": "¿Puedo cancelar en cualquier momento?",
+      "a2": "Sí. Sin permanencia, sin penalización. Cancelas desde tu cuenta en un clic y no se te cobra nada más.",
+      "q3": "¿Qué pasa con mis datos si cancelo?",
+      "a3": "Tu historial sigue siendo tuyo. Puedes exportarlo en cualquier momento en formato CSV antes o después de cancelar.",
+      "q4": "¿Cómo funciona el período de prueba de 7 días?",
+      "a4": "Acceso completo a Pro durante 7 días sin cargo. Si no cancelas antes de que termine el período, se activa la suscripción mensual de €9,99.",
+      "q5": "¿El mentor también paga?",
+      "a5": "No. El mentor crea una cuenta gratuita y accede cuando el trader le asigna desde su plan Pro. La vista mentor es una funcionalidad del plan del trader, no del mentor.",
+      "q6": "¿Qué IA usa Tradalyst?",
+      "a6": "Claude, de Anthropic — el mismo modelo que usan empresas como Salesforce, GitLab o Notion. No es un chatbot genérico — accede a tu historial real y responde con datos concretos de tu diario."
+    },
+    "finalCta": "Empieza gratis hoy. Sin tarjeta de crédito."
+  },
+  "blog": {
+    "title": "Blog — Tradalyst",
+    "description": "Artículos sobre trading, psicología y análisis de rendimiento.",
+    "eyebrow": "Blog",
+    "heading": "Aprende a operar mejor.",
+    "readMore": "Leer →",
+    "backToBlog": "← Blog",
+    "by": "por",
+    "relatedPosts": "Artículos relacionados"
+  },
+  "about": {
+    "title": "Sobre Tradalyst — El diario que detecta lo que tú no ves",
+    "description": "Tradalyst nació de la frustración de un trader con las hojas de cálculo. Una persona, un proyecto, una herramienta honesta.",
+    "eyebrow": "Sobre Tradalyst",
+    "heading": "El diario que detecta lo que tú no ves.",
+    "howItStarted": {
+      "title": "Cómo empezó esto",
+      "p1": "Tradalyst empezó con una hoja de cálculo y mucha frustración.",
+      "p2": "Llevaba meses intentando llevar un diario de trading en Excel. Tenía columnas para el activo, el precio de entrada, el precio de salida, el P&L. Era correcto en lo técnico y completamente inútil en lo que importaba: entender por qué tomaba las decisiones que tomaba.",
+      "p3": "Lo que necesitaba no era más filas — era análisis. Saber en qué momento del día perdía más. Saber si mis operaciones de convicción tenían realmente mejor resultado que las que abría por impulso. Saber qué patrón se repetía semana tras semana sin que yo lo viera.",
+      "p4": "Esa pregunta se convirtió en Tradalyst. Un diario que no solo almacena datos — los analiza."
+    },
+    "oneProject": {
+      "title": "Un proyecto, una persona",
+      "p1": "Tradalyst es el proyecto de DAW Final de Digitech FP, en Málaga. Lo construyó una persona — diseño, backend, frontend, base de datos, integración de IA, despliegue en producción.",
+      "p2": "No es un producto de una startup con ronda de financiación. Es una herramienta construida porque hacía falta, por alguien que opera en los mismos mercados que tú."
+    },
+    "whatWeBelieve": {
+      "title": "Lo que creemos",
+      "p1": "La mayoría de los traders pierden dinero no porque su análisis técnico sea malo. Lo pierden porque no se conocen a sí mismos como operadores.",
+      "p2": "Saben que operan mal los lunes. Lo sienten. Pero no tienen el dato. Saben que cuando están nerviosos toman peores decisiones. Pero no saben exactamente cuánto peores.",
+      "p3": "Tradalyst convierte esa intuición en evidencia. Y la evidencia cambia hábitos."
+    },
+    "techStack": {
+      "title": "La tecnología",
+      "p1": "Django REST API en el backend. Next.js en el frontend. PostgreSQL. Claude como motor de inteligencia. Todo desplegado en un VPS de Hetzner con Nginx, sin servicios gestionados innecesarios.",
+      "p2": "El stack es deliberado: rendimiento real, costes controlados, control total."
+    },
+    "cta": {
+      "title": "¿Quieres probarlo?",
+      "description": "El plan Free está disponible ahora mismo. Sin tarjeta. Sin compromiso.",
+      "button": "Empezar gratis →"
+    }
+  },
+  "privacy": {
+    "title": "Política de privacidad — Tradalyst",
+    "eyebrow": "Legal",
+    "heading": "Política de privacidad",
+    "updated": "Última actualización: abril 2026"
+  },
+  "terms": {
+    "title": "Términos de uso — Tradalyst",
+    "eyebrow": "Legal",
+    "heading": "Términos de uso",
+    "updated": "Última actualización: abril 2026"
+  },
+  "auth": {
+    "loginRedirect": "Iniciar sesión en la aplicación",
+    "registerRedirect": "Crear cuenta gratis",
+    "redirectDescription": "Serás redirigido a app.tradalyst.com"
+  },
+  "featuresPage": {
+    "title": "Funcionalidades — Tradalyst",
+    "description": "Diario de operaciones, análisis de IA conductual, vista mentor y dashboard de rendimiento.",
+    "eyebrow": "Funcionalidades",
+    "heading": "Todo lo que necesitas para operar mejor.",
+    "intro": "Un diario completo, análisis de IA conductual, acceso mentor y un dashboard de rendimiento — en una sola herramienta.",
+    "row1": {
+      "badge": "Diario completo",
+      "title": "Registra lo que los números no cuentan.",
+      "body": "Registra cada operación con tu razonamiento y estado emocional. Crypto, forex y acciones en un solo lugar. Busca, filtra y exporta tu historial completo cuando quieras."
+    },
+    "row2": {
+      "badge": "Powered by Claude",
+      "title": "La IA que lee tu comportamiento, no solo tus gráficos.",
+      "body": "Claude analiza tu historial completo — números y texto — y detecta patrones como FOMO, revenge trading y sobreoperar antes de que se conviertan en pérdidas crónicas."
+    },
+    "row3": {
+      "badge": "Pro",
+      "title": "Un segundo par de ojos sobre tus operaciones.",
+      "body": "Asigna un mentor para que revise y anote tus operaciones. Acceso de solo lectura — tus datos siempre bajo tu control. El mentor no puede modificar nada, solo comentar."
+    },
+    "row4": {
+      "badge": "Tiempo real",
+      "title": "Tu rendimiento, en datos que puedes leer.",
+      "body": "Curva P&L, heatmap de actividad, win rate y más. Todo filtrable por fecha y activo. Ve exactamente en qué momento del día y de la semana rindes mejor."
+    },
+    "ctaHeading": "Empieza a entender tu trading hoy.",
+    "ctaBody": "Sin tarjeta de crédito. Sin permanencia. La cuenta gratuita incluye el diario y el dashboard básico.",
+    "ctaButton": "Empezar gratis"
+  },
+  "meta": {
+    "home": {
+      "title": "Tradalyst — El diario de trading con IA que detecta lo que tú no ves",
+      "description": "Registra tus operaciones, analiza tu psicología de trading y recibe insights de IA personalizados. Gratis para empezar."
+    }
+  }
+}

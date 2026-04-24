@@ -2,18 +2,20 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { LayoutDashboard, BookOpen, BrainCircuit, BarChart2, Settings } from "lucide-react";
-
-const ITEMS = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/journal",   label: "Diario",    icon: BookOpen },
-  { href: "/ai",        label: "IA",        icon: BrainCircuit },
-  { href: "/analytics", label: "Analítica", icon: BarChart2 },
-  { href: "/settings",  label: "Ajustes",   icon: Settings },
-];
 
 export default function BottomNav() {
   const pathname = usePathname();
+  const t = useTranslations("nav");
+
+  const ITEMS = [
+    { href: "/dashboard", label: t("dashboard"), icon: LayoutDashboard },
+    { href: "/journal",   label: t("journal"),   icon: BookOpen },
+    { href: "/ai",        label: t("ai"),         icon: BrainCircuit },
+    { href: "/analytics", label: t("analytics"),  icon: BarChart2 },
+    { href: "/settings",  label: t("settings"),   icon: Settings },
+  ];
 
   return (
     <nav className="lg:hidden fixed bottom-0 inset-x-0 z-50 bg-surface border-t border-white/[0.06] flex">

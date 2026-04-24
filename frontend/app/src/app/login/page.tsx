@@ -3,6 +3,7 @@
 import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { AlertCircle } from "lucide-react";
 import { MARKETING_URL } from "@/lib/urls";
 import type { UserProfile } from "@/types";
@@ -18,9 +19,33 @@ const ROLE_HOME: Record<string, string> = {
 const inputCls =
   "w-full bg-elevated border border-white/[0.10] px-4 py-[11px] font-mono text-[13px] text-primary placeholder:text-muted focus:outline-none focus:border-white/25 transition-colors";
 
+function LanguageToggle() {
+  const router = useRouter();
+
+  function switchLocale(locale: string) {
+    document.cookie = `NEXT_LOCALE=${locale};path=/;max-age=31536000`;
+    router.refresh();
+  }
+
+  return (
+    <div className="absolute top-4 right-4 flex gap-1">
+      {(["ES", "EN"] as const).map((loc) => (
+        <button
+          key={loc}
+          onClick={() => switchLocale(loc.toLowerCase())}
+          className="font-mono text-[10px] px-[6px] py-[3px] text-muted hover:text-primary transition-colors"
+        >
+          {loc}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useTranslations("auth.login");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -51,18 +76,18 @@ function LoginForm() {
       }
 
       if (res.status === 401 || res.status === 400) {
-        setError("Email o contraseña incorrectos.");
+        setError(t("errorCredentials"));
         return;
       }
 
       const body = await res.json().catch(() => ({}));
       if (res.status === 403 && body?.detail?.toLowerCase().includes("suspendida")) {
-        setError("Tu cuenta ha sido suspendida. Contacta con soporte.");
+        setError(t("errorSuspended"));
       } else {
-        setError("Error al iniciar sesión. Inténtalo de nuevo.");
+        setError(t("errorGeneral"));
       }
     } catch {
-      setError("No se pudo conectar con el servidor.");
+      setError(t("errorNetwork"));
     } finally {
       setLoading(false);
     }
@@ -79,7 +104,7 @@ function LoginForm() {
 
       <div className="flex flex-col gap-1">
         <label className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted">
-          Email
+          {t("email")}
         </label>
         <input
           type="email"
@@ -94,7 +119,7 @@ function LoginForm() {
 
       <div className="flex flex-col gap-1">
         <label className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted">
-          Contraseña
+          {t("password")}
         </label>
         <input
           type="password"
@@ -112,13 +137,13 @@ function LoginForm() {
         disabled={loading || !email.trim() || !password}
         className="w-full mt-2 font-sans text-[13px] font-semibold bg-green hover:bg-green-hover text-white py-[11px] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {loading ? "Iniciando sesión…" : "Entrar"}
+        {loading ? t("submitting") : t("submit")}
       </button>
 
       <p className="font-mono text-[11px] text-muted text-center pt-1">
-        ¿No tienes cuenta?{" "}
+        {t("noAccount")}{" "}
         <Link href="/registro" className="text-green hover:underline">
-          Regístrate gratis
+          {t("register")}
         </Link>
       </p>
     </form>
@@ -126,8 +151,11 @@ function LoginForm() {
 }
 
 export default function LoginPage() {
+  const t = useTranslations("auth.login");
+
   return (
-    <div className="min-h-screen bg-base flex items-center justify-center p-4">
+    <div className="relative min-h-screen bg-base flex items-center justify-center p-4">
+      <LanguageToggle />
       <div className="w-full max-w-[360px]">
         <div className="flex justify-center mb-8">
           <a href={MARKETING_URL} aria-label="Tradalyst — inicio">
@@ -153,7 +181,7 @@ export default function LoginPage() {
 
         <div className="bg-surface border border-white/[0.08] p-6">
           <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted mb-5">
-            Iniciar sesión
+            {t("title")}
           </p>
           <Suspense fallback={null}>
             <LoginForm />

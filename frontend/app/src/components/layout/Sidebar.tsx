@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { MARKETING_URL } from "@/lib/urls";
 import {
   LayoutDashboard,
@@ -13,16 +14,43 @@ import {
 } from "lucide-react";
 import { logout } from "@/lib/auth";
 
-const NAV_ITEMS = [
-  { href: "/dashboard",  label: "Dashboard",   icon: LayoutDashboard },
-  { href: "/journal",    label: "Diario",       icon: BookOpen },
-  { href: "/ai",         label: "IA",           icon: BrainCircuit },
-  { href: "/analytics",  label: "Analítica",    icon: BarChart2 },
-  { href: "/settings",   label: "Ajustes",      icon: Settings },
-];
+function LanguageToggle() {
+  const router = useRouter();
+
+  function switchLocale(locale: string) {
+    document.cookie = `NEXT_LOCALE=${locale};path=/;max-age=31536000`;
+    router.refresh();
+  }
+
+  return (
+    <div className="px-3 py-2 flex items-center gap-2">
+      <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-muted">Lang</span>
+      <div className="flex gap-[2px] ml-auto">
+        {(["es", "en"] as const).map((loc) => (
+          <button
+            key={loc}
+            onClick={() => switchLocale(loc)}
+            className="font-mono text-[10px] px-[6px] py-[3px] transition-colors hover:text-primary text-muted"
+          >
+            {loc.toUpperCase()}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const t = useTranslations("nav");
+
+  const NAV_ITEMS = [
+    { href: "/dashboard", label: t("dashboard"), icon: LayoutDashboard },
+    { href: "/journal",   label: t("journal"),   icon: BookOpen },
+    { href: "/ai",        label: t("ai"),         icon: BrainCircuit },
+    { href: "/analytics", label: t("analytics"),  icon: BarChart2 },
+    { href: "/settings",  label: t("settings"),   icon: Settings },
+  ];
 
   return (
     <aside className="hidden lg:flex flex-col w-sidebar flex-shrink-0 bg-surface border-r border-white/[0.06] h-screen sticky top-0">
@@ -66,15 +94,18 @@ export default function Sidebar() {
         })}
       </nav>
 
-      {/* Logout */}
-      <div className="px-2 py-4 border-t border-white/[0.06]">
-        <button
-          onClick={logout}
-          className="nav-item w-full rounded-md text-left"
-        >
-          <LogOut size={16} className="flex-shrink-0" />
-          <span>Cerrar sesión</span>
-        </button>
+      {/* Language toggle + Logout */}
+      <div className="border-t border-white/[0.06]">
+        <LanguageToggle />
+        <div className="px-2 pb-4">
+          <button
+            onClick={logout}
+            className="nav-item w-full rounded-md text-left"
+          >
+            <LogOut size={16} className="flex-shrink-0" />
+            <span>{t("logout")}</span>
+          </button>
+        </div>
       </div>
     </aside>
   );
