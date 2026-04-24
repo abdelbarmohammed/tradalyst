@@ -1,42 +1,33 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { BrainCircuit, MessageSquare, Zap } from "lucide-react";
 import { useInView } from "@/hooks/useInView";
 import { APP_URL } from "@/lib/urls";
 
-const INSIGHT_TEXT =
-  "En los últimos 30 días has abierto 14 operaciones marcadas como FOMO. 11 fueron pérdidas. Tu mejor rendimiento ocurre los martes entre las 10h y las 13h cuando registras «confiado» como estado emocional. Considera reducir operaciones después de las 15h — tu tasa de error sube un 38%.";
-
-const TAGS = [
-  { label: "FOMO Trading ↑", border: "rgba(217,64,64,0.5)", text: "#d94040" },
-  { label: "Martes 10h–13h ★", border: "rgba(47,172,102,0.5)", text: "#2fac66" },
-  { label: "R:R Mejorando", border: "rgba(47,172,102,0.5)", text: "#2fac66" },
-  { label: "BTC Long Bias", border: "rgba(0,0,0,0.18)", text: "#6b7280" },
-];
-
-const CAPABILITIES = [
-  {
-    icon: BrainCircuit,
-    title: "Análisis conductual",
-    desc: "Detecta FOMO, revenge trading y sobreoperar antes de que se conviertan en pérdidas crónicas.",
-  },
-  {
-    icon: MessageSquare,
-    title: "Chat directo con la IA",
-    desc: "Pregúntale a tu IA sobre tus operaciones. Responde con datos reales de tu historial.",
-  },
-  {
-    icon: Zap,
-    title: "Insights semanales",
-    desc: "Cada semana, un análisis nuevo con los patrones más relevantes del período.",
-  },
-];
+const CAPABILITY_ICONS = [BrainCircuit, MessageSquare, Zap];
 
 export default function AiSpotlight() {
+  const t = useTranslations("aiSpotlight");
   const { ref, inView } = useInView<HTMLDivElement>(0.1);
   const [displayed, setDisplayed] = useState("");
   const [tagsVisible, setTagsVisible] = useState(false);
+
+  const insightText = t("insightText");
+
+  const TAGS = [
+    { label: t("tags.0"), border: "rgba(217,64,64,0.5)", text: "#d94040" },
+    { label: t("tags.1"), border: "rgba(47,172,102,0.5)", text: "#2fac66" },
+    { label: t("tags.2"), border: "rgba(47,172,102,0.5)", text: "#2fac66" },
+    { label: t("tags.3"), border: "rgba(0,0,0,0.18)", text: "#6b7280" },
+  ];
+
+  const CAPABILITIES = [
+    { icon: CAPABILITY_ICONS[0], title: t("capability1.title"), desc: t("capability1.desc") },
+    { icon: CAPABILITY_ICONS[1], title: t("capability2.title"), desc: t("capability2.desc") },
+    { icon: CAPABILITY_ICONS[2], title: t("capability3.title"), desc: t("capability3.desc") },
+  ];
 
   useEffect(() => {
     if (!inView) return;
@@ -45,18 +36,17 @@ export default function AiSpotlight() {
     setTagsVisible(false);
     const interval = setInterval(() => {
       i++;
-      setDisplayed(INSIGHT_TEXT.slice(0, i));
-      if (i >= INSIGHT_TEXT.length) {
+      setDisplayed(insightText.slice(0, i));
+      if (i >= insightText.length) {
         clearInterval(interval);
         setTimeout(() => setTagsVisible(true), 300);
       }
     }, 18);
     return () => clearInterval(interval);
-  }, [inView]);
+  }, [inView, insightText]);
 
   return (
     <section className="bg-dark py-24 lg:py-32 relative overflow-hidden">
-      {/* Subtle grid overlay */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -67,15 +57,14 @@ export default function AiSpotlight() {
       />
 
       <div className="relative max-w-[1200px] mx-auto px-6 lg:px-10">
-        {/* Header */}
         <div
           className={`text-center mb-14 transition-all duration-500 ${
             inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
           }`}
         >
-          <p className="eyebrow mb-4">IA · Claude</p>
+          <p className="eyebrow mb-4">{t("eyebrow")}</p>
           <h2 className="font-sans text-[36px] font-bold text-text-dark-primary leading-[1.1] tracking-[-0.02em]">
-            No solo qué operaste. Por qué lo operaste.
+            {t("heading")}
           </h2>
         </div>
 
@@ -86,33 +75,24 @@ export default function AiSpotlight() {
               inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
-            <div
-              className="p-7"
-              style={{
-                background: "#ffffff",
-                border: "1px solid rgba(0,0,0,0.08)",
-              }}
-            >
-              {/* Insight header */}
+            <div className="p-7" style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.08)" }}>
               <div className="flex items-center gap-3 mb-5">
                 <span className="w-2 h-2 rounded-full bg-green animate-pulse-slow" />
                 <span className="font-mono text-[10px] text-green uppercase tracking-[0.12em]">
-                  IA · Insight semanal
+                  {t("insightLabel")}
                 </span>
                 <span className="font-mono text-[10px] text-text-muted ml-auto">
-                  hace 2 días
+                  {t("insightTime")}
                 </span>
               </div>
 
-              {/* Typewriter text */}
               <p className="font-sans text-[15px] text-text-secondary leading-relaxed min-h-[120px]">
                 {displayed}
-                {displayed.length < INSIGHT_TEXT.length && inView && (
+                {displayed.length < insightText.length && inView && (
                   <span className="inline-block w-[2px] h-[1em] bg-green ml-[1px] animate-pulse-slow" />
                 )}
               </p>
 
-              {/* Tags — appear after typing */}
               <div
                 className={`flex flex-wrap gap-2 mt-6 transition-all duration-500 ${
                   tagsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
@@ -122,11 +102,7 @@ export default function AiSpotlight() {
                   <span
                     key={tag.label}
                     className="font-mono text-[10px] px-[10px] py-[4px]"
-                    style={{
-                      border: `1px solid ${tag.border}`,
-                      color: tag.text,
-                      background: "transparent",
-                    }}
+                    style={{ border: `1px solid ${tag.border}`, color: tag.text }}
                   >
                     {tag.label}
                   </span>
@@ -162,7 +138,6 @@ export default function AiSpotlight() {
               );
             })}
 
-            {/* CTA */}
             <div
               className={`mt-2 transition-all duration-500 delay-500 ${
                 inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
@@ -172,7 +147,7 @@ export default function AiSpotlight() {
                 href={`${APP_URL}/registro`}
                 className="inline-block font-sans text-sm font-semibold bg-green hover:bg-green-hover text-white px-5 py-[11px] rounded transition-colors duration-150"
               >
-                Obtén tu análisis
+                {t("cta")}
               </a>
             </div>
           </div>

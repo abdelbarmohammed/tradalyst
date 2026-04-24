@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useInView } from "@/hooks/useInView";
 
 function FlatLineChart() {
@@ -19,11 +20,9 @@ function FlatLineChart() {
 function WinFomoChart() {
   return (
     <svg viewBox="0 0 120 48" width="120" height="48" aria-hidden="true">
-      {/* Win rate bar */}
       <rect x="8" y="8" width="48" height="10" rx="1" fill="rgba(47,172,102,0.3)" />
       <text x="60" y="17" fontFamily="IBM Plex Mono, monospace" fontSize="7" fill="rgba(0,0,0,0.35)">62%</text>
       <text x="8" y="28" fontFamily="IBM Plex Mono, monospace" fontSize="7" fill="rgba(0,0,0,0.30)">Win rate</text>
-      {/* FOMO bar */}
       <rect x="8" y="34" width="16" height="10" rx="1" fill="rgba(217,64,64,0.25)" />
       <text x="28" y="43" fontFamily="IBM Plex Mono, monospace" fontSize="7" fill="rgba(0,0,0,0.35)">21%</text>
       <text x="8" y="31" fontFamily="IBM Plex Mono, monospace" fontSize="6.5" fill="rgba(0,0,0,0.30)">FOMO</text>
@@ -41,7 +40,6 @@ function DrawdownChart() {
         strokeWidth="2"
         strokeLinecap="round"
       />
-      {/* Drawdown zone */}
       <path
         d="M 55,24 C 62,30 68,36 78,38 C 86,38 92,32 100,24 L 100,48 L 55,48 Z"
         fill="rgba(217,64,64,0.08)"
@@ -50,29 +48,15 @@ function DrawdownChart() {
   );
 }
 
-const CARDS = [
-  {
-    num: "01",
-    title: "Llevas meses registrando operaciones. No estás aprendiendo de ellas.",
-    sub: "Los datos están ahí. El patrón también. Pero sin análisis, son solo números.",
-    chart: <FlatLineChart />,
-  },
-  {
-    num: "02",
-    title: "Tu win rate parece aceptable. Tu comportamiento dice otra cosa.",
-    sub: "FOMO, revenge trading, sobreoperar en días malos — los números no te lo cuentan.",
-    chart: <WinFomoChart />,
-  },
-  {
-    num: "03",
-    title: "Sabes que algo falla. No sabes exactamente qué.",
-    sub: "Sin un diario que lea tu razonamiento, el error se repite indefinidamente.",
-    chart: <DrawdownChart />,
-  },
-];
-
 export default function Problem() {
+  const t = useTranslations("problem");
   const { ref, inView } = useInView<HTMLDivElement>(0.1);
+
+  const CARDS = [
+    { num: "01", title: t("card1.title"), sub: t("card1.sub"), chart: <FlatLineChart /> },
+    { num: "02", title: t("card2.title"), sub: t("card2.sub"), chart: <WinFomoChart /> },
+    { num: "03", title: t("card3.title"), sub: t("card3.sub"), chart: <DrawdownChart /> },
+  ];
 
   return (
     <section className="bg-light py-24 lg:py-32">
@@ -81,25 +65,14 @@ export default function Problem() {
           {CARDS.map((card, i) => (
             <div
               key={card.num}
-              className={`
-                bg-surface p-8
-                opacity-0
-                ${inView ? "animate-fade-up" : ""}
-              `}
+              className={`bg-surface p-8 opacity-0 ${inView ? "animate-fade-up" : ""}`}
               style={{ animationDelay: `${i * 120}ms` }}
             >
-              {/* Micro-chart */}
               <div className="mb-5 h-12">{card.chart}</div>
-
-              {/* Number */}
               <div className="eyebrow mb-3">{card.num}</div>
-
-              {/* Title */}
               <h3 className="font-sans text-[15px] font-semibold text-text leading-snug mb-3">
                 {card.title}
               </h3>
-
-              {/* Sub */}
               <p className="font-sans text-sm text-text-secondary leading-relaxed">
                 {card.sub}
               </p>
