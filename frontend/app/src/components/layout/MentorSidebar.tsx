@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, BookOpen, Sparkles, BarChart2,
-  Users, Settings, LogOut,
+  Users, Settings, LogOut, type LucideIcon,
 } from "lucide-react";
 import { logout } from "@/lib/auth";
 import { MARKETING_URL } from "@/lib/urls";
@@ -26,7 +26,7 @@ const ACCOUNT_ITEMS = [
 
 function NavSection({ title, items, pathname }: {
   title: string;
-  items: { href: string; label: string; icon: React.ComponentType<{ size?: number; className?: string }> }[];
+  items: { href: string; label: string; icon: LucideIcon }[];
   pathname: string;
 }) {
   return (
