@@ -5,7 +5,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.users.permissions import IsTrader
+from apps.users.permissions import IsTrader, IsTraderOrMentor
 from .models import AiInsight, ChatMessage
 from .serializers import AiInsightSerializer, ChatMessageSerializer, ChatInputSerializer
 from .services.claude import ClaudeService
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 class InsightListView(generics.ListAPIView):
     """List all AI insights generated for the authenticated trader."""
 
-    permission_classes = [IsTrader]
+    permission_classes = [IsTraderOrMentor]
     serializer_class = AiInsightSerializer
 
     def get_queryset(self) -> QuerySet:
@@ -26,7 +26,7 @@ class InsightListView(generics.ListAPIView):
 class InsightGenerateView(APIView):
     """Trigger generation of a new weekly insight for the authenticated trader."""
 
-    permission_classes = [IsTrader]
+    permission_classes = [IsTraderOrMentor]
 
     def post(self, request: Request) -> Response:
         try:
@@ -45,7 +45,7 @@ class InsightGenerateView(APIView):
 class ChatHistoryView(generics.ListAPIView):
     """Return the full persistent chat history for the authenticated trader."""
 
-    permission_classes = [IsTrader]
+    permission_classes = [IsTraderOrMentor]
     serializer_class = ChatMessageSerializer
 
     def get_queryset(self) -> QuerySet:
@@ -55,7 +55,7 @@ class ChatHistoryView(generics.ListAPIView):
 class ChatSendView(APIView):
     """Send a message to Claude and return the assistant reply."""
 
-    permission_classes = [IsTrader]
+    permission_classes = [IsTraderOrMentor]
 
     def post(self, request: Request) -> Response:
         serializer = ChatInputSerializer(data=request.data)

@@ -6,7 +6,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.users.permissions import IsTrader
+from apps.users.permissions import IsTrader, IsTraderOrMentor
 from .models import Trade, TradeResult
 from .serializers import TradeSerializer, TradeStatsSerializer
 from .filters import TradeFilter
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 class TradeListCreateView(generics.ListCreateAPIView):
-    permission_classes = [IsTrader]
+    permission_classes = [IsTraderOrMentor]
     serializer_class = TradeSerializer
     filterset_class = TradeFilter
     ordering_fields = ["entry_time", "pnl", "created_at"]
@@ -29,7 +29,7 @@ class TradeListCreateView(generics.ListCreateAPIView):
 
 
 class TradeDetailView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsTrader]
+    permission_classes = [IsTraderOrMentor]
     serializer_class = TradeSerializer
 
     def get_queryset(self) -> QuerySet:
@@ -37,7 +37,7 @@ class TradeDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class TradeStatsView(APIView):
-    permission_classes = [IsTrader]
+    permission_classes = [IsTraderOrMentor]
 
     def get(self, request: Request) -> Response:
         """Return aggregate trading statistics for the authenticated trader."""
