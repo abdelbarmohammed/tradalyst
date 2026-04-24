@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import MentorAssignment, MentorAnnotation
+from .models import MentorAssignment, MentorAnnotation, MentorRequest
 
 
 @admin.register(MentorAssignment)
@@ -13,3 +13,10 @@ class MentorAssignmentAdmin(admin.ModelAdmin):
 class MentorAnnotationAdmin(admin.ModelAdmin):
     list_display = ("mentor", "trade", "created_at")
     search_fields = ("mentor__email",)
+
+
+@admin.register(MentorRequest)
+class MentorRequestAdmin(admin.ModelAdmin):
+    list_display = ("mentor", "trader", "status", "created_at")
+    list_filter = ("status",)
+    search_fields = ("mentor__email", "trader__email")

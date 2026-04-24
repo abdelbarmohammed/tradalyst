@@ -6,8 +6,31 @@ from apps.trades.models import Trade
 logger = logging.getLogger(__name__)
 
 
+class MentorRequest(models.Model):
+    """A mentor's request to follow a trader's journal. Trader accepts or rejects."""
+
+    class Status(models.TextChoices):
+        PENDING  = "pending",  "Pending"
+        ACCEPTED = "accepted", "Accepted"
+        REJECTED = "rejected", "Rejected"
+
+    mentor = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="sent_requests")
+    trader = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="received_requests")
+    status = models.CharField(max_length=10, choices=Status.choices, default=Status.PENDING)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "mentors_mentorrequest"
+        unique_together = [("mentor", "trader")]
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:
+        return f"{self.mentor.email} → {self.trader.email} ({self.status})"
+
+
 class MentorAssignment(models.Model):
-    """Links a trader to a mentor. Created by the trader (Pro plan feature)."""
+    """Active mentor–trader relationship created when a MentorRequest is accepted."""
 
     trader = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="mentor_assignments")
     mentor = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="trader_assignments")

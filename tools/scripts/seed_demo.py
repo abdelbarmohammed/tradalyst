@@ -480,6 +480,151 @@ def generate_trades(trader: CustomUser, n: int = 135) -> list[Trade]:
     return trades
 
 
+# ── Carlos (mentor) trades ────────────────────────────────────────────────────
+
+CARLOS_REASONS = {
+    "confident": [
+        "Confluencia perfecta: soporte dinámico + nivel Fibonacci + volumen institucional. "
+        "Setup de alta probabilidad. Gestión del riesgo definida antes de entrar.",
+        "Estructura de mercado limpia. Higher high confirmado en H4. "
+        "Entrada en pullback con momentum positivo. Stop técnico bajo mínimo de estructura.",
+        "Patrón de reversión en zona de valor. RSI saliendo de sobreventa con divergencia alcista. "
+        "Target en resistencia anterior. Relación riesgo-beneficio de 2.5:1 mínimo.",
+    ],
+    "fomo": [
+        "Movimiento fuerte sin esperar mi setup. Entro tarde por miedo a perderme el rally. "
+        "Error de disciplina que debo corregir.",
+        "Entrada impulsiva en ruptura directa sin pullback. "
+        "No es mi setup habitual. La impaciencia me ha ganado hoy.",
+    ],
+    "fearful": [
+        "Setup técnico válido pero el contexto macro genera dudas. "
+        "Entro con tamaño reducido al 50%% de lo habitual.",
+        "Señal clara pero el mercado está nervioso esta semana. "
+        "Prefiero ser conservador y reducir exposición.",
+    ],
+    "revenge": [
+        "Después de una pérdida importante intento recuperar demasiado rápido. "
+        "Sé que es un error pero el impulso es difícil de controlar.",
+        "Dos stops seguidos y entro de nuevo con más tamaño. "
+        "Estoy en modo revenge. Esto no forma parte de mi plan.",
+    ],
+}
+
+CARLOS_WIN_RATE = {
+    "confident": 0.88,
+    "fomo":      0.40,
+    "fearful":   0.80,
+    "revenge":   0.35,
+}
+
+CARLOS_EMOTION_DIST = [
+    ("confident", 0.55),
+    ("fomo",      0.18),
+    ("fearful",   0.18),
+    ("revenge",   0.09),
+]
+
+
+def generate_carlos_trades(mentor: CustomUser, n: int = 30) -> list[Trade]:
+    """Generate 30 trades for Carlos (mentor) with ~72% WR using a separate RNG."""
+    rng = random.Random(77)  # isolated seed — does not affect Alex's sequence
+
+    end_dt   = datetime(2026, 4, 24, 21, 0, 0, tzinfo=timezone.utc)
+    start_dt = datetime(2026, 1, 24,  0, 0, 0, tzinfo=timezone.utc)
+
+    timestamps: list[datetime] = []
+    day = start_dt.replace(hour=0, minute=0, second=0, microsecond=0)
+    while day < end_dt:
+        if day.weekday() in (5, 6) and rng.random() > 0.15:
+            day += timedelta(days=1)
+            continue
+        n_day = rng.choices([0, 1, 2], weights=[0.45, 0.42, 0.13])[0]
+        for _ in range(n_day):
+            ts = day.replace(
+                hour=rng.randint(9, 20),
+                minute=rng.randint(0, 59),
+                second=rng.randint(0, 59),
+            )
+            if ts < end_dt:
+                timestamps.append(ts)
+        day += timedelta(days=1)
+
+    timestamps = sorted(rng.sample(timestamps, min(n, len(timestamps))))
+
+    trades: list[Trade] = []
+    consecutive_losses = 0
+
+    for entry_time in timestamps:
+        asset     = rng.choices(ASSET_NAMES, weights=ASSET_WEIGHTS)[0]
+        direction = rng.choices(["long", "short"], weights=[0.62, 0.38])[0]
+        emotions, weights = zip(*CARLOS_EMOTION_DIST)
+        emotion = rng.choices(emotions, weights=weights)[0]
+
+        rate = CARLOS_WIN_RATE[emotion]
+        if consecutive_losses >= 2:
+            rate *= 0.75
+        win = rng.random() < rate
+
+        ep  = asset_price(asset, entry_time)
+        cfg = ASSETS[asset]
+
+        if win:
+            move_pct = rng.uniform(0.008, 0.025) if emotion == "confident" else rng.uniform(0.005, 0.015)
+        else:
+            move_pct = rng.uniform(0.010, 0.028)
+        move = ep * move_pct
+        if direction == "long":
+            xp = ep + move if win else ep - move
+        else:
+            xp = ep - move if win else ep + move
+        xp = max(xp, ep * 0.1)
+
+        qty = rng.uniform(cfg["qty_min"], cfg["qty_max"])
+        qty = round(qty) if cfg["qty_decimals"] == 0 else round(qty, cfg["qty_decimals"])
+
+        entry_d = d(ep, cfg["price_decimals"])
+        exit_d  = d(xp, cfg["price_decimals"])
+        qty_d   = d(qty, cfg["qty_decimals"])
+
+        if direction == "long":
+            pnl_d = (exit_d - entry_d) * qty_d
+        else:
+            pnl_d = (entry_d - exit_d) * qty_d
+        pnl_d = pnl_d.quantize(Decimal("0.01"))
+
+        result = "win" if pnl_d > 0 else ("loss" if pnl_d < 0 else "breakeven")
+
+        rr = d(rng.uniform(1.5, 3.0) if emotion == "confident" else rng.uniform(1.0, 2.0), 2)
+        exit_time = entry_time + timedelta(hours=rng.uniform(0.5, 12.0))
+
+        reason_template = rng.choice(CARLOS_REASONS[emotion])
+        try:
+            notes = reason_template.format(price=ep)
+        except (KeyError, ValueError):
+            notes = reason_template
+
+        trades.append(Trade(
+            user=mentor,
+            pair=asset,
+            direction=direction,
+            entry_price=entry_d,
+            exit_price=exit_d,
+            quantity=qty_d,
+            entry_time=entry_time,
+            exit_time=exit_time,
+            pnl=pnl_d,
+            risk_reward_ratio=rr,
+            result=result,
+            emotion=emotion,
+            notes=notes,
+        ))
+
+        consecutive_losses = 0 if result == "win" else consecutive_losses + 1
+
+    return trades
+
+
 # ── Mentor annotations ─────────────────────────────────────────────────────────
 
 def add_annotations(mentor: CustomUser, all_trades: list[Trade]) -> None:
@@ -524,7 +669,7 @@ def main() -> None:
     logger.info("═══════════════════════════════════")
 
     # 1 ── Accounts ──────────────────────────────────────────────────────────
-    logger.info("\n[1/4] Accounts")
+    logger.info("\n[1/5] Accounts")
     users: dict[str, CustomUser] = {}
     for acc in ACCOUNTS:
         users[acc["role"]] = get_or_create_user(
@@ -538,7 +683,7 @@ def main() -> None:
     mentor = users["mentor"]
 
     # 2 ── Mentor assignment ──────────────────────────────────────────────────
-    logger.info("\n[2/4] Mentor assignment")
+    logger.info("\n[2/5] Mentor assignment")
     assignment, created = MentorAssignment.objects.get_or_create(
         mentor=mentor, trader=trader, defaults={"is_active": True}
     )
@@ -550,7 +695,7 @@ def main() -> None:
         logger.info("  Already exists (ensured active)")
 
     # 3 ── Trades ─────────────────────────────────────────────────────────────
-    logger.info("\n[3/4] Generating trades for Alex García")
+    logger.info("\n[3/5] Generating trades for Alex García")
     existing = Trade.objects.filter(user=trader).count()
     if existing:
         logger.info(f"  Removing {existing} existing trades…")
@@ -585,8 +730,25 @@ def main() -> None:
     tuesday_wr = tuesday_wins / len(tuesday_trades) * 100 if tuesday_trades else 0
     logger.info(f"    Tuesday WR    : {tuesday_wr:.0f}%  (should be lower)")
 
-    # 4 ── Annotations ─────────────────────────────────────────────────────────
-    logger.info("\n[4/4] Mentor annotations (Carlos on Alex's worst trades)")
+    # 4 ── Carlos's own trades ─────────────────────────────────────────────────
+    logger.info("\n[4/5] Generating trades for Carlos Ruiz (mentor)")
+    existing_mentor = Trade.objects.filter(user=mentor).count()
+    if existing_mentor:
+        logger.info(f"  Removing {existing_mentor} existing trades…")
+        Trade.objects.filter(user=mentor).delete()
+
+    carlos_trades = generate_carlos_trades(mentor, n=30)
+    Trade.objects.bulk_create(carlos_trades)
+
+    carlos_saved = list(Trade.objects.filter(user=mentor))
+    carlos_wins  = sum(1 for t in carlos_saved if t.result == "win")
+    carlos_total = len(carlos_saved)
+    carlos_wr    = carlos_wins / carlos_total * 100 if carlos_total else 0
+    logger.info(f"  Trades created : {carlos_total}")
+    logger.info(f"  Win rate       : {carlos_wr:.1f}%  (target ~72%)")
+
+    # 5 ── Annotations ─────────────────────────────────────────────────────────
+    logger.info("\n[5/5] Mentor annotations (Carlos on Alex's worst trades)")
     add_annotations(mentor, saved)
 
     # ── Summary ───────────────────────────────────────────────────────────────

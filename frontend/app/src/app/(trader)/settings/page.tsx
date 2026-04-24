@@ -1,44 +1,22 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { AlertCircle, Check, Download, Trash2, X } from "lucide-react";
-import { get, patch, post } from "@/lib/api";
+import Link from "next/link";
+import { AlertCircle, Check, Download, Trash2, X, UserCheck, Clock, BookOpen } from "lucide-react";
+import { get, patch, post, del } from "@/lib/api";
 import { MARKETING_URL } from "@/lib/urls";
 import { logout } from "@/lib/auth";
-import type { UserProfile, Trade, PaginatedTrades } from "@/types";
-
-// ── Types ─────────────────────────────────────────────────────────────────────
-
-type Tab = "perfil" | "seguridad" | "mentor" | "plan" | "cuenta";
-
-const TABS: { value: Tab; label: string }[] = [
-  { value: "perfil",    label: "Perfil" },
-  { value: "seguridad", label: "Seguridad" },
-  { value: "mentor",    label: "Mentor" },
-  { value: "plan",      label: "Plan" },
-  { value: "cuenta",    label: "Cuenta" },
-];
+import { formatDateMedium } from "@/lib/format";
+import type { UserProfile, Trade, PaginatedTrades, MentorRequest, MentorAssignment } from "@/types";
 
 // ── Shared field components ───────────────────────────────────────────────────
 
-function Field({
-  label,
-  error,
-  children,
-}: {
-  label: string;
-  error?: string;
-  children: React.ReactNode;
-}) {
+function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-1">
-      <label className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted">
-        {label}
-      </label>
+      <label className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted">{label}</label>
       {children}
-      {error && (
-        <p className="font-mono text-[10px] text-loss mt-[2px]">{error}</p>
-      )}
+      {error && <p className="font-mono text-[10px] text-loss mt-[2px]">{error}</p>}
     </div>
   );
 }
@@ -82,10 +60,7 @@ function PerfilTab({ user, onUpdated }: { user: UserProfile; onUpdated: (u: User
     setSuccess(false);
     setError(null);
     try {
-      const updated = await patch<UserProfile>("/api/users/me/", {
-        display_name: name.trim(),
-        bio: bio.trim(),
-      });
+      const updated = await patch<UserProfile>("/api/users/me/", { display_name: name.trim(), bio: bio.trim() });
       onUpdated(updated);
       setSuccess(true);
     } catch (err) {
@@ -101,21 +76,11 @@ function PerfilTab({ user, onUpdated }: { user: UserProfile; onUpdated: (u: User
       {error && <ErrorBanner message={error} />}
 
       <Field label="Nombre">
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className={inputCls}
-        />
+        <input type="text" value={name} onChange={(e) => setName(e.target.value)} className={inputCls} />
       </Field>
 
       <Field label="Email">
-        <input
-          type="email"
-          value={user.email}
-          disabled
-          className={inputDisabledCls}
-        />
+        <input type="email" value={user.email} disabled className={inputDisabledCls} />
         <p className="font-mono text-[9px] text-muted">El email no se puede cambiar.</p>
       </Field>
 
@@ -129,11 +94,7 @@ function PerfilTab({ user, onUpdated }: { user: UserProfile; onUpdated: (u: User
         />
       </Field>
 
-      <button
-        type="submit"
-        disabled={saving}
-        className="font-sans text-[13px] font-semibold bg-green hover:bg-green-hover text-white px-6 py-[9px] rounded transition-colors disabled:opacity-50"
-      >
+      <button type="submit" disabled={saving} className="font-sans text-[13px] font-semibold bg-green hover:bg-green-hover text-white px-6 py-[9px] transition-colors disabled:opacity-50">
         {saving ? "Guardando…" : "Guardar cambios"}
       </button>
     </form>
@@ -143,35 +104,24 @@ function PerfilTab({ user, onUpdated }: { user: UserProfile; onUpdated: (u: User
 // ── Tab: Seguridad ────────────────────────────────────────────────────────────
 
 function SeguridadTab() {
-  const [current, setCurrent]   = useState("");
-  const [newPwd, setNewPwd]     = useState("");
-  const [confirm, setConfirm]   = useState("");
-  const [saving, setSaving]     = useState(false);
-  const [success, setSuccess]   = useState(false);
-  const [error, setError]       = useState<string | null>(null);
+  const [current, setCurrent] = useState("");
+  const [newPwd, setNewPwd]   = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [saving, setSaving]   = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError]     = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    if (newPwd !== confirm) {
-      setError("Las contraseñas no coinciden.");
-      return;
-    }
-    if (newPwd.length < 8) {
-      setError("La nueva contraseña debe tener al menos 8 caracteres.");
-      return;
-    }
+    if (newPwd !== confirm) { setError("Las contraseñas no coinciden."); return; }
+    if (newPwd.length < 8)  { setError("La nueva contraseña debe tener al menos 8 caracteres."); return; }
     setSaving(true);
     setSuccess(false);
     try {
-      await post("/api/auth/change-password/", {
-        current_password: current,
-        new_password: newPwd,
-      });
+      await post("/api/auth/change-password/", { current_password: current, new_password: newPwd });
       setSuccess(true);
-      setCurrent("");
-      setNewPwd("");
-      setConfirm("");
+      setCurrent(""); setNewPwd(""); setConfirm("");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al cambiar la contraseña.");
     } finally {
@@ -183,85 +133,178 @@ function SeguridadTab() {
     <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
       {success && <SaveBanner message="Contraseña actualizada correctamente." />}
       {error && <ErrorBanner message={error} />}
-
       <Field label="Contraseña actual">
-        <input
-          type="password"
-          value={current}
-          onChange={(e) => setCurrent(e.target.value)}
-          className={inputCls}
-          autoComplete="current-password"
-        />
+        <input type="password" value={current} onChange={(e) => setCurrent(e.target.value)} className={inputCls} autoComplete="current-password" />
       </Field>
-
       <Field label="Nueva contraseña">
-        <input
-          type="password"
-          value={newPwd}
-          onChange={(e) => setNewPwd(e.target.value)}
-          className={inputCls}
-          autoComplete="new-password"
-        />
+        <input type="password" value={newPwd} onChange={(e) => setNewPwd(e.target.value)} className={inputCls} autoComplete="new-password" />
       </Field>
-
       <Field label="Confirmar nueva contraseña">
-        <input
-          type="password"
-          value={confirm}
-          onChange={(e) => setConfirm(e.target.value)}
-          className={inputCls}
-          autoComplete="new-password"
-        />
+        <input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} className={inputCls} autoComplete="new-password" />
       </Field>
-
-      <button
-        type="submit"
-        disabled={saving || !current || !newPwd || !confirm}
-        className="font-sans text-[13px] font-semibold bg-green hover:bg-green-hover text-white px-6 py-[9px] rounded transition-colors disabled:opacity-50"
-      >
+      <button type="submit" disabled={saving || !current || !newPwd || !confirm} className="font-sans text-[13px] font-semibold bg-green hover:bg-green-hover text-white px-6 py-[9px] transition-colors disabled:opacity-50">
         {saving ? "Actualizando…" : "Actualizar contraseña"}
       </button>
     </form>
   );
 }
 
-// ── Tab: Mentor ───────────────────────────────────────────────────────────────
+// ── Tab: Mentor (trader view) ─────────────────────────────────────────────────
 
 function MentorTab() {
+  const [requests, setRequests] = useState<MentorRequest[]>([]);
+  const [assignment, setAssignment] = useState<MentorAssignment | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+
+  useEffect(() => {
+    Promise.all([
+      get<{ count: number; results: MentorRequest[] }>("/api/mentors/requests/received/"),
+      get<MentorAssignment>("/api/mentors/my-mentor/").catch(() => null),
+    ])
+      .then(([reqs, asgn]) => {
+        setRequests(reqs.results);
+        setAssignment(asgn);
+      })
+      .catch((err) => setError(err instanceof Error ? err.message : "Error al cargar datos."))
+      .finally(() => setLoading(false));
+  }, []);
+
+  async function handleAccept(requestId: number) {
+    setActionError(null);
+    try {
+      const asgn = await post<MentorAssignment>(`/api/mentors/requests/${requestId}/accept/`, {});
+      setAssignment(asgn);
+      setRequests((prev) => prev.filter((r) => r.id !== requestId));
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "Error al aceptar.");
+    }
+  }
+
+  async function handleReject(requestId: number) {
+    setActionError(null);
+    try {
+      await post(`/api/mentors/requests/${requestId}/reject/`, {});
+      setRequests((prev) => prev.filter((r) => r.id !== requestId));
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "Error al rechazar.");
+    }
+  }
+
+  async function handleRevoke() {
+    if (!assignment) return;
+    setActionError(null);
+    try {
+      await del(`/api/mentors/assignments/${assignment.id}/`);
+      setAssignment(null);
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "Error al revocar acceso.");
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-3 max-w-md">
+        {[...Array(2)].map((_, i) => <div key={i} className="skeleton h-20 w-full rounded-sm" />)}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-5 max-w-md">
-      <div className="card p-5">
-        <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted mb-3">
-          Mentor asignado
-        </p>
-        <p className="font-sans text-[13px] text-secondary">
-          No tienes ningún mentor asignado actualmente.
-        </p>
-      </div>
+      {error && <ErrorBanner message={error} />}
+      {actionError && <ErrorBanner message={actionError} />}
 
-      <div className="card p-5 space-y-3">
-        <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted">
-          Invitar mentor
-        </p>
-        <p className="font-sans text-[12px] text-muted leading-relaxed">
-          Tu mentor puede ver tu diario completo y añadir anotaciones. No puede editar ni eliminar tus operaciones.
-        </p>
-        <input
-          type="email"
-          placeholder="email@mentor.com"
-          className={inputCls}
-          disabled
-        />
-        <button
-          disabled
-          className="font-sans text-[12px] font-semibold bg-green/40 text-white/50 px-5 py-[8px] rounded cursor-not-allowed"
-        >
-          Enviar invitación
-        </button>
-        <p className="font-mono text-[9px] text-muted">
-          Disponible con el plan Pro.
-        </p>
+      {/* Incoming pending requests */}
+      {requests.length > 0 && (
+        <div className="card p-5 space-y-3">
+          <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted">Solicitudes recibidas</p>
+          {requests.map((req) => (
+            <div key={req.id} className="flex items-center justify-between gap-3 py-2 border-b border-white/[0.05] last:border-0">
+              <div className="min-w-0">
+                <p className="font-sans text-[13px] text-primary truncate">
+                  {req.mentor_detail.display_name || req.mentor_detail.email}
+                </p>
+                <p className="font-mono text-[10px] text-muted">{req.mentor_detail.email}</p>
+              </div>
+              <div className="flex gap-2 flex-shrink-0">
+                <button
+                  onClick={() => handleAccept(req.id)}
+                  className="flex items-center gap-1 font-mono text-[10px] bg-green hover:bg-green-hover text-white px-3 py-[6px] transition-colors"
+                >
+                  <UserCheck size={11} />
+                  Aceptar
+                </button>
+                <button
+                  onClick={() => handleReject(req.id)}
+                  className="flex items-center gap-1 font-mono text-[10px] border border-white/[0.10] text-muted hover:text-primary px-3 py-[6px] transition-colors"
+                >
+                  <X size={11} />
+                  Rechazar
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Current mentor */}
+      <div className="card p-5">
+        <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted mb-3">Mentor asignado</p>
+        {assignment ? (
+          <div className="space-y-3">
+            <div>
+              <p className="font-sans text-[14px] font-semibold text-primary">
+                {assignment.mentor_detail.display_name || assignment.mentor_detail.email}
+              </p>
+              <p className="font-mono text-[10px] text-muted mt-[2px]">
+                {assignment.mentor_detail.email} · Desde {formatDateMedium(assignment.created_at)}
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Link
+                href="/mentor-trades"
+                className="flex items-center gap-2 font-mono text-[11px] border border-white/[0.10] text-secondary hover:text-primary px-3 py-[7px] transition-colors"
+              >
+                <BookOpen size={12} />
+                Ver operaciones de mi mentor
+              </Link>
+            </div>
+            <button
+              onClick={handleRevoke}
+              className="font-mono text-[10px] text-muted hover:text-loss transition-colors underline"
+            >
+              Revocar acceso
+            </button>
+          </div>
+        ) : requests.length === 0 ? (
+          <div className="space-y-2">
+            <p className="font-sans text-[13px] text-secondary">No tienes ningún mentor asignado.</p>
+            <p className="font-mono text-[11px] text-muted">
+              Comparte tu email con un mentor para que te envíe una solicitud de seguimiento.
+            </p>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            <Clock size={12} className="text-muted" />
+            <p className="font-sans text-[13px] text-secondary">Tienes solicitudes pendientes de revisar.</p>
+          </div>
+        )}
       </div>
+    </div>
+  );
+}
+
+// ── Tab: Mis alumnos (mentor view) ────────────────────────────────────────────
+
+function MisAlumnosTab() {
+  return (
+    <div className="max-w-md">
+      <p className="font-sans text-[13px] text-secondary">
+        Gestiona tus alumnos desde la sección{" "}
+        <Link href="/mentor" className="text-green hover:underline">Mis alumnos</Link>.
+      </p>
     </div>
   );
 }
@@ -274,38 +317,20 @@ function PlanTab({ user }: { user: UserProfile }) {
     <div className="space-y-4 max-w-md">
       <div className="card p-5">
         <div className="flex items-center justify-between mb-4">
-          <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted">
-            Plan actual
-          </p>
-          <span
-            className={`font-mono text-[10px] px-3 py-[3px] border ${
-              isPro
-                ? "border-green/40 text-green bg-green/10"
-                : "border-white/[0.12] text-secondary"
-            }`}
-          >
+          <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted">Plan actual</p>
+          <span className={`font-mono text-[10px] px-3 py-[3px] border ${isPro ? "border-green/40 text-green bg-green/10" : "border-white/[0.12] text-secondary"}`}>
             {isPro ? "PRO" : "FREE"}
           </span>
         </div>
-
         {isPro ? (
           <>
-            <p className="font-sans text-[13px] text-secondary mb-4">
-              Tienes acceso completo a todas las funciones de Tradalyst.
-            </p>
-            <button className="font-mono text-[11px] text-muted hover:text-loss transition-colors underline">
-              Cancelar suscripción
-            </button>
+            <p className="font-sans text-[13px] text-secondary mb-4">Tienes acceso completo a todas las funciones de Tradalyst.</p>
+            <button className="font-mono text-[11px] text-muted hover:text-loss transition-colors underline">Cancelar suscripción</button>
           </>
         ) : (
           <>
-            <p className="font-sans text-[13px] text-secondary mb-4">
-              Actualiza a Pro para desbloquear análisis de IA ilimitados, acceso a mentor y exportación avanzada.
-            </p>
-            <a
-              href={`${MARKETING_URL}/precios`}
-              className="inline-block font-sans text-[13px] font-semibold bg-green hover:bg-green-hover text-white px-5 py-[9px] rounded transition-colors"
-            >
+            <p className="font-sans text-[13px] text-secondary mb-4">Actualiza a Pro para desbloquear análisis de IA ilimitados, acceso a mentor y exportación avanzada.</p>
+            <a href={`${MARKETING_URL}/precios`} className="inline-block font-sans text-[13px] font-semibold bg-green hover:bg-green-hover text-white px-5 py-[9px] transition-colors">
               Ver planes →
             </a>
           </>
@@ -326,35 +351,21 @@ function CuentaTab() {
   async function handleExport() {
     setExporting(true);
     try {
-      const res = await get<PaginatedTrades>(
-        "/api/trades/?page_size=10000&ordering=entry_time"
-      );
+      const res = await get<PaginatedTrades>("/api/trades/?page_size=10000&ordering=entry_time");
       const trades = res.results;
-      const header = [
-        "id", "pair", "direction", "entry_price", "exit_price",
-        "quantity", "pnl", "result", "emotion", "entry_time", "exit_time", "notes",
-      ].join(",");
+      const header = ["id","pair","direction","entry_price","exit_price","quantity","pnl","result","emotion","entry_time","exit_time","notes"].join(",");
       const rows = trades.map((t: Trade) =>
-        [
-          t.id, t.pair, t.direction,
-          t.entry_price, t.exit_price ?? "",
-          t.quantity, t.pnl ?? "",
-          t.result ?? "", t.emotion ?? "",
-          t.entry_time, t.exit_time ?? "",
-          `"${(t.notes ?? "").replace(/"/g, '""')}"`,
-        ].join(",")
+        [t.id,t.pair,t.direction,t.entry_price,t.exit_price??"",t.quantity,t.pnl??"",t.result??"",t.emotion??"",t.entry_time,t.exit_time??"",`"${(t.notes??"").replace(/"/g,'""')}"`].join(",")
       );
       const csv = [header, ...rows].join("\n");
       const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `tradalyst_operaciones_${new Date().toISOString().slice(0, 10)}.csv`;
+      link.download = `tradalyst_operaciones_${new Date().toISOString().slice(0,10)}.csv`;
       link.click();
       URL.revokeObjectURL(url);
-    } catch {
-      // Silently ignore
-    } finally {
+    } catch { /* ignore */ } finally {
       setExporting(false);
     }
   }
@@ -363,7 +374,6 @@ function CuentaTab() {
     if (deleteConfirm !== "ELIMINAR") return;
     setDeleting(true);
     try {
-      // Endpoint not yet implemented — log out to simulate
       await logout();
     } catch {
       setDeleting(false);
@@ -376,76 +386,37 @@ function CuentaTab() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60" onClick={() => setShowDeleteModal(false)} />
           <div className="relative bg-elevated border border-white/[0.08] p-6 w-full max-w-sm">
-            <button
-              onClick={() => setShowDeleteModal(false)}
-              className="absolute top-4 right-4 text-muted hover:text-primary"
-            >
+            <button onClick={() => setShowDeleteModal(false)} className="absolute top-4 right-4 text-muted hover:text-primary">
               <X size={14} />
             </button>
-            <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-loss mb-3">
-              Eliminar cuenta
-            </p>
-            <p className="font-sans text-[13px] text-primary mb-2">
-              Esta acción es permanente e irreversible.
-            </p>
+            <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-loss mb-3">Eliminar cuenta</p>
+            <p className="font-sans text-[13px] text-primary mb-2">Esta acción es permanente e irreversible.</p>
             <p className="font-sans text-[12px] text-muted mb-4">
-              Se eliminarán todas tus operaciones, análisis e historial de chat. Escribe <strong className="text-primary">ELIMINAR</strong> para confirmar.
+              Se eliminarán todos tus datos. Escribe <strong className="text-primary">ELIMINAR</strong> para confirmar.
             </p>
-            <input
-              type="text"
-              value={deleteConfirm}
-              onChange={(e) => setDeleteConfirm(e.target.value)}
-              placeholder="ELIMINAR"
-              className={`${inputCls} mb-4`}
-            />
+            <input type="text" value={deleteConfirm} onChange={(e) => setDeleteConfirm(e.target.value)} placeholder="ELIMINAR" className={`${inputCls} mb-4`} />
             <div className="flex gap-2">
-              <button
-                onClick={() => setShowDeleteModal(false)}
-                className="flex-1 font-sans text-[13px] border border-white/[0.12] text-secondary py-[9px] hover:text-primary transition-colors"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleDelete}
-                disabled={deleteConfirm !== "ELIMINAR" || deleting}
-                className="flex-1 font-sans text-[13px] font-semibold bg-loss/80 hover:bg-loss text-white py-[9px] transition-colors disabled:opacity-40"
-              >
+              <button onClick={() => setShowDeleteModal(false)} className="flex-1 font-sans text-[13px] border border-white/[0.12] text-secondary py-[9px] hover:text-primary transition-colors">Cancelar</button>
+              <button onClick={handleDelete} disabled={deleteConfirm !== "ELIMINAR" || deleting} className="flex-1 font-sans text-[13px] font-semibold bg-loss/80 hover:bg-loss text-white py-[9px] transition-colors disabled:opacity-40">
                 {deleting ? "Eliminando…" : "Eliminar cuenta"}
               </button>
             </div>
           </div>
         </div>
       )}
-
       <div className="space-y-4 max-w-md">
         <div className="card p-5">
-          <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted mb-2">
-            Exportar datos
-          </p>
-          <p className="font-sans text-[12px] text-muted mb-4">
-            Descarga todas tus operaciones en formato CSV (derecho de portabilidad RGPD).
-          </p>
-          <button
-            onClick={handleExport}
-            disabled={exporting}
-            className="flex items-center gap-2 font-sans text-[13px] font-semibold border border-white/[0.12] text-secondary hover:text-primary px-5 py-[9px] transition-colors disabled:opacity-50"
-          >
+          <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted mb-2">Exportar datos</p>
+          <p className="font-sans text-[12px] text-muted mb-4">Descarga todas tus operaciones en formato CSV (derecho de portabilidad RGPD).</p>
+          <button onClick={handleExport} disabled={exporting} className="flex items-center gap-2 font-sans text-[13px] font-semibold border border-white/[0.12] text-secondary hover:text-primary px-5 py-[9px] transition-colors disabled:opacity-50">
             <Download size={13} />
             {exporting ? "Exportando…" : "Exportar operaciones CSV"}
           </button>
         </div>
-
         <div className="card p-5">
-          <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-loss mb-2">
-            Zona de peligro
-          </p>
-          <p className="font-sans text-[12px] text-muted mb-4">
-            Eliminar tu cuenta borrará permanentemente todos tus datos. Esta acción no se puede deshacer.
-          </p>
-          <button
-            onClick={() => setShowDeleteModal(true)}
-            className="flex items-center gap-2 font-sans text-[13px] font-semibold border border-loss/30 text-loss hover:bg-loss/[0.08] px-5 py-[9px] transition-colors"
-          >
+          <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-loss mb-2">Zona de peligro</p>
+          <p className="font-sans text-[12px] text-muted mb-4">Eliminar tu cuenta borrará permanentemente todos tus datos.</p>
+          <button onClick={() => setShowDeleteModal(true)} className="flex items-center gap-2 font-sans text-[13px] font-semibold border border-loss/30 text-loss hover:bg-loss/[0.08] px-5 py-[9px] transition-colors">
             <Trash2 size={13} />
             Eliminar cuenta
           </button>
@@ -458,62 +429,66 @@ function CuentaTab() {
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export default function SettingsPage() {
-  const [tab, setTab] = useState<Tab>("perfil");
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState("perfil");
 
   const fetchUser = useCallback(async () => {
     try {
       const u = await get<UserProfile>("/api/users/me/");
       setUser(u);
-    } catch {
-      // Ignore
-    } finally {
+    } catch { /* ignore */ } finally {
       setLoading(false);
     }
   }, []);
 
-  useEffect(() => {
-    fetchUser();
-  }, [fetchUser]);
+  useEffect(() => { fetchUser(); }, [fetchUser]);
+
+  const isMentor = user?.role === "mentor";
+
+  const TABS = isMentor
+    ? [
+        { value: "perfil",     label: "Perfil" },
+        { value: "seguridad",  label: "Seguridad" },
+        { value: "alumnos",    label: "Mis alumnos" },
+        { value: "cuenta",     label: "Cuenta" },
+      ]
+    : [
+        { value: "perfil",    label: "Perfil" },
+        { value: "seguridad", label: "Seguridad" },
+        { value: "mentor",    label: "Mentor" },
+        { value: "plan",      label: "Plan" },
+        { value: "cuenta",    label: "Cuenta" },
+      ];
 
   return (
     <div className="max-w-[800px] mx-auto space-y-6">
-      <h1 className="font-sans text-[22px] font-bold text-primary leading-tight">
-        Ajustes
-      </h1>
+      <h1 className="font-sans text-[22px] font-bold text-primary leading-tight">Ajustes</h1>
 
-      {/* Tab bar */}
       <div className="flex gap-[2px] bg-surface border border-white/[0.08] w-fit overflow-hidden">
         {TABS.map(({ value, label }) => (
           <button
             key={value}
             onClick={() => setTab(value)}
-            className={`font-mono text-[11px] px-4 py-[8px] transition-colors ${
-              tab === value
-                ? "bg-elevated text-primary"
-                : "text-muted hover:text-secondary"
-            }`}
+            className={`font-mono text-[11px] px-4 py-[8px] transition-colors ${tab === value ? "bg-elevated text-primary" : "text-muted hover:text-secondary"}`}
           >
             {label}
           </button>
         ))}
       </div>
 
-      {/* Tab content */}
       <div>
         {loading ? (
           <div className="space-y-3">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="skeleton h-12 w-full max-w-md rounded-sm" />
-            ))}
+            {[...Array(3)].map((_, i) => <div key={i} className="skeleton h-12 w-full max-w-md rounded-sm" />)}
           </div>
         ) : (
           <>
             {tab === "perfil"    && user && <PerfilTab user={user} onUpdated={setUser} />}
             {tab === "seguridad" && <SeguridadTab />}
-            {tab === "mentor"    && <MentorTab />}
-            {tab === "plan"      && user && <PlanTab user={user} />}
+            {tab === "mentor"    && !isMentor && <MentorTab />}
+            {tab === "alumnos"   && isMentor && <MisAlumnosTab />}
+            {tab === "plan"      && !isMentor && user && <PlanTab user={user} />}
             {tab === "cuenta"    && <CuentaTab />}
           </>
         )}

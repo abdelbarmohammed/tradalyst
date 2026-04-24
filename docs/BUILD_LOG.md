@@ -2,7 +2,7 @@
 
 > Living record of what has been built, updated after every major milestone.
 > Will serve as source material for the Spanish memoria documentation.
-> Last updated: 2026-04-22
+> Last updated: 2026-04-24
 
 ---
 
@@ -706,6 +706,207 @@ Client-side analytics computed from a single `GET /api/trades/?page_size=1000` f
 
 ---
 
+---
+
+## Milestone 17 — Frontend: Mentor Pages (Full Build)
+
+**Date:** 2026-04-23
+
+### What Was Built
+
+**New components:**
+
+`MentorSidebar` (`src/components/layout/MentorSidebar.tsx`) — client component, uses `usePathname` for active highlight, `logout()` from `@/lib/auth` on sign-out. Nav links: Eye → `/mentor`, Settings → `/settings`. "Vista mentor" role label below wordmark.
+
+`MentorBottomNav` (`src/components/layout/MentorBottomNav.tsx`) — `lg:hidden fixed bottom-0` bar with Eye/Traders and Settings/Ajustes. Mirrors sidebar on mobile.
+
+**`(mentor)/layout.tsx` rewritten** from placeholder to full layout:
+- MentorSidebar (desktop) + MentorBottomNav (mobile)
+- `pb-20 lg:pb-7` on main content area so bottom nav never overlaps content
+
+**`/mentor` (`mentor/page.tsx`):**
+- `GET /api/mentors/my-traders/` → list of `MentorAssignment` objects
+- Each assignment rendered as a trader card: display name (fallback to email), assignment date
+- Two action buttons per card: Dashboard → `/mentor/${trader_detail.id}/dashboard`, Diario → `/mentor/${trader_detail.id}`
+- Empty state: "Aún no tienes traders asignados."
+- Skeleton loading grid while fetching
+
+**`/mentor/[traderId]` (`mentor/[traderId]/page.tsx`):**
+- Read-only trade journal for one assigned trader
+- Fetches trader name from `GET /api/mentors/my-traders/` (finds matching assignment by `trader_detail.id`)
+- Trade list from `GET /api/mentors/traders/${traderId}/trades/` with same filter controls as the trader's own journal (pair, direction, result, date range — all server-side filtered)
+- Pagination: 20 per page with numbered page buttons
+- No create/edit/delete actions. Only Eye icon → `/mentor/${traderId}/trade/${t.id}`
+- Header: "← Mis traders" back link + "Dashboard" button to companion view
+
+**`/mentor/[traderId]/dashboard` (`mentor/[traderId]/dashboard/page.tsx`):**
+- Full stats dashboard computed client-side from all trades (walks paginated `next` links to fetch everything)
+- Stat cards: Total P&L, Win Rate (W/L counts), Operaciones, R:R Medio
+- P&L cumulative line chart (same `PnlChart` component as trader dashboard)
+- Activity heatmap (same `ActivityHeatmap` component)
+- Recent trades section (inline, not `RecentTradesTable`) — links to `/mentor/${traderId}/trade/${t.id}` not `/journal/${t.id}`
+- Header: "← Mis traders" back link + "Diario" button to journal view
+
+**`/mentor/[traderId]/trade/[id]` (`mentor/[traderId]/trade/[id]/page.tsx`):**
+- Trade detail: fetches list (`?page_size=100`) and finds trade client-side by ID (no single-trade endpoint exists on mentor routes)
+- Left column: full trade fields (direction, result, P&L, prices, quantity, R/R, times, emotion)
+- Right column: annotation panel — list of `MentorAnnotation` + new annotation textarea
+- Annotations fetched from `GET /api/mentors/trades/${id}/annotations/`
+- New annotation posted to `POST /api/mentors/trades/${id}/annotations/` with `{ body: content }`
+- Annotations displayed with `annotation.body` and `annotation.created_at`
+
+### Backend Fix Applied
+
+**`apps/mentors/serializers.py`** — `MentorAssignmentSerializer` was missing `trader_detail`. Added:
+
+```python
+trader_detail = UserProfileSerializer(source="trader", read_only=True)
+```
+
+Without this, the mentor's trader list returned `trader: <int>` instead of the nested `{ id, email, display_name }` object that all four mentor pages need.
+
+### Type Corrections Applied
+
+**`src/types/index.ts`:**
+- `MentorAssignment.created_at` — was `assigned_at` (field does not exist on the model)
+- `MentorAssignment.trader_detail` — added (was only `mentor_detail` before)
+- `MentorAnnotation.body` — was `content` (the model field is `body`)
+
+---
+
+## Milestone 18 — Frontend: Admin Pages (Full Build)
+
+**Date:** 2026-04-23
+
+### What Was Built
+
+**New components:**
+
+`AdminSidebar` (`src/components/layout/AdminSidebar.tsx`) — same pattern as MentorSidebar. Nav: Users → `/admin`, Settings → `/settings`. "Admin" role label.
+
+`AdminBottomNav` (`src/components/layout/AdminBottomNav.tsx`) — Users/Usuarios and Settings/Ajustes.
+
+**`(admin)/layout.tsx` rewritten** using AdminSidebar + AdminBottomNav.
+
+**`/admin` (`admin/page.tsx`):**
+- Fetches `GET /api/users/?page_size=10&ordering=-date_joined`
+- Four `StatTile` cards: total users, traders (filtered count), mentors, admins
+- Recent registrations table: email, display name, role badge, active/suspended indicator, date joined
+- Each row links to `/admin/users/${id}`
+- "Ver todos →" link to `/admin/users`
+
+**`/admin/users` (`admin/users/page.tsx`):**
+- Full user list with search (debounced 350ms) and role filter tabs (Todos / Traders / Mentores / Admins)
+- Server-side pagination: 20 per page with numbered controls
+- Desktop: grid table with 6 columns (email, name, role badge, status, joined, action link)
+- Mobile: card stack — `hidden lg:block` / `lg:hidden` toggles per row
+- Each entry links to `/admin/users/${id}`
+
+**`/admin/users/[id]` (`admin/users/[id]/page.tsx`):**
+- Fetches `GET /api/users/${id}/`
+- Field rows: ID, email, display name, bio, role, account status, date joined
+- Three action buttons:
+  - Suspend → `PATCH /api/users/${id}/ { is_active: false }` (shown only when active)
+  - Activate → `PATCH /api/users/${id}/ { is_active: true }` (shown only when suspended)
+  - Delete → `DELETE /api/users/${id}/`
+- `ConfirmModal` component: danger-styled (red border + bg) for destructive actions, normal-styled for reversible ones
+- On delete success: `window.location.href = "/admin/users"` (hard redirect to clear state)
+
+---
+
+## Milestone 19 — Demo Seed Data
+
+**Date:** 2026-04-23
+
+### What Was Built
+
+**`tools/scripts/seed_demo.py`** — creates four accounts and populates 135 realistic trades.
+
+**Accounts created:**
+
+| Email | Role | Password | Purpose |
+|-------|------|----------|---------|
+| `admin@tradalyst.com` | admin | `Admin1234!` | Platform admin |
+| `trader@tradalyst.com` | trader | `Trader1234!` | Demo trader (Alex García) |
+| `mentor@tradalyst.com` | mentor | `Mentor1234!` | Carlos Ruiz |
+| — | — | — | Assignment: Carlos mentors Alex |
+
+**Trade generation — 135 trades over 90 days:**
+
+| Asset | Weight | Base price | Annual drift |
+|-------|--------|------------|-------------|
+| BTC/USDT | 33% | $55,000 | +60% |
+| ETH/USDT | 27% | $2,800 | +45% |
+| SOL/USDT | 17% | $130 | +90% |
+| EUR/USD | 13% | 1.085 | −2% |
+| AAPL | 10% | $185 | +25% |
+
+**Emotion distribution and win rates:**
+
+| Emotion | Share | Base win rate |
+|---------|-------|---------------|
+| `confident` | 40% | 93% |
+| `fomo` | 25% | 33% |
+| `fearful` | 20% | 86% |
+| `revenge` | 15% | 30% |
+
+Win rate modifiers: Tuesday × 0.74 (bad day pattern), 2 consecutive losses × 0.85, 3+ losses × 0.68. Tilt mechanic shifts emotion distribution toward `fomo`/`revenge` after losing streaks.
+
+**P&L pre-calculated manually** — `Trade.objects.bulk_create()` skips the model's `save()` override. P&L is computed inline using the same formula: long → `(exit − entry) × qty`, short → `(entry − exit) × qty`.
+
+**6 mentor annotations** backdate-patched via `MentorAnnotation.objects.filter(pk=...).update(created_at=..., updated_at=...)` to spread realistically across the 90-day window.
+
+**Final seed result:** 135 trades, ~61.5% win rate, +~$2,150 total P&L. Intended target: 63% (close enough for demo realism).
+
+**`tools/scripts/topup_trades.py`** — gap-fill script for keeping demo data current.
+
+- Reads `Trade.objects.filter(user=trader).order_by("-entry_time").first()` to find the last trade
+- Generates trades from `last_trade.date + 1 day` through `datetime.now()`
+- Same asset config, emotion config, and win rate logic as `seed_demo.py`
+- Carries forward consecutive-loss state from the tail of existing trades
+- Appends only — never deletes existing data
+- Intended to be run via cron or manually before demos to keep the last trade ≤1 day old
+
+**Root cause of original gap (April 10 → April 23):** The seed script sorted all timestamps then took `timestamps[:n]`, which front-loaded trades into the earliest days. Fix: `sorted(random.sample(timestamps, min(n, len(timestamps))))` — selects a random sample spread across the full window.
+
+---
+
+## Milestone 20 — Production Deployment (Hetzner VPS)
+
+**Date:** 2026-04-23
+
+### Infrastructure
+
+- **VPS:** Hetzner, `49.13.237.4`, user `mohammed` (root SSH disabled)
+- **Frontend:** PM2 process (`tradalyst-app`) running Next.js build at `/var/www/tradalyst/frontend/app`
+- **Backend:** systemd service (`tradalyst`) running Gunicorn at `/var/www/tradalyst/backend`
+- **Reverse proxy:** Nginx routing `app.tradalyst.com` → Next.js, `api.tradalyst.com` → Gunicorn
+
+### Deployment Steps
+
+After changes to frontend:
+```bash
+ssh mohammed@49.13.237.4
+cd /var/www/tradalyst/frontend/app && npm run build && pm2 restart tradalyst-app
+```
+
+After changes to backend (models, serializers, views):
+```bash
+ssh mohammed@49.13.237.4
+cd /var/www/tradalyst/backend && source venv/bin/activate && python manage.py migrate
+sudo systemctl restart tradalyst
+```
+
+After running seed scripts:
+```bash
+ssh mohammed@49.13.237.4
+cd /var/www/tradalyst && python tools/scripts/seed_demo.py
+# or for gap fill:
+python tools/scripts/topup_trades.py
+```
+
+---
+
 ## What Is Not Built Yet
 
 ### Backend
@@ -718,19 +919,13 @@ Client-side analytics computed from a single `GET /api/trades/?page_size=1000` f
 
 ### Frontend
 - Marketing site (`frontend/marketing/`) — needs full page build
-- Mentor pages (`/mentor/*`) — currently a placeholder
-- Admin pages (`/admin/*`) — currently a placeholder
-- Mobile responsive behaviour
+- Mobile responsive behaviour (partially done in mentor/admin pages, trader pages still desktop-first)
 
 ### Infrastructure
-- Nginx configuration (`nginx/conf.d/`)
-- Production deployment to Hetzner VPS
 - Cloudflare DNS/SSL setup
 - CI/CD pipeline
 
 ### Other
-- Database seed data (`database/seeds.sql` — demo accounts + Alex's trade history)
 - Final logo mark (icon variant)
 - Stripe payment integration (Pro plan)
 - Privacy policy + Terms pages (required for RGPD compliance)
-- Full mentor and admin page specs

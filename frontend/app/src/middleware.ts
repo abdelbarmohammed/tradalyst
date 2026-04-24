@@ -13,7 +13,7 @@ const PUBLIC_PATHS = new Set(["/login", "/registro", "/recuperar-contrasena"]);
 // Role → allowed path prefixes
 const ROLE_PATHS: Record<string, string[]> = {
   trader: ["/dashboard", "/journal", "/ai", "/analytics", "/settings", "/onboarding", "/prices"],
-  mentor: ["/mentor", "/settings"],
+  mentor: ["/dashboard", "/journal", "/ai", "/analytics", "/settings", "/mentor", "/mentor-trades", "/prices"],
   admin:  ["/admin", "/settings"],
 };
 

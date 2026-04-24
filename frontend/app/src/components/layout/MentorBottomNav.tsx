@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Eye, Settings } from "lucide-react";
+import { LayoutDashboard, BookOpen, Users, Settings } from "lucide-react";
 
 const ITEMS = [
-  { href: "/mentor", label: "Traders", icon: Eye },
-  { href: "/settings", label: "Ajustes", icon: Settings },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/journal",   label: "Diario",    icon: BookOpen },
+  { href: "/mentor",    label: "Alumnos",   icon: Users },
+  { href: "/settings",  label: "Ajustes",   icon: Settings },
 ];
 
 export default function MentorBottomNav() {

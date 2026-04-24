@@ -2,14 +2,54 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Eye, Settings, LogOut } from "lucide-react";
+import {
+  LayoutDashboard, BookOpen, Sparkles, BarChart2,
+  Users, Settings, LogOut,
+} from "lucide-react";
 import { logout } from "@/lib/auth";
 import { MARKETING_URL } from "@/lib/urls";
 
-const NAV_ITEMS = [
-  { href: "/mentor", label: "Mis traders", icon: Eye },
-  { href: "/settings", label: "Ajustes", icon: Settings },
+const TRADING_ITEMS = [
+  { href: "/dashboard",  label: "Dashboard",  icon: LayoutDashboard },
+  { href: "/journal",    label: "Diario",      icon: BookOpen },
+  { href: "/ai",         label: "IA",          icon: Sparkles },
+  { href: "/analytics",  label: "Analítica",   icon: BarChart2 },
 ];
+
+const MENTORING_ITEMS = [
+  { href: "/mentor", label: "Mis alumnos", icon: Users },
+];
+
+const ACCOUNT_ITEMS = [
+  { href: "/settings", label: "Configuración", icon: Settings },
+];
+
+function NavSection({ title, items, pathname }: {
+  title: string;
+  items: { href: string; label: string; icon: React.ComponentType<{ size?: number; className?: string }> }[];
+  pathname: string;
+}) {
+  return (
+    <div>
+      <p className="font-mono text-[9px] uppercase tracking-[0.1em] text-muted px-3 mb-[6px]">{title}</p>
+      <div className="space-y-[2px]">
+        {items.map(({ href, label, icon: Icon }) => {
+          const active = pathname === href || pathname.startsWith(`${href}/`);
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={`nav-item rounded-sm ${active ? "nav-item-active" : ""}`}
+            >
+              <Icon size={16} className="flex-shrink-0" />
+              <span>{label}</span>
+            </Link>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 export default function MentorSidebar() {
   const pathname = usePathname();
@@ -36,29 +76,17 @@ export default function MentorSidebar() {
             </g>
           </svg>
         </Link>
-        <p className="font-mono text-[9px] text-secondary mt-1 uppercase tracking-[0.08em]">
-          Vista mentor
-        </p>
+        <p className="font-mono text-[9px] text-muted mt-1 uppercase tracking-[0.08em]">Mentor</p>
       </div>
 
-      <nav className="flex-1 px-2 py-4 space-y-[2px] overflow-y-auto">
-        {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
-          const active = pathname === href || pathname.startsWith(`${href}/`);
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={`nav-item rounded-md ${active ? "nav-item-active" : ""}`}
-            >
-              <Icon size={16} className="flex-shrink-0" />
-              <span>{label}</span>
-            </Link>
-          );
-        })}
+      <nav className="flex-1 px-2 py-4 space-y-4 overflow-y-auto">
+        <NavSection title="Trading" items={TRADING_ITEMS} pathname={pathname} />
+        <NavSection title="Mentoría" items={MENTORING_ITEMS} pathname={pathname} />
+        <NavSection title="Cuenta" items={ACCOUNT_ITEMS} pathname={pathname} />
       </nav>
 
       <div className="px-2 py-4 border-t border-white/[0.06]">
-        <button onClick={logout} className="nav-item w-full rounded-md text-left">
+        <button onClick={logout} className="nav-item w-full rounded-sm text-left">
           <LogOut size={16} className="flex-shrink-0" />
           <span>Cerrar sesión</span>
         </button>

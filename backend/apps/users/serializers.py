@@ -14,6 +14,11 @@ class RegisterSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ("email", "display_name", "role", "password", "password_confirm")
 
+    def validate_role(self, role: str) -> str:
+        if role == "admin":
+            raise serializers.ValidationError("No puedes registrarte como administrador.")
+        return role
+
     def validate(self, attrs: dict) -> dict:
         if attrs["password"] != attrs.pop("password_confirm"):
             raise serializers.ValidationError({"password_confirm": "Passwords do not match."})

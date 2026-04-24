@@ -138,6 +138,13 @@ export type PricesResponse = Record<string, PriceQuote>;
 
 // ── Mentors ───────────────────────────────────────────────────────────────────
 
+export interface MentorAssignmentStats {
+  total_trades: number;
+  win_rate: number;
+  total_pnl: number;
+  last_trade_date: string | null;
+}
+
 export interface MentorAssignment {
   id: number;
   trader: number;
@@ -146,6 +153,18 @@ export interface MentorAssignment {
   mentor_detail: { id: number; email: string; display_name: string };
   is_active: boolean;
   created_at: string;
+  stats: MentorAssignmentStats;
+}
+
+export interface MentorRequest {
+  id: number;
+  mentor: number;
+  trader: number;
+  mentor_detail: { id: number; email: string; display_name: string };
+  trader_detail: { id: number; email: string; display_name: string };
+  status: "pending" | "accepted" | "rejected";
+  created_at: string;
+  updated_at: string;
 }
 
 export interface MentorAnnotation {

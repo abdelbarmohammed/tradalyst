@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, BarChart2, GraduationCap, Check } from "lucide-react";
 import { MARKETING_URL } from "@/lib/urls";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -28,9 +28,12 @@ function passwordStrength(pw: string): { score: number; label: string; color: st
   return { score, ...map[score] };
 }
 
+type Role = "trader" | "mentor";
+
 export default function RegistroPage() {
   const router = useRouter();
 
+  const [role, setRole]       = useState<Role>("trader");
   const [name, setName]       = useState("");
   const [email, setEmail]     = useState("");
   const [password, setPass]   = useState("");
@@ -43,18 +46,18 @@ export default function RegistroPage() {
   const strength = useMemo(() => passwordStrength(password), [password]);
 
   const requirements = [
-    { text: "8 caracteres mínimo",   met: password.length >= 8 },
-    { text: "Al menos un número",    met: /[0-9]/.test(password) },
+    { text: "8 caracteres mínimo",    met: password.length >= 8 },
+    { text: "Al menos un número",     met: /[0-9]/.test(password) },
     { text: "Al menos una mayúscula", met: /[A-Z]/.test(password) },
   ];
 
   function validate(): boolean {
     const errs: Record<string, string> = {};
-    if (!name.trim())         errs.name    = "El nombre es obligatorio.";
-    if (!email.trim())        errs.email   = "El email es obligatorio.";
-    if (password.length < 8)  errs.password = "Mínimo 8 caracteres.";
-    if (password !== confirm)  errs.confirm  = "Las contraseñas no coinciden.";
-    if (!terms)               errs.terms   = "Debes aceptar los términos para continuar.";
+    if (!name.trim())        errs.name     = "El nombre es obligatorio.";
+    if (!email.trim())       errs.email    = "El email es obligatorio.";
+    if (password.length < 8) errs.password = "Mínimo 8 caracteres.";
+    if (password !== confirm) errs.confirm  = "Las contraseñas no coinciden.";
+    if (!terms)              errs.terms    = "Debes aceptar los términos para continuar.";
     setFieldErrors(errs);
     return Object.keys(errs).length === 0;
   }
@@ -72,15 +75,16 @@ export default function RegistroPage() {
         credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          full_name: name.trim(),
+          display_name: name.trim(),
           email: email.trim(),
+          role,
           password,
           password_confirm: confirm,
         }),
       });
 
       if (res.ok) {
-        router.push("/onboarding");
+        router.push(role === "mentor" ? "/mentor" : "/onboarding");
         return;
       }
 
@@ -101,7 +105,7 @@ export default function RegistroPage() {
 
   return (
     <div className="min-h-screen bg-base flex items-center justify-center p-4">
-      <div className="w-full max-w-[380px]">
+      <div className="w-full max-w-[420px]">
         {/* Logo */}
         <div className="flex justify-center mb-8">
           <a href={MARKETING_URL} aria-label="Tradalyst — inicio">
@@ -131,6 +135,41 @@ export default function RegistroPage() {
             Crear cuenta
           </p>
 
+          {/* Role selector */}
+          <div className="grid grid-cols-2 gap-3 mb-5">
+            {(["trader", "mentor"] as const).map((r) => {
+              const selected = role === r;
+              const Icon = r === "trader" ? BarChart2 : GraduationCap;
+              const label = r === "trader" ? "Soy trader" : "Soy mentor";
+              const desc  = r === "trader" ? "Llevo un diario de operaciones" : "Guío a otros traders";
+              return (
+                <button
+                  key={r}
+                  type="button"
+                  onClick={() => setRole(r)}
+                  className={`relative flex flex-col items-start gap-2 p-3 border transition-colors text-left ${
+                    selected
+                      ? "border-green bg-green/[0.06]"
+                      : "border-white/[0.08] hover:border-white/20"
+                  }`}
+                >
+                  {selected && (
+                    <span className="absolute top-2 right-2 text-green">
+                      <Check size={12} />
+                    </span>
+                  )}
+                  <Icon size={16} className={selected ? "text-green" : "text-muted"} />
+                  <div>
+                    <p className={`font-sans text-[12px] font-semibold ${selected ? "text-primary" : "text-secondary"}`}>
+                      {label}
+                    </p>
+                    <p className="font-mono text-[9px] text-muted leading-tight mt-[2px]">{desc}</p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
           {error && (
             <div className="flex items-center gap-2 p-3 border border-loss/30 bg-loss/[0.06] mb-4">
               <AlertCircle size={13} className="text-loss flex-shrink-0" />
@@ -139,7 +178,7 @@ export default function RegistroPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-3" noValidate>
-            {/* Full name */}
+            {/* Display name */}
             <div className="flex flex-col gap-1">
               <label className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted">
                 Nombre completo
@@ -192,7 +231,6 @@ export default function RegistroPage() {
                 disabled={loading}
               />
 
-              {/* Strength bar */}
               {password && (
                 <div className="mt-1">
                   <div className="flex gap-[3px] mb-1">
@@ -210,7 +248,6 @@ export default function RegistroPage() {
                 </div>
               )}
 
-              {/* Requirements */}
               {password && (
                 <ul className="mt-1 space-y-[2px]">
                   {requirements.map((r) => (
