@@ -81,13 +81,6 @@ const DATE_MEDIUM = new Intl.DateTimeFormat("es-ES", {
   year: "numeric",
 });
 
-const DATE_LONG = new Intl.DateTimeFormat("es-ES", {
-  weekday: "long",
-  day: "numeric",
-  month: "long",
-  year: "numeric",
-});
-
 const TIME = new Intl.DateTimeFormat("es-ES", {
   hour: "2-digit",
   minute: "2-digit",
