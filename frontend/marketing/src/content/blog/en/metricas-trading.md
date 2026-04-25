@@ -1,11 +1,25 @@
 ---
-title: "The 5 trading metrics that actually matter (and 3 that mislead you)"
-slug: "metricas-trading"
-excerpt: "Win rate alone tells you almost nothing. The metrics that separate profitable traders from losing ones are less obvious — and most platforms don't show them."
-category: "Analytics"
+title: "The Trading Metrics That Actually Matter (And What to Ignore)"
+seoTitle: "Trading Metrics: Win Rate, R:R, Profit Factor | Tradalyst"
+description: "Total P&L doesn't tell you if you're a good trader. These are the trading metrics that do: win rate, risk-reward ratio, profit factor and max drawdown explained."
 date: "2026-04-10"
-readTime: "7 min"
-author: "Tradalyst Team"
+lastModified: "2026-04-25"
+author: "Tradalyst"
+category: "performance"
+keywords:
+  - "trading metrics"
+  - "win rate trading"
+  - "risk reward ratio"
+  - "profit factor trading"
+  - "max drawdown"
+  - "trade analysis"
+readTime: 8
+lang: "en"
+hreflang:
+  es: "/blog/metricas-trading"
+  en: "/en/blog/metricas-trading"
+featuredImage: "/images/blog/metricas-trading.webp"
+featuredImageAlt: "Trading dashboard showing win rate, drawdown and profit factor metrics — Tradalyst"
 ---
 
 Most traders obsess over their win rate. It's the first number they check after a week of trading, the one they quote when explaining their strategy, the one they use to judge whether they're improving.

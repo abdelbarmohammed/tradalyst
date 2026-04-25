@@ -1,11 +1,24 @@
 ---
-title: "Why most traders lose money (it's not the strategy)"
-slug: "por-que-pierden-dinero-los-traders"
-excerpt: "Studies consistently show that 70–80% of retail traders lose money. The reason isn't bad setups or wrong analysis — it's something far less obvious and far more fixable."
-category: "Psychology"
+title: "Why Most Traders Lose Money (It's Not the Strategy)"
+seoTitle: "Why Traders Lose Money — The Real Reason | Tradalyst"
+description: "Studies show 70–80% of retail traders lose money. The cause isn't bad setups — it's behaviour. Data-backed breakdown with actionable fixes you can apply today."
 date: "2026-04-15"
-readTime: "8 min"
-author: "Tradalyst Team"
+lastModified: "2026-04-25"
+author: "Tradalyst"
+category: "psychology"
+keywords:
+  - "why do traders lose money"
+  - "retail traders losing money"
+  - "trading psychology"
+  - "common trading mistakes"
+  - "trading behaviour"
+readTime: 8
+lang: "en"
+hreflang:
+  es: "/blog/por-que-pierden-dinero-los-traders"
+  en: "/en/blog/por-que-pierden-dinero-los-traders"
+featuredImage: "/images/blog/por-que-pierden-traders.webp"
+featuredImageAlt: "Statistics showing 80% of retail traders lose money — Tradalyst"
 ---
 
 The trading industry has a vested interest in making you believe that losing money is a strategy problem. If you just learned the right pattern, bought the right course, or found the right indicator, everything would click.

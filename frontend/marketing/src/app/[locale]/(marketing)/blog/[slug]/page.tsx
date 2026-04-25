@@ -5,6 +5,8 @@ import { remark } from "remark";
 import remarkHtml from "remark-html";
 import { getAllPosts, getPostBySlug } from "@/lib/blog";
 import { APP_URL } from "@/lib/urls";
+import BlogCta from "@/components/blog/BlogCta";
+import type { Metadata } from "next";
 
 interface Props {
   params: Promise<{ locale: string; slug: string }>;
@@ -16,16 +18,133 @@ export async function generateStaticParams() {
   return [...esPosts, ...enPosts];
 }
 
-export async function generateMetadata({ params }: Props) {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
   const post = getPostBySlug(slug, locale);
   if (!post) return {};
-  return { title: `${post.title} — Tradalyst`, description: post.excerpt };
+
+  const canonical =
+    locale === "en"
+      ? `https://tradalyst.com/en/blog/${slug}`
+      : `https://tradalyst.com/blog/${slug}`;
+
+  const languages: Record<string, string> = {};
+  if (post.hreflang.es) languages["es"] = `https://tradalyst.com${post.hreflang.es}`;
+  if (post.hreflang.en) languages["en"] = `https://tradalyst.com${post.hreflang.en}`;
+  if (post.hreflang.es) languages["x-default"] = `https://tradalyst.com${post.hreflang.es}`;
+
+  const ogImageUrl = `https://tradalyst.com/og?title=${encodeURIComponent(post.seoTitle || post.title)}&category=${encodeURIComponent(post.category)}`;
+
+  return {
+    title: post.seoTitle || post.title,
+    description: post.description || post.excerpt,
+    keywords: post.keywords,
+    alternates: {
+      canonical,
+      languages: Object.keys(languages).length > 0 ? languages : undefined,
+    },
+    openGraph: {
+      type: "article",
+      title: post.seoTitle || post.title,
+      description: post.description || post.excerpt,
+      url: canonical,
+      siteName: "Tradalyst",
+      publishedTime: new Date(post.date).toISOString(),
+      modifiedTime: post.lastModified ? new Date(post.lastModified).toISOString() : undefined,
+      locale: locale === "en" ? "en_US" : "es_ES",
+      images: [{ url: ogImageUrl, width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.seoTitle || post.title,
+      description: post.description || post.excerpt,
+      images: [ogImageUrl],
+    },
+  };
 }
 
-async function markdownToHtml(md: string): Promise<string> {
-  const result = await remark().use(remarkHtml).process(md);
-  return result.toString();
+const BLOG_CTA_RE = /<BlogCta\s([^/]*)\/>/g;
+
+function parseBlogCtaProps(raw: string): Record<string, string> {
+  const props: Record<string, string> = {};
+  const attrRe = /(\w+)="([^"]*)"/g;
+  let m: RegExpExecArray | null;
+  while ((m = attrRe.exec(raw)) !== null) {
+    props[m[1]] = m[2];
+  }
+  return props;
+}
+
+async function splitMarkdownOnCta(
+  md: string
+): Promise<Array<{ type: "html"; html: string } | { type: "cta"; props: Record<string, string> }>> {
+  const segments: Array<{ type: "html"; html: string } | { type: "cta"; props: Record<string, string> }> = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+  const re = new RegExp(BLOG_CTA_RE.source, "g");
+
+  while ((match = re.exec(md)) !== null) {
+    const before = md.slice(lastIndex, match.index);
+    if (before.trim()) {
+      const result = await remark().use(remarkHtml).process(before);
+      segments.push({ type: "html", html: result.toString() });
+    }
+    segments.push({ type: "cta", props: parseBlogCtaProps(match[1]) });
+    lastIndex = match.index + match[0].length;
+  }
+
+  const tail = md.slice(lastIndex);
+  if (tail.trim()) {
+    const result = await remark().use(remarkHtml).process(tail);
+    segments.push({ type: "html", html: result.toString() });
+  }
+
+  return segments;
+}
+
+function wordCount(md: string): number {
+  return md.replace(/<[^>]+>/g, "").split(/\s+/).filter(Boolean).length;
+}
+
+function buildArticleSchema(post: Awaited<ReturnType<typeof getPostBySlug>>, canonical: string) {
+  if (!post) return null;
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    description: post.description || post.excerpt,
+    datePublished: post.date,
+    dateModified: post.lastModified || post.date,
+    author: { "@type": "Organization", name: "Tradalyst" },
+    publisher: {
+      "@type": "Organization",
+      name: "Tradalyst",
+      logo: { "@type": "ImageObject", url: "https://tradalyst.com/logo.png" },
+    },
+    mainEntityOfPage: canonical,
+    inLanguage: post.lang || "es",
+  };
+}
+
+function extractFaqSchema(html: string) {
+  const questions: Array<{ name: string; text: string }> = [];
+  const h3Re = /<h3[^>]*>([\s\S]*?)<\/h3>\s*<p>([\s\S]*?)<\/p>/gi;
+  let m: RegExpExecArray | null;
+  while ((m = h3Re.exec(html)) !== null) {
+    const name = m[1].replace(/<[^>]+>/g, "").trim();
+    const text = m[2].replace(/<[^>]+>/g, "").trim();
+    if (name && text) questions.push({ name, text });
+  }
+  if (questions.length === 0) return null;
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: questions.map((q) => ({
+      "@type": "Question",
+      name: q.name,
+      acceptedAnswer: { "@type": "Answer", text: q.text },
+    })),
+  };
 }
 
 export default async function BlogPost({ params }: Props) {
@@ -34,12 +153,41 @@ export default async function BlogPost({ params }: Props) {
   if (!post) notFound();
 
   const t = await getTranslations({ locale, namespace: "blog" });
-  const html = await markdownToHtml(post.content);
+
+  const wc = wordCount(post.content);
+  const segments = await splitMarkdownOnCta(post.content);
+
   const allPosts = getAllPosts(locale);
   const related = allPosts.filter((p) => p.slug !== slug).slice(0, 3);
 
+  const canonical =
+    locale === "en"
+      ? `https://tradalyst.com/en/blog/${slug}`
+      : `https://tradalyst.com/blog/${slug}`;
+
+  const articleSchema = buildArticleSchema(post, canonical);
+
+  const fullHtml = segments
+    .filter((s) => s.type === "html")
+    .map((s) => (s as { type: "html"; html: string }).html)
+    .join("\n");
+  const faqSchema = extractFaqSchema(fullHtml);
+
   return (
     <div className="bg-light min-h-screen">
+      {articleSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+        />
+      )}
+      {faqSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+      )}
+
       <section className="py-16 lg:py-24 border-b border-black/[0.08]">
         <div className="max-w-[720px] mx-auto px-6 lg:px-10">
           <Link
@@ -56,7 +204,9 @@ export default async function BlogPost({ params }: Props) {
           <h1 className="font-sans text-[32px] lg:text-[40px] font-bold text-text leading-[1.1] tracking-[-0.02em] mb-5">
             {post.title}
           </h1>
-          <p className="font-sans text-[16px] text-text-secondary leading-relaxed mb-8">{post.excerpt}</p>
+          <p className="font-sans text-[16px] text-text-secondary leading-relaxed mb-8">
+            {post.description || post.excerpt}
+          </p>
           <div className="flex items-center gap-3">
             <div className="w-7 h-7 bg-dark2 flex items-center justify-center">
               <span className="font-mono text-[8px] text-text-dark-primary">ET</span>
@@ -65,7 +215,9 @@ export default async function BlogPost({ params }: Props) {
               <p className="font-sans text-[12px] font-semibold text-text leading-none">{post.author}</p>
               <p className="font-mono text-[10px] text-text-muted mt-[2px]">
                 {new Date(post.date).toLocaleDateString(locale === "en" ? "en-GB" : "es-ES", {
-                  day: "numeric", month: "long", year: "numeric",
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
                 })}
               </p>
             </div>
@@ -75,24 +227,33 @@ export default async function BlogPost({ params }: Props) {
 
       <section className="py-12 lg:py-16">
         <div className="max-w-[720px] mx-auto px-6 lg:px-10">
-          <div className="prose-tradalyst" dangerouslySetInnerHTML={{ __html: html }} />
+          {segments.map((seg, i) =>
+            seg.type === "html" ? (
+              <div
+                key={i}
+                className="prose-tradalyst"
+                dangerouslySetInnerHTML={{ __html: seg.html }}
+              />
+            ) : (
+              <BlogCta
+                key={i}
+                heading={(seg as { type: "cta"; props: Record<string, string> }).props.heading ?? ""}
+                buttonText={(seg as { type: "cta"; props: Record<string, string> }).props.buttonText ?? ""}
+                href={(seg as { type: "cta"; props: Record<string, string> }).props.href ?? "/registro"}
+                wordCount={wc}
+              />
+            )
+          )}
 
-          <div className="my-12 p-7 bg-dark border border-green/20">
-            <p className="font-sans text-[15px] font-semibold text-text-dark-primary mb-2">
-              {locale === "en" ? "Want to analyse your own trades?" : "¿Quieres analizar tus propias operaciones?"}
-            </p>
-            <p className="font-sans text-[13px] text-text-dark-secondary mb-5 leading-relaxed">
-              {locale === "en"
-                ? "Tradalyst detects patterns in your history — FOMO, revenge trading, overtrading — and shows them with real data."
-                : "Tradalyst detecta los patrones de tu historial — FOMO, revenge trading, sobreoperar — y te los muestra con datos reales."}
-            </p>
-            <a
-              href={`${APP_URL}/registro`}
-              className="inline-block font-sans text-sm font-semibold bg-green hover:bg-green-hover text-white px-5 py-[10px] rounded transition-colors duration-150"
-            >
-              {locale === "en" ? "Start free" : "Empezar gratis"}
-            </a>
-          </div>
+          <BlogCta
+            heading={
+              locale === "en"
+                ? "The journal that spots what you can't see."
+                : "El diario que detecta lo que tú no ves."
+            }
+            buttonText={locale === "en" ? "Try Tradalyst free" : "Probar Tradalyst gratis"}
+            href="/registro"
+          />
         </div>
       </section>
 
@@ -109,7 +270,9 @@ export default async function BlogPost({ params }: Props) {
                   href={`/blog/${p.slug}`}
                   className="bg-white p-5 group hover:-translate-y-[2px] hover:shadow-sm transition-all duration-200 block"
                 >
-                  <span className="font-mono text-[8px] uppercase tracking-[0.1em] text-green block mb-2">{p.category}</span>
+                  <span className="font-mono text-[8px] uppercase tracking-[0.1em] text-green block mb-2">
+                    {p.category}
+                  </span>
                   <p className="font-sans text-[13px] font-semibold text-text leading-snug group-hover:text-green transition-colors duration-150">
                     {p.title}
                   </p>

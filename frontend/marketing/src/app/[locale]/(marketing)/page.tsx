@@ -20,9 +20,26 @@ export async function generateMetadata({
   return { title: t("title"), description: t("description") };
 }
 
+const SOFTWARE_SCHEMA = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "Tradalyst",
+  applicationCategory: "FinanceApplication",
+  operatingSystem: "Web",
+  description: "Diario de trading con análisis de comportamiento por inteligencia artificial",
+  offers: [
+    { "@type": "Offer", price: "0", priceCurrency: "EUR", name: "Free" },
+    { "@type": "Offer", price: "9.99", priceCurrency: "EUR", name: "Pro", billingDuration: "P1M" },
+  ],
+};
+
 export default function HomePage() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(SOFTWARE_SCHEMA) }}
+      />
       <Hero />
       <TrustBar />
       <Problem />

@@ -71,8 +71,25 @@ export default function PreciosPage() {
 
   const FAQ_KEYS = [1, 2, 3, 4, 5, 6];
 
+  const softwareSchema = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "Tradalyst",
+    applicationCategory: "FinanceApplication",
+    operatingSystem: "Web",
+    description: "Diario de trading con análisis de comportamiento por inteligencia artificial",
+    offers: [
+      { "@type": "Offer", price: "0", priceCurrency: "EUR", name: "Free" },
+      { "@type": "Offer", price: "9.99", priceCurrency: "EUR", name: "Pro", billingDuration: "P1M" },
+    ],
+  };
+
   return (
     <div className="bg-light min-h-screen">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }}
+      />
       {/* Header */}
       <section className="py-20 lg:py-28 border-b border-black/[0.08]">
         <div className="max-w-[760px] mx-auto px-6 lg:px-10 text-center">

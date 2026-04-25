@@ -1,11 +1,24 @@
 ---
-title: "How to keep an effective trading journal (and why 90% of traders quit)"
-slug: "diario-de-trading"
-excerpt: "A trading journal isn't a spreadsheet with entry and exit prices. It's a record of decisions. Here's exactly how to build one that lasts longer than two weeks."
-category: "Psychology"
+title: "How to Keep a Trading Journal That Actually Works"
+seoTitle: "Trading Journal: How to Keep One and Improve | Tradalyst"
+description: "A trading journal is the most underrated tool in retail trading. Practical guide with structure, examples and the key to not abandoning it after two weeks."
 date: "2026-04-01"
-readTime: "6 min"
-author: "Tradalyst Team"
+lastModified: "2026-04-25"
+author: "Tradalyst"
+category: "journal"
+keywords:
+  - "trading journal"
+  - "how to keep a trading journal"
+  - "trade log"
+  - "trading journal template"
+  - "trading journal tips"
+readTime: 7
+lang: "en"
+hreflang:
+  es: "/blog/diario-de-trading"
+  en: "/en/blog/diario-de-trading"
+featuredImage: "/images/blog/diario-de-trading.webp"
+featuredImageAlt: "Example entry in a digital trading journal — Tradalyst"
 ---
 
 There are two types of traders who keep a journal: those who stick with it for three weeks and then drop it, and those who turn it into their most important competitive edge.
