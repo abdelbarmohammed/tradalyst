@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
-import { cookies } from "next/headers";
 import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
 import "./globals.css";
 
 const ibmPlexSans = IBM_Plex_Sans({
@@ -24,18 +24,13 @@ export const metadata: Metadata = {
     "Registra tus operaciones, detecta patrones de comportamiento y mejora tu rendimiento con análisis de IA.",
 };
 
-const VALID_LOCALES = ["es", "en"] as const;
-type Locale = (typeof VALID_LOCALES)[number];
-
 export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const cookieStore = await cookies();
-  const raw = cookieStore.get("NEXT_LOCALE")?.value ?? "es";
-  const locale: Locale = VALID_LOCALES.includes(raw as Locale) ? (raw as Locale) : "es";
-  const messages = (await import(`../../messages/${locale}.json`)).default;
+  const locale = await getLocale();
+  const messages = await getMessages();
 
   return (
     <html lang={locale} className={`${ibmPlexSans.variable} ${ibmPlexMono.variable}`}>
