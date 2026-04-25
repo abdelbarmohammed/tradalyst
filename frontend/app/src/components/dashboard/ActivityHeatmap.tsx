@@ -142,7 +142,7 @@ export default function ActivityHeatmap({ data, loading }: Props) {
             <div style={{ display: "flex", gap: GAP }}>
               {weeks.map((week, wi) => (
                 <div key={wi} style={{ display: "flex", flexDirection: "column", gap: GAP }}>
-                  {week.map((iso, di) => {
+                  {week.map((iso) => {
                     const hit = byDate.get(iso);
                     const hasData = !!hit && hit.tradeCount > 0;
                     const isToday = iso === todayISO;
