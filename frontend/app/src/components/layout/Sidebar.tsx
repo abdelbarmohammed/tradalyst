@@ -11,8 +11,11 @@ import {
   BarChart2,
   Settings,
   LogOut,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { logout } from "@/lib/auth";
+import { patch } from "@/lib/api";
 
 function LanguageToggle() {
   const router = useRouter();
@@ -40,6 +43,37 @@ function LanguageToggle() {
   );
 }
 
+function ThemeToggle() {
+  function switchTheme(theme: "light" | "dark") {
+    document.documentElement.classList.remove("light", "dark");
+    document.documentElement.classList.add(theme);
+    document.cookie = `THEME=${theme};path=/;max-age=31536000`;
+    patch("/api/users/me/", { theme_preference: theme }).catch(() => {});
+  }
+
+  return (
+    <div className="px-3 py-2 flex items-center gap-2">
+      <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-muted">Theme</span>
+      <div className="flex gap-[2px] ml-auto">
+        <button
+          onClick={() => switchTheme("light")}
+          className="font-mono text-[10px] px-[6px] py-[3px] transition-colors hover:text-primary text-muted flex items-center gap-[3px]"
+          aria-label="Modo claro"
+        >
+          <Sun size={10} />
+        </button>
+        <button
+          onClick={() => switchTheme("dark")}
+          className="font-mono text-[10px] px-[6px] py-[3px] transition-colors hover:text-primary text-muted flex items-center gap-[3px]"
+          aria-label="Modo oscuro"
+        >
+          <Moon size={10} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function Sidebar() {
   const pathname = usePathname();
   const t = useTranslations("nav");
@@ -53,13 +87,16 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="hidden lg:flex flex-col w-sidebar flex-shrink-0 bg-surface border-r border-white/[0.06] h-screen sticky top-0">
+    <aside
+      className="hidden lg:flex flex-col w-sidebar flex-shrink-0 h-screen sticky top-0"
+      style={{ backgroundColor: "var(--surface)", borderRight: "1px solid var(--border-subtle)" }}
+    >
       {/* Logo */}
-      <div className="px-5 py-5 border-b border-white/[0.06]">
+      <div className="px-5 py-5" style={{ borderBottom: "1px solid var(--border-subtle)" }}>
         <Link href={MARKETING_URL} aria-label="Tradalyst — inicio">
           <svg height="22" width="auto" viewBox="0 0 172.22 40.63" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <g>
-              <g fill="#ffffff">
+              <g fill="var(--text-primary)">
                 <path d="M26.46,32.72V11.98h4.68v3.47h.22c.37-1.2,1.02-2.12,1.95-2.77.93-.65,1.99-.97,3.17-.97.27,0,.58.01.91.04.33.02.62.06.85.09v4.43c-.2-.06-.52-.12-.96-.17-.45-.05-.88-.07-1.32-.07-.89,0-1.69.19-2.4.58-.71.38-1.27.91-1.67,1.59-.4.67-.6,1.45-.6,2.33v12.21h-4.82Z"/>
                 <path d="M46.98,33.15c-1.31,0-2.49-.24-3.54-.71-1.05-.48-1.88-1.18-2.49-2.11-.61-.93-.91-2.07-.91-3.43,0-1.18.22-2.15.66-2.91.44-.77,1.03-1.38,1.78-1.84.75-.46,1.59-.8,2.53-1.04.94-.23,1.92-.4,2.93-.5,1.2-.14,2.18-.25,2.93-.35.75-.1,1.31-.26,1.66-.48s.53-.57.53-1.04v-.09c0-.68-.14-1.26-.41-1.73-.27-.48-.68-.84-1.22-1.09-.54-.25-1.2-.38-2-.38s-1.5.12-2.09.37c-.59.25-1.07.57-1.44.96-.37.4-.64.82-.82,1.28l-4.47-.91c.41-1.22,1.04-2.24,1.89-3.03.85-.8,1.87-1.39,3.05-1.79,1.18-.4,2.46-.59,3.85-.59.98,0,1.96.11,2.96.34,1,.23,1.91.62,2.74,1.16s1.5,1.27,2,2.19c.51.92.76,2.07.76,3.45v13.86h-4.62v-2.86h-.19c-.31.58-.73,1.12-1.27,1.62s-1.21.9-2,1.21-1.74.45-2.83.45ZM48.23,29.57c1,0,1.86-.2,2.59-.59s1.29-.92,1.69-1.57c.4-.65.6-1.36.6-2.12v-2.45c-.16.12-.43.24-.81.35-.38.11-.8.21-1.26.3s-.92.16-1.37.22-.83.11-1.14.15c-.72.1-1.37.26-1.95.48-.58.22-1.04.54-1.36.94-.33.4-.49.92-.49,1.57,0,.59.15,1.09.45,1.49.3.4.72.71,1.24.92.53.21,1.13.32,1.81.32Z"/>
                 <path d="M70.66,33.09c-1.63,0-3.1-.42-4.39-1.25s-2.31-2.05-3.05-3.65-1.11-3.53-1.11-5.81.38-4.25,1.14-5.84,1.79-2.79,3.08-3.61c1.29-.82,2.73-1.22,4.31-1.22,1.24,0,2.25.21,3.03.62s1.41.91,1.87,1.48.81,1.1,1.05,1.6h.2V5.07h4.82v27.65h-4.73v-3.28h-.3c-.25.5-.61,1.03-1.09,1.6-.48.57-1.1,1.05-1.88,1.46-.78.4-1.77.6-2.97.6ZM71.98,29.12c1.05,0,1.94-.28,2.67-.84.73-.56,1.29-1.35,1.67-2.37.38-1.01.58-2.2.58-3.54s-.19-2.52-.57-3.52c-.38-1-.93-1.77-1.67-2.33-.74-.56-1.63-.84-2.68-.84s-2,.29-2.73.86c-.73.57-1.28,1.37-1.65,2.38s-.56,2.16-.56,3.44.19,2.44.56,3.46.92,1.82,1.66,2.41,1.64.88,2.72.88Z"/>
@@ -94,9 +131,10 @@ export default function Sidebar() {
         })}
       </nav>
 
-      {/* Language toggle + Logout */}
-      <div className="border-t border-white/[0.06]">
+      {/* Controls + Logout */}
+      <div style={{ borderTop: "1px solid var(--border-subtle)" }}>
         <LanguageToggle />
+        <ThemeToggle />
         <div className="px-2 pb-4">
           <button
             onClick={logout}

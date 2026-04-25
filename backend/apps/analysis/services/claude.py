@@ -66,10 +66,13 @@ class ClaudeService:
             )
 
         summary = _build_trade_summary(user)
+        lang = getattr(user, "language_preference", "es")
+        lang_instruction = "Respond in English." if lang == "en" else "Responde en español."
+        system = f"{WEEKLY_INSIGHT_SYSTEM}\n\n{lang_instruction}"
         response = self._client.messages.create(
             model=_MODEL,
             max_tokens=_INSIGHT_MAX_TOKENS,
-            system=WEEKLY_INSIGHT_SYSTEM,
+            system=system,
             messages=[{"role": "user", "content": build_insight_user_message(summary)}],
         )
         content: str = response.content[0].text
@@ -96,10 +99,13 @@ class ClaudeService:
         messages = [{"role": m.role, "content": m.content} for m in recent_history]
         messages.append({"role": "user", "content": user_message})
 
+        lang = getattr(user, "language_preference", "es")
+        lang_instruction = "Respond in English." if lang == "en" else "Responde en español."
+        chat_system = f"{build_chat_system_with_context(trade_context)}\n\n{lang_instruction}"
         response = self._client.messages.create(
             model=_MODEL,
             max_tokens=_CHAT_MAX_TOKENS,
-            system=build_chat_system_with_context(trade_context),
+            system=chat_system,
             messages=messages,
         )
         assistant_text: str = response.content[0].text

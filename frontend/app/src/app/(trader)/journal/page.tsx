@@ -3,10 +3,11 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Plus, Eye, Pencil, Trash2, ChevronLeft, ChevronRight, AlertCircle, X } from "lucide-react";
+import { Plus, Eye, Pencil, Trash2, ChevronLeft, ChevronRight, AlertCircle, X, Upload } from "lucide-react";
 import { get, del } from "@/lib/api";
 import { formatDateShort, formatPnl } from "@/lib/format";
 import type { Trade, PaginatedTrades } from "@/types";
+import CsvImportModal from "@/components/journal/CsvImportModal";
 
 // ── Filter types ──────────────────────────────────────────────────────────────
 
@@ -166,6 +167,7 @@ export default function JournalPage() {
 
   const [deleteTarget, setDeleteTarget] = useState<Trade | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
 
   // Debounce pair search
   const pairInputRef = useRef<HTMLInputElement>(null);
@@ -264,6 +266,13 @@ export default function JournalPage() {
         />
       )}
 
+      {showImportModal && (
+        <CsvImportModal
+          onClose={() => setShowImportModal(false)}
+          onImported={() => fetchTrades(filters, 1)}
+        />
+      )}
+
       <div className="max-w-[1200px] mx-auto space-y-5">
 
         {/* ── Top bar ── */}
@@ -278,13 +287,23 @@ export default function JournalPage() {
               </p>
             )}
           </div>
-          <Link
-            href="/journal/new"
-            className="flex items-center gap-2 flex-shrink-0 font-sans text-[13px] font-semibold bg-green hover:bg-green-hover text-white px-4 py-[9px] rounded transition-colors duration-150"
-          >
-            <Plus size={14} />
-            Nueva operación
-          </Link>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <button
+              onClick={() => setShowImportModal(true)}
+              className="flex items-center gap-2 font-sans text-[13px] font-semibold px-4 py-[9px] text-secondary hover:text-primary transition-colors duration-150"
+              style={{ border: "1px solid var(--border)" }}
+            >
+              <Upload size={14} />
+              Importar CSV
+            </button>
+            <Link
+              href="/journal/new"
+              className="flex items-center gap-2 font-sans text-[13px] font-semibold bg-green hover:bg-green-hover text-white px-4 py-[9px] rounded transition-colors duration-150"
+            >
+              <Plus size={14} />
+              Nueva operación
+            </Link>
+          </div>
         </div>
 
         {/* ── Error ── */}

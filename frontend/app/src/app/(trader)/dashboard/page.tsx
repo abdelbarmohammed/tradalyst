@@ -11,7 +11,7 @@ import type {
 } from "@/types";
 
 import StatCard from "@/components/dashboard/StatCard";
-import PricesStrip from "@/components/dashboard/PricesStrip";
+import TradingViewWidget from "@/components/dashboard/TradingViewWidget";
 import PnlChart from "@/components/dashboard/PnlChart";
 import AiInsightCard from "@/components/dashboard/AiInsightCard";
 import ActivityHeatmap from "@/components/dashboard/ActivityHeatmap";
@@ -123,6 +123,12 @@ const DATE_TABS: { value: DateRange; label: string }[] = [
 export default function DashboardPage() {
   const [dateRange, setDateRange] = useState<DateRange>("month");
   const [user, setUser] = useState<UserProfile | null>(null);
+  const [widgetTheme, setWidgetTheme] = useState<"light" | "dark">("dark");
+
+  useEffect(() => {
+    const theme = document.documentElement.classList.contains("light") ? "light" : "dark";
+    setWidgetTheme(theme);
+  }, []);
   const [stats, setStats] = useState<TradeStats | null>(null);
   const [pnlCurve, setPnlCurve] = useState<PnlPoint[]>([]);
   const [heatmap, setHeatmap] = useState<HeatmapDay[]>([]);
@@ -271,8 +277,8 @@ export default function DashboardPage() {
             />
           </div>
 
-          {/* Row 2 — Prices strip */}
-          <PricesStrip />
+          {/* Row 2 — Market overview */}
+          <TradingViewWidget theme={widgetTheme} locale={user?.language_preference ?? "es"} />
 
           {/* Row 3 — P&L chart + AI insight */}
           <div className="grid lg:grid-cols-[65fr_35fr] gap-3">

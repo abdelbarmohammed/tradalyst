@@ -16,6 +16,11 @@ class ThemePreference(models.TextChoices):
     DARK = "dark", "Dark"
 
 
+class LanguagePreference(models.TextChoices):
+    ES = "es", "Español"
+    EN = "en", "English"
+
+
 class Plan(models.TextChoices):
     FREE = "free", "Free"
     PRO = "pro", "Pro"
@@ -56,6 +61,9 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     )
     plan = models.CharField(max_length=4, choices=Plan.choices, default=Plan.FREE)
     trial_ends_at = models.DateTimeField(null=True, blank=True)
+    language_preference = models.CharField(
+        max_length=2, choices=LanguagePreference.choices, default=LanguagePreference.ES
+    )
 
     objects = CustomUserManager()
 

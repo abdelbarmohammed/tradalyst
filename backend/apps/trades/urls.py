@@ -4,5 +4,6 @@ from . import views
 urlpatterns = [
     path("", views.TradeListCreateView.as_view()),
     path("stats/", views.TradeStatsView.as_view()),
+    path("import/", views.TradeCSVImportView.as_view()),
     path("<int:pk>/", views.TradeDetailView.as_view()),
 ]

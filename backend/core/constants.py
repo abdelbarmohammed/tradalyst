@@ -6,3 +6,6 @@ WATCHLIST_MAX_ASSETS = 8       # Maximum pinned assets per user
 
 ACCESS_TOKEN_LIFETIME_MINUTES = 15
 REFRESH_TOKEN_LIFETIME_DAYS = 7
+
+CSV_IMPORT_MAX_ROWS = 1000          # Maximum rows per CSV import
+CSV_IMPORT_MAX_SIZE_BYTES = 5242880  # 5 MB

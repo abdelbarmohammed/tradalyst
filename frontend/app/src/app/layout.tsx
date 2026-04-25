@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
+import { cookies } from "next/headers";
 import "./globals.css";
 
 const ibmPlexSans = IBM_Plex_Sans({
@@ -31,10 +32,12 @@ export default async function RootLayout({
 }) {
   const locale = await getLocale();
   const messages = await getMessages();
+  const cookieStore = await cookies();
+  const theme = (cookieStore.get("THEME")?.value === "light") ? "light" : "dark";
 
   return (
-    <html lang={locale} className={`${ibmPlexSans.variable} ${ibmPlexMono.variable}`}>
-      <body className="font-sans bg-base text-primary antialiased">
+    <html lang={locale} className={`${ibmPlexSans.variable} ${ibmPlexMono.variable} ${theme}`}>
+      <body className="font-sans antialiased" style={{ backgroundColor: "var(--bg)", color: "var(--text-primary)" }}>
         <NextIntlClientProvider locale={locale} messages={messages}>
           {children}
         </NextIntlClientProvider>

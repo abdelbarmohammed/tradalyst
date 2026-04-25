@@ -16,6 +16,8 @@ export interface UserProfile {
   plan?: "free" | "pro";
   onboarding_completed?: boolean;
   date_joined: string;
+  language_preference?: "es" | "en";
+  theme_preference?: "light" | "dark";
 }
 
 export interface LoginResponse {

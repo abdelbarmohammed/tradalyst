@@ -5,7 +5,7 @@
 > **Last updated:** 2026-04  
 >
 > Follow every section in order on a fresh VPS.  
-> Commands marked `[VPS]` run on the server. Commands marked `[LOCAL]` run on your Mac.
+> Commands marked `[VPS]` run on the server. Commands marked `[LOCAL]` run locally.
 
 ---
 

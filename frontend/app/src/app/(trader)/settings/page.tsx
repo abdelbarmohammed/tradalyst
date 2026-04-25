@@ -429,7 +429,8 @@ function CuentaTab() {
           </div>
         </div>
       )}
-      <div className="space-y-4 max-w-md">
+      <div className="max-w-md">
+        {/* Export */}
         <div className="card p-5">
           <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted mb-2">Exportar datos</p>
           <p className="font-sans text-[12px] text-muted mb-4">Descarga todas tus operaciones en formato CSV (derecho de portabilidad RGPD).</p>
@@ -438,10 +439,22 @@ function CuentaTab() {
             {exporting ? "Exportando…" : "Exportar operaciones CSV"}
           </button>
         </div>
+
+        {/* Danger zone separator */}
+        <div className="flex items-center gap-4 mt-12 mb-6">
+          <hr className="flex-1" style={{ borderColor: "rgba(217,64,64,0.25)" }} />
+          <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-loss shrink-0">Zona de peligro</span>
+          <hr className="flex-1" style={{ borderColor: "rgba(217,64,64,0.25)" }} />
+        </div>
+
+        {/* Delete account */}
         <div className="card p-5">
-          <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-loss mb-2">Zona de peligro</p>
-          <p className="font-sans text-[12px] text-muted mb-4">Eliminar tu cuenta borrará permanentemente todos tus datos.</p>
-          <button onClick={() => setShowDeleteModal(true)} className="flex items-center gap-2 font-sans text-[13px] font-semibold border border-loss/30 text-loss hover:bg-loss/[0.08] px-5 py-[9px] transition-colors">
+          <p className="font-sans text-[13px] text-primary mb-1">Eliminar cuenta</p>
+          <p className="font-sans text-[12px] text-muted mb-4">Esta acción es permanente e irreversible. Se eliminarán todos tus datos.</p>
+          <button
+            onClick={() => setShowDeleteModal(true)}
+            className="flex items-center gap-2 font-sans text-[13px] font-semibold border border-loss text-loss hover:bg-loss hover:text-white px-5 py-[9px] transition-colors"
+          >
             <Trash2 size={13} />
             Eliminar cuenta
           </button>

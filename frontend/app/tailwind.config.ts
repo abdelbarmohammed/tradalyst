@@ -10,14 +10,10 @@ const config: Config = {
     extend: {
       // ── Colours ───────────────────────────────────────────────────────────
       colors: {
-        // Dark theme base surfaces
-        base:    "#1e1e1e",
-        surface: "#272727",
-        elevated:"#303030",
-
-        // Light theme base surfaces
-        light:   "#eceee8",
-        "light-surface": "#f5f6f2",
+        // Theme-adaptive surfaces (mapped to CSS vars)
+        base:    "var(--bg)",
+        surface: "var(--surface)",
+        elevated:"var(--elevated)",
 
         // Accent
         green: {
@@ -32,19 +28,10 @@ const config: Config = {
           light:   "#d94040",  // light-bg variant
         },
 
-        // Text — dark theme
-        primary:   "#e8ebe8",
-        secondary: "#9ca3af",
-        muted:     "#6b7280",
-
-        // Text — light theme
-        "text-dark":           "#0f1110",
-        "text-dark-secondary": "#4b5563",
-        "text-dark-muted":     "#9ca3af",
-
-        // Borders
-        "border-dark":  "rgba(255,255,255,0.08)",
-        "border-light": "rgba(0,0,0,0.08)",
+        // Text — theme-adaptive (mapped to CSS vars)
+        primary:   "var(--text-primary)",
+        secondary: "var(--text-secondary)",
+        muted:     "var(--text-muted)",
       },
 
       // ── Typography ────────────────────────────────────────────────────────

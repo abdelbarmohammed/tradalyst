@@ -8,6 +8,42 @@
   --font-ibm-plex-mono: "IBM Plex Mono", monospace;
 }
 
+/* ── Theme tokens: dark (default) ────────────────────────────────────────── */
+html, html.dark {
+  --bg:            #1e1e1e;
+  --surface:       #272727;
+  --elevated:      #303030;
+  --text-primary:  #e8ebe8;
+  --text-secondary:#9ca3af;
+  --text-muted:    #6b7280;
+  --border:        rgba(255,255,255,0.08);
+  --border-subtle: rgba(255,255,255,0.06);
+  --border-strong: rgba(255,255,255,0.12);
+  --hover-bg:      rgba(255,255,255,0.05);
+  --active-bg:     rgba(255,255,255,0.07);
+  --scrollbar-thumb: rgba(255,255,255,0.12);
+  --scrollbar-thumb-hover: rgba(255,255,255,0.20);
+  --input-bg:      #1e1e1e;
+}
+
+/* ── Theme tokens: light ─────────────────────────────────────────────────── */
+html.light {
+  --bg:            #eceee8;
+  --surface:       #f5f6f2;
+  --elevated:      #ffffff;
+  --text-primary:  #0f1110;
+  --text-secondary:#4b5563;
+  --text-muted:    #9ca3af;
+  --border:        rgba(0,0,0,0.08);
+  --border-subtle: rgba(0,0,0,0.06);
+  --border-strong: rgba(0,0,0,0.14);
+  --hover-bg:      rgba(0,0,0,0.04);
+  --active-bg:     rgba(0,0,0,0.06);
+  --scrollbar-thumb: rgba(0,0,0,0.15);
+  --scrollbar-thumb-hover: rgba(0,0,0,0.25);
+  --input-bg:      #f5f6f2;
+}
+
 /* ── Base resets ─────────────────────────────────────────────────────────── */
 @layer base {
   html {
@@ -18,87 +54,106 @@
 
   body {
     font-family: var(--font-ibm-plex-sans);
-    background-color: #1e1e1e;
-    color: #e8ebe8;
+    background-color: var(--bg);
+    color: var(--text-primary);
   }
 
-  /* Tabular nums for all mono elements */
   .font-mono {
     font-variant-numeric: tabular-nums;
   }
 
-  /* Input / textarea base — dark theme */
   input, textarea, select {
     font-family: var(--font-ibm-plex-sans);
-    color: #e8ebe8;
-    background-color: #1e1e1e;
+    color: var(--text-primary);
+    background-color: var(--input-bg);
   }
 
-  /* Scrollbar styling */
   ::-webkit-scrollbar { width: 4px; height: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+  ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover); }
 }
 
 /* ── Utilities ───────────────────────────────────────────────────────────── */
 @layer utilities {
-  /* Eyebrow label — green mono uppercase */
   .eyebrow {
     @apply font-mono text-[10px] uppercase tracking-eyebrow text-green;
   }
 
-  /* Card base — dark surface with border */
+  /* Card — uses CSS var for border */
   .card {
-    @apply bg-surface border border-white/[0.08];
+    background-color: var(--surface);
+    border: 1px solid var(--border);
   }
 
-  /* Card elevated */
   .card-elevated {
-    @apply bg-elevated border border-white/[0.08];
+    background-color: var(--elevated);
+    border: 1px solid var(--border);
   }
 
-  /* P&L color helpers */
   .pnl-positive { @apply text-profit; }
   .pnl-negative { @apply text-loss; }
 
-  /* Pill — direction badges */
   .pill-long  { @apply bg-green/15 text-green font-mono text-[10px] px-2 py-[2px]; }
   .pill-short { @apply bg-loss/15 text-loss font-mono text-[10px] px-2 py-[2px]; }
   .pill-win   { @apply bg-green/15 text-green font-mono text-[10px] px-2 py-[2px]; }
   .pill-loss  { @apply bg-loss/15 text-loss font-mono text-[10px] px-2 py-[2px]; }
-  .pill-be    { @apply bg-white/[0.06] text-secondary font-mono text-[10px] px-2 py-[2px]; }
+  .pill-be    {
+    background-color: var(--hover-bg);
+    @apply text-secondary font-mono text-[10px] px-2 py-[2px];
+  }
 
-  /* Skeleton shimmer */
+  /* Skeleton shimmer — theme-aware */
   .skeleton {
     background: linear-gradient(
       90deg,
-      rgba(255,255,255,0.04) 25%,
-      rgba(255,255,255,0.08) 50%,
-      rgba(255,255,255,0.04) 75%
+      color-mix(in srgb, var(--text-primary) 4%, transparent) 25%,
+      color-mix(in srgb, var(--text-primary) 8%, transparent) 50%,
+      color-mix(in srgb, var(--text-primary) 4%, transparent) 75%
     );
     background-size: 200% 100%;
     @apply animate-shimmer;
   }
 
-  /* Animation delay helpers */
   .delay-100 { animation-delay: 100ms; }
   .delay-200 { animation-delay: 200ms; }
   .delay-300 { animation-delay: 300ms; }
   .delay-400 { animation-delay: 400ms; }
   .delay-500 { animation-delay: 500ms; }
 
-  /* Focus ring — accessible */
   .focus-ring {
     @apply outline-none focus-visible:ring-1 focus-visible:ring-green/60;
   }
 
-  /* Sidebar nav item */
+  /* Sidebar nav item — theme-aware */
   .nav-item {
-    @apply flex items-center gap-3 px-3 py-[9px] font-sans text-[13px] text-secondary
-           hover:text-primary hover:bg-white/[0.05] transition-colors duration-150;
+    @apply flex items-center gap-3 px-3 py-[9px] font-sans text-[13px] transition-colors duration-150;
+    color: var(--text-secondary);
+  }
+  .nav-item:hover {
+    color: var(--text-primary);
+    background-color: var(--hover-bg);
   }
   .nav-item-active {
-    @apply text-primary bg-white/[0.07];
+    color: var(--text-primary);
+    background-color: var(--active-bg);
   }
 }
+
+/* ── Light mode: override white-opacity border/bg patterns ───────────────── */
+/* These Tailwind classes are generated with hardcoded rgba(255,255,255,X)    */
+/* and must be explicitly overridden for light mode.                          */
+html.light .border-white\/\[0\.04\] { border-color: rgba(0,0,0,0.04); }
+html.light .border-white\/\[0\.06\] { border-color: rgba(0,0,0,0.06); }
+html.light .border-white\/\[0\.08\] { border-color: rgba(0,0,0,0.08); }
+html.light .border-white\/\[0\.10\] { border-color: rgba(0,0,0,0.10); }
+html.light .border-white\/\[0\.12\] { border-color: rgba(0,0,0,0.12); }
+
+html.light .bg-white\/\[0\.04\] { background-color: rgba(0,0,0,0.03); }
+html.light .bg-white\/\[0\.05\] { background-color: rgba(0,0,0,0.03); }
+html.light .bg-white\/\[0\.06\] { background-color: rgba(0,0,0,0.04); }
+html.light .bg-white\/\[0\.07\] { background-color: rgba(0,0,0,0.05); }
+html.light .bg-white\/\[0\.08\] { background-color: rgba(0,0,0,0.05); }
+
+html.light .hover\:bg-white\/\[0\.05\]:hover { background-color: rgba(0,0,0,0.04); }
+html.light .hover\:bg-white\/\[0\.07\]:hover { background-color: rgba(0,0,0,0.05); }
