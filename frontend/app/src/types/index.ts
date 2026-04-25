@@ -190,6 +190,8 @@ export interface HeatmapDay {
   date: string;
   pnl: number;
   tradeCount: number;
+  bestTrade: { pair: string; pnl: number } | null;
+  emotions: Record<string, number>;
 }
 
 export type DateRange = "today" | "week" | "month" | "all";

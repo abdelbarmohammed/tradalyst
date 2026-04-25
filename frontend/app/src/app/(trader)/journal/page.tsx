@@ -209,6 +209,16 @@ export default function JournalPage() {
     [buildParams]
   );
 
+  // On mount, read ?date=YYYY-MM-DD from URL and pre-filter to that day
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const date = params.get("date");
+    if (date && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      setFilters((f) => ({ ...f, after: `${date}T00:00:00`, before: `${date}T23:59:59` }));
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     fetchTrades(filters, page);
   }, [filters, page, fetchTrades]);

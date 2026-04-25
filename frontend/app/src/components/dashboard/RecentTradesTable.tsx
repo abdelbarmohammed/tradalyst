@@ -10,7 +10,7 @@ interface Props {
 const EMOTION_LABELS: Record<string, string> = {
   calm:      "Tranquilo",
   confident: "Confiado",
-  fearful:   "Con miedo",
+  fearful:   "Incierto",
   greedy:    "Codicioso",
   anxious:   "Ansioso",
   fomo:      "FOMO",
