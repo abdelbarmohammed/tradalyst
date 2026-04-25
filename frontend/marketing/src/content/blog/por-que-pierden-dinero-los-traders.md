@@ -81,6 +81,8 @@ La memoria humana no es un sistema de registro objetivo. Es un sistema narrativo
 
 Un trader que no mide su rendimiento por horario, por activo, por estado emocional y por tamaño de posición no puede mejorar sistemáticamente. No tiene la información necesaria para identificar dónde está perdiendo. Esto es lo que el artículo sobre [métricas de trading](/blog/metricas-trading) aborda en detalle — las métricas segmentadas son las que revelan la ventaja real.
 
+<PnlCurveChart variant="revenge" />
+
 <BlogCta
   heading="¿Quieres ver exactamente dónde pierdes dinero en tus operaciones?"
   buttonText="Analiza tu historial gratis"

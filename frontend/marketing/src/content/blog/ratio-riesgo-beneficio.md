@@ -65,6 +65,8 @@ El error más común: los traders persiguen win rates altos sin prestar atenció
 
 La regla: el win rate mínimo para no perder es 1 / (1 + R:R). Con R:R 1:2, necesitas ganar solo el 33% de las operaciones para cubrir gastos.
 
+<RiskRewardDiagram />
+
 ---
 
 ## Cómo calcular el punto de equilibrio

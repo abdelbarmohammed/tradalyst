@@ -5,6 +5,10 @@ import { remark } from "remark";
 import remarkHtml from "remark-html";
 import { getAllPosts, getPostBySlug } from "@/lib/blog";
 import BlogCta from "@/components/blog/BlogCta";
+import PnlCurveChart from "@/components/blog/charts/PnlCurveChart";
+import EmotionWinRateChart from "@/components/blog/charts/EmotionWinRateChart";
+import RiskRewardDiagram from "@/components/blog/charts/RiskRewardDiagram";
+import MetricsTable from "@/components/blog/charts/MetricsTable";
 import type { Metadata } from "next";
 
 interface Props {
@@ -62,9 +66,28 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-const BLOG_CTA_RE = /<BlogCta\s([^/]*)\/>/g;
+// ─── Component tag parsing ────────────────────────────────────────────────────
 
-function parseBlogCtaProps(raw: string): Record<string, string> {
+type ComponentName =
+  | "BlogCta"
+  | "PnlCurveChart"
+  | "EmotionWinRateChart"
+  | "RiskRewardDiagram"
+  | "MetricsTable";
+
+interface ParsedComponent {
+  name: ComponentName;
+  props: Record<string, string>;
+}
+
+type Segment =
+  | { type: "html"; html: string }
+  | { type: "component"; component: ParsedComponent };
+
+const COMPONENT_RE =
+  /<(BlogCta|PnlCurveChart|EmotionWinRateChart|RiskRewardDiagram|MetricsTable)\s*([^/]*)\s*\/>/g;
+
+function parseProps(raw: string): Record<string, string> {
   const props: Record<string, string> = {};
   const attrRe = /(\w+)="([^"]*)"/g;
   let m: RegExpExecArray | null;
@@ -74,13 +97,11 @@ function parseBlogCtaProps(raw: string): Record<string, string> {
   return props;
 }
 
-async function splitMarkdownOnCta(
-  md: string
-): Promise<Array<{ type: "html"; html: string } | { type: "cta"; props: Record<string, string> }>> {
-  const segments: Array<{ type: "html"; html: string } | { type: "cta"; props: Record<string, string> }> = [];
+async function splitMarkdown(md: string): Promise<Segment[]> {
+  const segments: Segment[] = [];
   let lastIndex = 0;
+  const re = new RegExp(COMPONENT_RE.source, "g");
   let match: RegExpExecArray | null;
-  const re = new RegExp(BLOG_CTA_RE.source, "g");
 
   while ((match = re.exec(md)) !== null) {
     const before = md.slice(lastIndex, match.index);
@@ -88,7 +109,13 @@ async function splitMarkdownOnCta(
       const result = await remark().use(remarkHtml).process(before);
       segments.push({ type: "html", html: result.toString() });
     }
-    segments.push({ type: "cta", props: parseBlogCtaProps(match[1]) });
+    segments.push({
+      type: "component",
+      component: {
+        name: match[1] as ComponentName,
+        props: parseProps(match[2] ?? ""),
+      },
+    });
     lastIndex = match.index + match[0].length;
   }
 
@@ -104,6 +131,8 @@ async function splitMarkdownOnCta(
 function wordCount(md: string): number {
   return md.replace(/<[^>]+>/g, "").split(/\s+/).filter(Boolean).length;
 }
+
+// ─── Schema helpers ───────────────────────────────────────────────────────────
 
 function buildArticleSchema(post: Awaited<ReturnType<typeof getPostBySlug>>, canonical: string) {
   if (!post) return null;
@@ -146,6 +175,43 @@ function extractFaqSchema(html: string) {
   };
 }
 
+// ─── Component renderer ───────────────────────────────────────────────────────
+
+function renderComponent(
+  c: ParsedComponent,
+  locale: string,
+  wc: number
+): React.ReactNode {
+  switch (c.name) {
+    case "BlogCta":
+      return (
+        <BlogCta
+          heading={c.props.heading ?? ""}
+          buttonText={c.props.buttonText ?? ""}
+          href={c.props.href ?? "/registro"}
+          wordCount={wc}
+        />
+      );
+    case "PnlCurveChart":
+      return (
+        <PnlCurveChart
+          variant={(c.props.variant as "positive" | "revenge") ?? "positive"}
+          lang={locale}
+        />
+      );
+    case "EmotionWinRateChart":
+      return <EmotionWinRateChart lang={locale} />;
+    case "RiskRewardDiagram":
+      return <RiskRewardDiagram lang={locale} />;
+    case "MetricsTable":
+      return <MetricsTable lang={locale} />;
+    default:
+      return null;
+  }
+}
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
+
 export default async function BlogPost({ params }: Props) {
   const { locale, slug } = await params;
   const post = getPostBySlug(slug, locale);
@@ -154,7 +220,7 @@ export default async function BlogPost({ params }: Props) {
   const t = await getTranslations({ locale, namespace: "blog" });
 
   const wc = wordCount(post.content);
-  const segments = await splitMarkdownOnCta(post.content);
+  const segments = await splitMarkdown(post.content);
 
   const allPosts = getAllPosts(locale);
   const related = allPosts.filter((p) => p.slug !== slug).slice(0, 3);
@@ -167,8 +233,8 @@ export default async function BlogPost({ params }: Props) {
   const articleSchema = buildArticleSchema(post, canonical);
 
   const fullHtml = segments
-    .filter((s) => s.type === "html")
-    .map((s) => (s as { type: "html"; html: string }).html)
+    .filter((s): s is { type: "html"; html: string } => s.type === "html")
+    .map((s) => s.html)
     .join("\n");
   const faqSchema = extractFaqSchema(fullHtml);
 
@@ -196,7 +262,9 @@ export default async function BlogPost({ params }: Props) {
             {t("backToBlog")}
           </Link>
           <div className="flex items-center gap-3 mb-5">
-            <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-green">{post.category}</span>
+            <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-green">
+              {post.category}
+            </span>
             <span className="text-text-muted text-[10px]">·</span>
             <span className="font-mono text-[9px] text-text-muted">{post.readTime}</span>
           </div>
@@ -211,13 +279,14 @@ export default async function BlogPost({ params }: Props) {
               <span className="font-mono text-[8px] text-text-dark-primary">ET</span>
             </div>
             <div>
-              <p className="font-sans text-[12px] font-semibold text-text leading-none">{post.author}</p>
+              <p className="font-sans text-[12px] font-semibold text-text leading-none">
+                {post.author}
+              </p>
               <p className="font-mono text-[10px] text-text-muted mt-[2px]">
-                {new Date(post.date).toLocaleDateString(locale === "en" ? "en-GB" : "es-ES", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                })}
+                {new Date(post.date).toLocaleDateString(
+                  locale === "en" ? "en-GB" : "es-ES",
+                  { day: "numeric", month: "long", year: "numeric" }
+                )}
               </p>
             </div>
           </div>
@@ -234,13 +303,7 @@ export default async function BlogPost({ params }: Props) {
                 dangerouslySetInnerHTML={{ __html: seg.html }}
               />
             ) : (
-              <BlogCta
-                key={i}
-                heading={(seg as { type: "cta"; props: Record<string, string> }).props.heading ?? ""}
-                buttonText={(seg as { type: "cta"; props: Record<string, string> }).props.buttonText ?? ""}
-                href={(seg as { type: "cta"; props: Record<string, string> }).props.href ?? "/registro"}
-                wordCount={wc}
-              />
+              <div key={i}>{renderComponent(seg.component, locale, wc)}</div>
             )
           )}
 
@@ -275,7 +338,9 @@ export default async function BlogPost({ params }: Props) {
                   <p className="font-sans text-[13px] font-semibold text-text leading-snug group-hover:text-green transition-colors duration-150">
                     {p.title}
                   </p>
-                  <span className="font-mono text-[9px] text-text-muted mt-3 block">{p.readTime}</span>
+                  <span className="font-mono text-[9px] text-text-muted mt-3 block">
+                    {p.readTime}
+                  </span>
                 </Link>
               ))}
             </div>

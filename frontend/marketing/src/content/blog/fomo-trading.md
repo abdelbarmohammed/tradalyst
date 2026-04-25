@@ -57,6 +57,8 @@ Las operaciones de FOMO que salen mal, en cambio, suelen generar pérdidas despr
 
 El patrón completo tiene una lógica perversa: el FOMO te lleva a entrar tarde (precio alto), sin stop definido (riesgo ilimitado hacia abajo), y a aguantar la pérdida demasiado tiempo (aversión a confirmar el error). Es la combinación perfecta para maximizar el daño.
 
+<EmotionWinRateChart />
+
 ---
 
 ## Los datos que no mienten

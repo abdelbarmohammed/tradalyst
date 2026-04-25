@@ -74,6 +74,8 @@ La mayoría de los traders trabajan con R:R entre 1:1 y 1:2, lo que requiere un 
 
 El error más común con el R:R no es calcularlo mal — es no calcularlo antes de entrar. Si defines el R:R después de ver cómo se comporta el precio, estás racionalizando una decisión que ya tomaste, no evaluando un setup.
 
+<MetricsTable />
+
 ---
 
 ## Profit Factor (Factor de Beneficio)

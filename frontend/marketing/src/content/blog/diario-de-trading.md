@@ -71,6 +71,8 @@ No solo el P&L. ¿Seguiste tu plan? ¿Moviste el stop? ¿Cerraste antes del obje
 
 El resultado no es solo cuánto ganaste o perdiste — es si te comportaste como el trader que quieres ser.
 
+<PnlCurveChart variant="positive" />
+
 ---
 
 ## Por qué el diario de trading se abandona

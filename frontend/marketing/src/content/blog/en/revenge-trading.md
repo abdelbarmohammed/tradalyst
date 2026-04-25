@@ -57,6 +57,8 @@ The problem is that "now" is exactly when you're least equipped to trade well. C
 
 Trades made in this state have systematically worse outcomes. Not slightly worse — significantly worse. The data from Tradalyst consistently shows revenge trades have a win rate in the 15–25% range, compared to 50–65% for planned trades from the same accounts.
 
+<EmotionWinRateChart />
+
 ---
 
 ## Why a losing trade becomes a losing day

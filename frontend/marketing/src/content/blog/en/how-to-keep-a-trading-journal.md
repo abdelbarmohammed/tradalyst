@@ -66,6 +66,8 @@ Entry level, stop-loss, and target. The implied risk-reward ratio. What percenta
 
 After closing: did you follow the plan? Did you move the stop? Did you close early because you were nervous? Did you widen the stop hoping for a recovery? The result (P&L) is secondary — you have that in your broker. What you don't have anywhere else is whether you executed your own system.
 
+<PnlCurveChart variant="positive" />
+
 ---
 
 ## The minimum viable format

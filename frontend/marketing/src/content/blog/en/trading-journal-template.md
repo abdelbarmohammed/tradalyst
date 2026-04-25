@@ -83,6 +83,8 @@ That gap — roughly three times worse performance — represents the direct cos
 
 Once you can see that number, the next step is mechanical: create a rule. "If I tag FOMO, I don't enter." That one rule, applied consistently, can have a larger positive impact on your account than learning any new strategy.
 
+<RiskRewardDiagram />
+
 ---
 
 ## How to use the template for weekly review

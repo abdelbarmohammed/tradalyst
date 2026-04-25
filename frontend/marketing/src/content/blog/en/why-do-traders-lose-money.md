@@ -89,6 +89,8 @@ Two emotional trading patterns account for a disproportionate share of retail lo
 
 Both patterns are measurable, and both can be addressed with structural rules. But they can only be identified and quantified with consistent trade tagging over time.
 
+<EmotionWinRateChart />
+
 <BlogCta
   heading="What's driving your losses? See your behavioural data."
   buttonText="Analyse your trades free"

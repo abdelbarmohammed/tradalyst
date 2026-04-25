@@ -57,6 +57,8 @@ El problema es que "ahora" es exactamente el momento en que menos condiciones ti
 
 Los trades tomados en ese estado tienen resultados sistemáticamente peores. Los datos de Tradalyst muestran consistentemente que las operaciones de revenge tienen un win rate del 15-25%, frente al 50-65% de las operaciones planificadas de las mismas cuentas.
 
+<EmotionWinRateChart />
+
 ---
 
 ## Por qué una pérdida se convierte en un día perdedor
