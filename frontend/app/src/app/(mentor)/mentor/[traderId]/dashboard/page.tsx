@@ -40,14 +40,20 @@ function computePnlCurve(trades: Trade[]): PnlPoint[] {
 }
 
 function computeHeatmap(trades: Trade[]): HeatmapDay[] {
-  const map = new Map<string, { pnl: number; count: number }>();
+  const map = new Map<string, { pnl: number; count: number; bestPnl: number; bestPair: string; emotions: Record<string, number> }>();
   for (const t of trades) {
     const day = t.entry_time.slice(0, 10);
     const pnl = t.pnl !== null ? parseFloat(t.pnl) : 0;
-    const prev = map.get(day) ?? { pnl: 0, count: 0 };
-    map.set(day, { pnl: prev.pnl + pnl, count: prev.count + 1 });
+    const prev = map.get(day) ?? { pnl: 0, count: 0, bestPnl: -Infinity, bestPair: "", emotions: {} };
+    const emotions = { ...prev.emotions };
+    if (t.emotion) emotions[t.emotion] = (emotions[t.emotion] ?? 0) + 1;
+    map.set(day, { pnl: prev.pnl + pnl, count: prev.count + 1, bestPnl: pnl > prev.bestPnl ? pnl : prev.bestPnl, bestPair: pnl > prev.bestPnl ? t.pair : prev.bestPair, emotions });
   }
-  return Array.from(map.entries()).map(([date, v]) => ({ date, pnl: v.pnl, tradeCount: v.count }));
+  return Array.from(map.entries()).map(([date, v]) => ({
+    date, pnl: v.pnl, tradeCount: v.count,
+    bestTrade: v.bestPair ? { pair: v.bestPair, pnl: v.bestPnl } : null,
+    emotions: v.emotions,
+  }));
 }
 
 async function fetchAllTrades(traderId: string): Promise<Trade[]> {
