@@ -4,7 +4,6 @@ import { Link } from "@/i18n/navigation";
 import { remark } from "remark";
 import remarkHtml from "remark-html";
 import { getAllPosts, getPostBySlug } from "@/lib/blog";
-import { APP_URL } from "@/lib/urls";
 import BlogCta from "@/components/blog/BlogCta";
 import type { Metadata } from "next";
 
