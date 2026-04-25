@@ -104,9 +104,11 @@ export function formatDateMedium(date: Date | string): string {
   return DATE_MEDIUM.format(new Date(date));
 }
 
-/** "miércoles, 22 de abril de 2026" */
-export function formatDateLong(date: Date | string): string {
-  return DATE_LONG.format(new Date(date));
+/** "miércoles, 22 de abril de 2026" — pass a BCP-47 locale to override */
+export function formatDateLong(date: Date | string, locale: string = "es-ES"): string {
+  return new Intl.DateTimeFormat(locale, {
+    weekday: "long", day: "numeric", month: "long", year: "numeric",
+  }).format(new Date(date));
 }
 
 /** "14:32" */
@@ -136,9 +138,14 @@ export function formatRelative(date: Date | string): string {
 
 // ── Greeting ──────────────────────────────────────────────────────────────────
 
-/** "Buenos días" / "Buenas tardes" / "Buenas noches" based on current time */
-export function getGreeting(): string {
+/** "Buenos días" / "Good morning" — locale: "es" or "en" */
+export function getGreeting(locale: string = "es"): string {
   const hour = new Date().getHours();
+  if (locale === "en") {
+    if (hour >= 6 && hour < 14) return "Good morning";
+    if (hour >= 14 && hour < 21) return "Good afternoon";
+    return "Good evening";
+  }
   if (hour >= 6 && hour < 14) return "Buenos días";
   if (hour >= 14 && hour < 21) return "Buenas tardes";
   return "Buenas noches";

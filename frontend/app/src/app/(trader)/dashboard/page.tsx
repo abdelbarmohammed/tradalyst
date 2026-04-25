@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { Plus, AlertCircle } from "lucide-react";
+import { useTranslations, useLocale } from "next-intl";
 import { get } from "@/lib/api";
 import { formatPnl, formatPct, formatRR, formatCount, getGreeting, formatDateLong } from "@/lib/format";
 import type {
@@ -11,7 +12,8 @@ import type {
 } from "@/types";
 
 import StatCard from "@/components/dashboard/StatCard";
-import TradingViewWidget from "@/components/dashboard/TradingViewWidget";
+import TickerTape from "@/components/dashboard/TickerTape";
+import MarketQuotes from "@/components/dashboard/MarketQuotes";
 import PnlChart from "@/components/dashboard/PnlChart";
 import AiInsightCard from "@/components/dashboard/AiInsightCard";
 import ActivityHeatmap from "@/components/dashboard/ActivityHeatmap";
@@ -41,13 +43,13 @@ function getDateBounds(range: DateRange): { after?: string; before?: string } {
   return { after: start.toISOString() };
 }
 
-function buildTradesParams(bounds: { after?: string; before?: string }, extra = ""): string {
+function buildTradesParams(bounds: { after?: string; before?: string }): string {
   const params = new URLSearchParams();
   params.set("ordering", "entry_time");
   params.set("page_size", "500");
   if (bounds.after) params.set("entry_time_after", bounds.after);
   if (bounds.before) params.set("entry_time_before", bounds.before);
-  return `${params.toString()}${extra}`;
+  return params.toString();
 }
 
 // ── Stats computation from trades list ────────────────────────────────────────
@@ -127,18 +129,19 @@ function computeHeatmap(trades: Trade[]): HeatmapDay[] {
   }));
 }
 
-// ── Date range tabs ───────────────────────────────────────────────────────────
-
-const DATE_TABS: { value: DateRange; label: string }[] = [
-  { value: "today", label: "Hoy" },
-  { value: "week",  label: "Esta semana" },
-  { value: "month", label: "Este mes" },
-  { value: "all",   label: "Todo" },
-];
-
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
+  const t = useTranslations("dashboard");
+  const locale = useLocale(); // "es" | "en"
+
+  const DATE_TABS: { value: DateRange; label: string }[] = [
+    { value: "today", label: t("dateToday") },
+    { value: "week",  label: t("dateWeek") },
+    { value: "month", label: t("dateMonth") },
+    { value: "all",   label: t("dateAll") },
+  ];
+
   const [dateRange, setDateRange] = useState<DateRange>("month");
   const [user, setUser] = useState<UserProfile | null>(null);
   const [widgetTheme, setWidgetTheme] = useState<"light" | "dark">("dark");
@@ -147,6 +150,7 @@ export default function DashboardPage() {
     const theme = document.documentElement.classList.contains("light") ? "light" : "dark";
     setWidgetTheme(theme);
   }, []);
+
   const [stats, setStats] = useState<TradeStats | null>(null);
   const [pnlCurve, setPnlCurve] = useState<PnlPoint[]>([]);
   const [heatmap, setHeatmap] = useState<HeatmapDay[]>([]);
@@ -177,11 +181,11 @@ export default function DashboardPage() {
       setRecentTrades(recentRes.results);
       setInsight(insightRes.results[0] ?? null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al cargar los datos.");
+      setError(err instanceof Error ? err.message : t("errorLoad"));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     fetchData(dateRange);
@@ -191,17 +195,27 @@ export default function DashboardPage() {
   const totalPnl = stats ? parseFloat(stats.total_pnl) : 0;
   const isEmpty = !loading && totalTrades === 0;
 
+  // BCP-47 locale for date formatting
+  const dateLocale = locale === "en" ? "en-US" : "es-ES";
+  // TradingView locale uses the same short code
+  const tvLocale = user?.language_preference ?? locale;
+
   return (
     <div className="max-w-[1200px] mx-auto space-y-6">
+
+      {/* Row 0 — Ticker tape (full width, above everything) */}
+      <div className="-mx-6 -mt-6 mb-0">
+        <TickerTape theme={widgetTheme} locale={tvLocale} />
+      </div>
 
       {/* ── Top bar ── */}
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="font-sans text-[22px] font-bold text-primary leading-tight">
-            {getGreeting()}{user?.display_name ? `, ${user.display_name.split(" ")[0]}` : ""}.
+            {getGreeting(locale)}{user?.display_name ? `, ${user.display_name.split(" ")[0]}` : ""}.
           </h1>
           <p className="font-mono text-[11px] text-muted mt-[3px]">
-            {formatDateLong(new Date())}
+            {formatDateLong(new Date(), dateLocale)}
           </p>
         </div>
         <Link
@@ -209,7 +223,7 @@ export default function DashboardPage() {
           className="flex items-center gap-2 flex-shrink-0 font-sans text-[13px] font-semibold bg-green hover:bg-green-hover text-white px-4 py-[9px] rounded transition-colors duration-150"
         >
           <Plus size={14} />
-          Nueva operación
+          {t("newTrade")}
         </Link>
       </div>
 
@@ -222,7 +236,7 @@ export default function DashboardPage() {
             onClick={() => fetchData(dateRange)}
             className="ml-auto font-mono text-[10px] text-loss underline"
           >
-            Reintentar
+            {t("retry")}
           </button>
         </div>
       )}
@@ -248,14 +262,14 @@ export default function DashboardPage() {
       {isEmpty && !error && (
         <div className="card p-12 flex flex-col items-center text-center gap-4">
           <p className="font-sans text-[15px] text-secondary">
-            Aún no tienes operaciones registradas.
+            {t("emptyState")}
           </p>
           <Link
             href="/journal/new"
             className="flex items-center gap-2 font-sans text-sm font-semibold bg-green hover:bg-green-hover text-white px-5 py-[10px] rounded transition-colors duration-150"
           >
             <Plus size={14} />
-            Registrar primera operación
+            {t("firstTrade")}
           </Link>
         </div>
       )}
@@ -266,25 +280,25 @@ export default function DashboardPage() {
           {/* Row 1 — Stat cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             <StatCard
-              label="P&L Total"
+              label={t("statPnl")}
               value={stats ? formatPnl(totalPnl) : "—"}
               positive={stats ? totalPnl > 0 : undefined}
               loading={loading}
             />
             <StatCard
-              label="Win Rate"
+              label={t("statWinRate")}
               value={stats ? formatPct(stats.win_rate) : "—"}
               positive={stats ? stats.win_rate >= 50 : undefined}
               sub={stats ? `${stats.winning_trades}W / ${stats.losing_trades}L` : undefined}
               loading={loading}
             />
             <StatCard
-              label="Operaciones"
+              label={t("statTrades")}
               value={stats ? formatCount(stats.total_trades) : "—"}
               loading={loading}
             />
             <StatCard
-              label="R:R Medio"
+              label={t("statRR")}
               value={stats?.avg_risk_reward ? formatRR(parseFloat(stats.avg_risk_reward)) : "—"}
               positive={
                 stats?.avg_risk_reward
@@ -295,8 +309,8 @@ export default function DashboardPage() {
             />
           </div>
 
-          {/* Row 2 — Market overview */}
-          <TradingViewWidget theme={widgetTheme} locale={user?.language_preference ?? "es"} />
+          {/* Row 2 — Market quotes */}
+          <MarketQuotes theme={widgetTheme} locale={tvLocale} />
 
           {/* Row 3 — P&L chart + AI insight */}
           <div className="grid lg:grid-cols-[65fr_35fr] gap-3">
