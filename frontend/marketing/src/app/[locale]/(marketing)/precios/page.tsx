@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Check, X, ChevronDown } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { APP_URL } from "@/lib/urls";
 
 function Cell({ value }: { value: boolean | string }) {
@@ -13,6 +13,7 @@ function Cell({ value }: { value: boolean | string }) {
 
 export default function PreciosPage() {
   const t = useTranslations("pricingPage");
+  const locale = useLocale();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const FREE_FEATURES = [
@@ -127,7 +128,7 @@ export default function PreciosPage() {
                 ))}
               </ul>
               <a
-                href={`${APP_URL}/registro`}
+                href={`${APP_URL}/registro?lang=${locale}`}
                 className="block w-full text-center font-sans text-sm font-semibold border border-black/[0.15] hover:border-black/[0.3] text-text px-5 py-3 rounded transition-colors duration-150"
               >
                 {t("free.cta")}
@@ -158,7 +159,7 @@ export default function PreciosPage() {
                 ))}
               </ul>
               <a
-                href={`${APP_URL}/registro`}
+                href={`${APP_URL}/registro?lang=${locale}`}
                 className="block w-full text-center font-sans text-sm font-semibold bg-green hover:bg-green-hover text-white px-5 py-3 rounded transition-colors duration-150"
               >
                 {t("pro.cta")}
@@ -249,7 +250,7 @@ export default function PreciosPage() {
             {t("finalCta")}
           </p>
           <a
-            href={`${APP_URL}/registro`}
+            href={`${APP_URL}/registro?lang=${locale}`}
             className="inline-block font-sans text-sm font-semibold bg-green hover:bg-green-hover text-white px-7 py-3 rounded transition-colors duration-150"
           >
             {t("free.cta")}

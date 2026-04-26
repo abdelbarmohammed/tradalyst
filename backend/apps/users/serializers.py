@@ -12,7 +12,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ("email", "display_name", "role", "password", "password_confirm")
+        fields = ("email", "display_name", "role", "password", "password_confirm", "language_preference")
 
     def validate_role(self, role: str) -> str:
         if role == "admin":

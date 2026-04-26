@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -183,6 +183,19 @@ function LoginForm() {
 
 export default function LoginPage() {
   const t = useTranslations("auth.login");
+  const router = useRouter();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const lang = params.get("lang");
+    if (lang === "en" || lang === "es") {
+      const current = document.cookie.match(/NEXT_LOCALE=([^;]+)/)?.[1];
+      if (current !== lang) {
+        document.cookie = `NEXT_LOCALE=${lang};path=/;max-age=31536000`;
+        router.refresh();
+      }
+    }
+  }, [router]);
 
   return (
     <div className="relative min-h-screen bg-base flex items-center justify-center p-4">

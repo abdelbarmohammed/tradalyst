@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { BrainCircuit, MessageSquare, Zap } from "lucide-react";
 import { useInView } from "@/hooks/useInView";
 import { APP_URL } from "@/lib/urls";
@@ -10,6 +10,7 @@ const CAPABILITY_ICONS = [BrainCircuit, MessageSquare, Zap];
 
 export default function AiSpotlight() {
   const t = useTranslations("aiSpotlight");
+  const locale = useLocale();
   const { ref, inView } = useInView<HTMLDivElement>(0.1);
   const [displayed, setDisplayed] = useState("");
   const [tagsVisible, setTagsVisible] = useState(false);
@@ -144,7 +145,7 @@ export default function AiSpotlight() {
               }`}
             >
               <a
-                href={`${APP_URL}/registro`}
+                href={`${APP_URL}/registro?lang=${locale}`}
                 className="inline-block font-sans text-sm font-semibold bg-green hover:bg-green-hover text-white px-5 py-[11px] rounded transition-colors duration-150"
               >
                 {t("cta")}

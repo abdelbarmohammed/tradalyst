@@ -1,9 +1,10 @@
-import { useTranslations } from "next-intl";
+import { getTranslations, getLocale } from "next-intl/server";
 import DashboardMockup from "@/components/ui/DashboardMockup";
 import { APP_URL } from "@/lib/urls";
 
-export default function Hero() {
-  const t = useTranslations("hero");
+export default async function Hero() {
+  const t = await getTranslations("hero");
+  const locale = await getLocale();
 
   return (
     <section className="relative min-h-screen bg-light flex items-center pt-16 overflow-hidden">
@@ -36,7 +37,7 @@ export default function Hero() {
 
             <div className="flex flex-wrap items-center gap-3 mt-8 opacity-0 animate-fade-up animate-delay-480">
               <a
-                href={`${APP_URL}/registro`}
+                href={`${APP_URL}/registro?lang=${locale}`}
                 className="font-sans text-sm font-semibold bg-green hover:bg-green-hover text-white px-5 py-[11px] rounded transition-colors duration-150"
               >
                 {t("ctaPrimary")}

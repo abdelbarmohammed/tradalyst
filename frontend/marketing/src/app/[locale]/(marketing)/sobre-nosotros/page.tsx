@@ -75,7 +75,7 @@ export default async function SobreNosotros({ params }: { params: Promise<{ loca
               {t("cta.description")}
             </p>
             <a
-              href={`${APP_URL}/registro`}
+              href={`${APP_URL}/registro?lang=${locale}`}
               className="inline-block font-sans text-sm font-semibold bg-green hover:bg-green-hover text-white px-6 py-3 rounded transition-colors duration-150"
             >
               {t("cta.button")}

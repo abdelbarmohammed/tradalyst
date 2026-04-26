@@ -227,7 +227,7 @@ export default async function FuncionalidadesPage({ params }: { params: Promise<
             {t("ctaBody")}
           </p>
           <a
-            href={`${APP_URL}/registro`}
+            href={`${APP_URL}/registro?lang=${locale}`}
             className="inline-block font-sans text-sm font-semibold bg-green hover:bg-green-hover text-white px-8 py-3 transition-colors duration-150"
           >
             {t("ctaButton")}

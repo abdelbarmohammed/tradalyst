@@ -78,13 +78,13 @@ export default function Nav() {
           </div>
 
           <a
-            href={`${APP_URL}/login`}
+            href={`${APP_URL}/login?lang=${locale}`}
             className="font-sans text-sm font-medium text-text-secondary hover:text-text transition-colors duration-150 px-3 py-2"
           >
             {t("login")}
           </a>
           <a
-            href={`${APP_URL}/registro`}
+            href={`${APP_URL}/registro?lang=${locale}`}
             className="font-sans text-sm font-semibold bg-green hover:bg-green-hover text-white px-4 py-2 rounded transition-colors duration-150"
           >
             {t("signup")}
@@ -140,14 +140,14 @@ export default function Nav() {
               </Link>
             </div>
             <a
-              href={`${APP_URL}/login`}
+              href={`${APP_URL}/login?lang=${locale}`}
               className="font-sans text-sm font-medium text-text-secondary py-2"
               onClick={() => setMobileOpen(false)}
             >
               {t("login")}
             </a>
             <a
-              href={`${APP_URL}/registro`}
+              href={`${APP_URL}/registro?lang=${locale}`}
               className="font-sans text-sm font-semibold bg-green text-white px-4 py-2 rounded text-center"
               onClick={() => setMobileOpen(false)}
             >

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -79,6 +79,18 @@ export default function RegistroPage() {
   const router = useRouter();
   const t = useTranslations("auth.register");
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const lang = params.get("lang");
+    if (lang === "en" || lang === "es") {
+      const current = document.cookie.match(/NEXT_LOCALE=([^;]+)/)?.[1];
+      if (current !== lang) {
+        document.cookie = `NEXT_LOCALE=${lang};path=/;max-age=31536000`;
+        router.refresh();
+      }
+    }
+  }, [router]);
+
   const [role, setRole]       = useState<Role>("trader");
   const [name, setName]       = useState("");
   const [email, setEmail]     = useState("");
@@ -123,6 +135,9 @@ export default function RegistroPage() {
     setError(null);
 
     try {
+      const cookieLang = document.cookie.match(/NEXT_LOCALE=([^;]+)/)?.[1];
+      const language_preference = cookieLang === "en" ? "en" : "es";
+
       const res = await fetch(`${API_BASE}/api/auth/register/`, {
         method: "POST",
         credentials: "include",
@@ -133,6 +148,7 @@ export default function RegistroPage() {
           role,
           password,
           password_confirm: confirm,
+          language_preference,
         }),
       });
 

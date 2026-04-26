@@ -1,11 +1,12 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useInView } from "@/hooks/useInView";
 import { APP_URL } from "@/lib/urls";
 
 export default function FinalCta() {
   const t = useTranslations("finalCta");
+  const locale = useLocale();
   const { ref, inView } = useInView<HTMLDivElement>(0.2);
 
   return (
@@ -38,7 +39,7 @@ export default function FinalCta() {
           }`}
         >
           <a
-            href={`${APP_URL}/registro`}
+            href={`${APP_URL}/registro?lang=${locale}`}
             className="inline-block font-sans text-[15px] font-semibold bg-green hover:bg-green-hover text-white px-8 py-[14px] rounded transition-colors duration-150"
           >
             {t("cta")}

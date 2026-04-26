@@ -1,13 +1,14 @@
 "use client";
 
 import { Check, X } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useInView } from "@/hooks/useInView";
 import { APP_URL } from "@/lib/urls";
 
 export default function PricingPreview() {
   const t = useTranslations("pricing");
+  const locale = useLocale();
   const { ref, inView } = useInView<HTMLDivElement>(0.1);
 
   const FREE_FEATURES = [
@@ -67,7 +68,7 @@ export default function PricingPreview() {
             </ul>
 
             <a
-              href={`${APP_URL}/registro`}
+              href={`${APP_URL}/registro?lang=${locale}`}
               className="block w-full text-center font-sans text-sm font-semibold border border-black/[0.15] hover:border-black/[0.25] text-text px-5 py-[11px] rounded transition-colors duration-150"
             >
               {t("free.cta")}
@@ -105,7 +106,7 @@ export default function PricingPreview() {
             </ul>
 
             <a
-              href={`${APP_URL}/registro`}
+              href={`${APP_URL}/registro?lang=${locale}`}
               className="block w-full text-center font-sans text-sm font-semibold bg-green hover:bg-green-hover text-white px-5 py-[11px] rounded transition-colors duration-150"
             >
               {t("pro.cta")}
