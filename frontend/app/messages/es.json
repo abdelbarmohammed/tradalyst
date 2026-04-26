@@ -287,6 +287,10 @@
       "saving": "Guardando…",
       "saved": "Cambios guardados correctamente.",
       "language": "Idioma",
+      "theme": "Tema",
+      "themeLight": "Claro",
+      "themeDark": "Oscuro",
+      "logout": "Cerrar sesión",
       "errorSave": "Error al guardar."
     },
     "security": {

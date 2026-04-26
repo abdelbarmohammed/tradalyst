@@ -287,6 +287,10 @@
       "saving": "Saving…",
       "saved": "Changes saved successfully.",
       "language": "Language",
+      "theme": "Theme",
+      "themeLight": "Light",
+      "themeDark": "Dark",
+      "logout": "Log out",
       "errorSave": "Failed to save."
     },
     "security": {

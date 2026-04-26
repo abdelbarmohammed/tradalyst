@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { AlertCircle, Check, Download, Trash2, X, UserCheck, Clock, BookOpen } from "lucide-react";
+import { AlertCircle, Check, Download, Trash2, X, UserCheck, Clock, BookOpen, Sun, Moon, LogOut } from "lucide-react";
 import { get, patch, post, del } from "@/lib/api";
 import { MARKETING_URL } from "@/lib/urls";
 import { logout } from "@/lib/auth";
@@ -63,6 +63,13 @@ function PerfilTab({ user, onUpdated }: { user: UserProfile; onUpdated: (u: User
     router.refresh();
   }
 
+  function switchTheme(theme: "light" | "dark") {
+    document.documentElement.classList.remove("light", "dark");
+    document.documentElement.classList.add(theme);
+    document.cookie = `THEME=${theme};path=/;max-age=31536000`;
+    patch("/api/users/me/", { theme_preference: theme }).catch(() => {});
+  }
+
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
@@ -119,9 +126,43 @@ function PerfilTab({ user, onUpdated }: { user: UserProfile; onUpdated: (u: User
         </div>
       </div>
 
+      <div className="flex flex-col gap-1">
+        <label className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted">{t("theme") || "Tema"}</label>
+        <div className="flex gap-[2px] w-fit">
+          <button
+            type="button"
+            onClick={() => switchTheme("light")}
+            className="flex items-center gap-2 font-mono text-[11px] px-4 py-[7px] border border-white/[0.10] text-secondary hover:text-primary transition-colors"
+          >
+            <Sun size={11} />
+            {t("themeLight") || "Claro"}
+          </button>
+          <button
+            type="button"
+            onClick={() => switchTheme("dark")}
+            className="flex items-center gap-2 font-mono text-[11px] px-4 py-[7px] border border-white/[0.10] text-secondary hover:text-primary transition-colors"
+          >
+            <Moon size={11} />
+            {t("themeDark") || "Oscuro"}
+          </button>
+        </div>
+      </div>
+
       <button type="submit" disabled={saving} className="font-sans text-[13px] font-semibold bg-green hover:bg-green-hover text-white px-6 py-[9px] transition-colors disabled:opacity-50">
         {saving ? t("saving") : t("save")}
       </button>
+
+      {/* Logout — only shown on mobile where sidebar is hidden */}
+      <div className="lg:hidden pt-4 border-t border-white/[0.06]">
+        <button
+          type="button"
+          onClick={logout}
+          className="flex items-center gap-2 w-full font-sans text-[13px] border border-loss/30 text-loss hover:bg-loss/[0.06] px-5 py-[11px] transition-colors"
+        >
+          <LogOut size={14} />
+          {t("logout") || "Cerrar sesión"}
+        </button>
+      </div>
     </form>
   );
 }
@@ -502,19 +543,22 @@ export default function SettingsPage() {
       ];
 
   return (
-    <div className="max-w-[800px] mx-auto space-y-6">
+    <div className="max-w-[800px] mx-auto px-4 lg:px-0 pb-28 lg:pb-6 space-y-6">
       <h1 className="font-sans text-[22px] font-bold text-primary leading-tight">{t("title")}</h1>
 
-      <div className="flex gap-[2px] bg-surface border border-white/[0.08] w-fit overflow-hidden">
-        {TABS.map(({ value, label }) => (
-          <button
-            key={value}
-            onClick={() => setTab(value)}
-            className={`font-mono text-[11px] px-4 py-[8px] transition-colors ${tab === value ? "bg-elevated text-primary" : "text-muted hover:text-secondary"}`}
-          >
-            {label}
-          </button>
-        ))}
+      {/* Tabs — scrollable on mobile to prevent overflow */}
+      <div className="overflow-x-auto -mx-4 lg:mx-0 px-4 lg:px-0">
+        <div className="flex gap-[2px] bg-surface border border-white/[0.08] w-max lg:w-fit overflow-hidden">
+          {TABS.map(({ value, label }) => (
+            <button
+              key={value}
+              onClick={() => setTab(value)}
+              className={`font-mono text-[11px] px-4 py-[8px] whitespace-nowrap transition-colors ${tab === value ? "bg-elevated text-primary" : "text-muted hover:text-secondary"}`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div>
