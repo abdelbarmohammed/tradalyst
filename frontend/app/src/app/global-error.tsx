@@ -15,9 +15,8 @@ export default function GlobalError({
     // deploy its ID changes. Auto-reload gets the user onto the new build.
     const isStaleDeployment =
       error.message?.includes("Server Action") ||
-      error.message?.includes("Failed to find") ||
-      error.message?.includes("NEXT_NOT_FOUND") ||
-      !!error.digest;
+      error.message?.includes("Failed to find Server Action") ||
+      error.message?.includes("NEXT_NOT_FOUND");
 
     if (isStaleDeployment) {
       window.location.reload();

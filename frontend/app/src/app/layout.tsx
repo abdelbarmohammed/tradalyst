@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
-import { NextIntlClientProvider } from "next-intl";
+import IntlProvider from "@/components/providers/IntlProvider";
 import { cookies } from "next/headers";
 import "./globals.css";
 
@@ -46,9 +46,9 @@ export default async function RootLayout({
   return (
     <html lang={locale} className={`${ibmPlexSans.variable} ${ibmPlexMono.variable} ${theme}`}>
       <body className="font-sans antialiased" style={{ backgroundColor: "var(--bg)", color: "var(--text-primary)" }}>
-        <NextIntlClientProvider locale={locale} messages={messages}>
+        <IntlProvider locale={locale} messages={messages}>
           {children}
-        </NextIntlClientProvider>
+        </IntlProvider>
       </body>
     </html>
   );
