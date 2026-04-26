@@ -230,8 +230,9 @@ export default function MarketQuotes({ theme = "dark", locale = "es" }: Props) {
 
   useEffect(() => {
     buildWidget(pinnedAssets, theme, locale);
+    const container = containerRef.current;
     return () => {
-      if (containerRef.current) containerRef.current.innerHTML = "";
+      if (container) container.innerHTML = "";
     };
   }, [pinnedAssets, theme, locale, buildWidget]);
 
