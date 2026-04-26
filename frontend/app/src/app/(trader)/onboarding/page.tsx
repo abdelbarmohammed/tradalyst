@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronRight, Check } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { patch, post } from "@/lib/api";
 import type { Trade } from "@/types";
 
@@ -12,28 +13,6 @@ type TraderType = "crypto" | "forex" | "acciones" | "todos";
 type Direction  = "long" | "short";
 type TradeResult = "win" | "loss" | "breakeven" | "";
 type Emotion = "calm" | "confident" | "fearful" | "greedy" | "anxious" | "fomo" | "revenge" | "neutral" | "";
-
-const TRADER_TYPES: { value: TraderType; label: string; emoji: string }[] = [
-  { value: "crypto",   label: "Crypto",   emoji: "₿" },
-  { value: "forex",    label: "Forex",    emoji: "€" },
-  { value: "acciones", label: "Acciones", emoji: "📈" },
-  { value: "todos",    label: "Todos",    emoji: "∞" },
-];
-
-const RESULT_OPTIONS: { value: TradeResult; label: string }[] = [
-  { value: "win",       label: "Win" },
-  { value: "loss",      label: "Loss" },
-  { value: "breakeven", label: "Breakeven" },
-];
-
-const EMOTION_OPTIONS: { value: Emotion; label: string }[] = [
-  { value: "calm",      label: "Tranquilo" },
-  { value: "confident", label: "Confiado" },
-  { value: "neutral",   label: "Neutral" },
-  { value: "fearful",   label: "Incierto" },
-  { value: "fomo",      label: "FOMO" },
-  { value: "revenge",   label: "Revenge" },
-];
 
 const DEFAULT_PAIRS: Record<TraderType, string> = {
   crypto:   "BTC",
@@ -97,11 +76,35 @@ function StepDots({ current, total }: { current: number; total: number }) {
 
 export default function OnboardingPage() {
   const router = useRouter();
+  const t = useTranslations("onboarding");
+  const tJournal = useTranslations("journal");
+
+  const TRADER_TYPES: { value: TraderType; label: string; emoji: string }[] = [
+    { value: "crypto",   label: t("traderTypeCrypto"), emoji: "₿" },
+    { value: "forex",    label: t("traderTypeForex"),  emoji: "€" },
+    { value: "acciones", label: t("traderTypeStocks"), emoji: "📈" },
+    { value: "todos",    label: t("traderTypeAll"),    emoji: "∞" },
+  ];
+
+  const RESULT_OPTIONS: { value: TradeResult; label: string }[] = [
+    { value: "win",       label: "Win" },
+    { value: "loss",      label: "Loss" },
+    { value: "breakeven", label: "Breakeven" },
+  ];
+
+  const EMOTION_OPTIONS: { value: Emotion; label: string }[] = [
+    { value: "calm",      label: tJournal("emotions.calm") },
+    { value: "confident", label: tJournal("emotions.confident") },
+    { value: "neutral",   label: tJournal("emotions.neutral") },
+    { value: "fearful",   label: tJournal("emotions.fearful") },
+    { value: "fomo",      label: "FOMO" },
+    { value: "revenge",   label: "Revenge" },
+  ];
+
   const [step, setStep] = useState(0);
   const [traderType, setTraderType] = useState<TraderType | null>(null);
   const [tradeLogged, setTradeLogged] = useState(false);
 
-  // Trade form state
   const [pair, setPair]         = useState("");
   const [direction, setDir]     = useState<Direction>("long");
   const [entryPrice, setEntry]  = useState("");
@@ -119,7 +122,6 @@ export default function OnboardingPage() {
   const [submitting, setSubmitting] = useState(false);
   const [completing, setCompleting] = useState(false);
 
-  // Step 1 → Step 2
   function handleTypeSelect(type: TraderType) {
     setTraderType(type);
     setPair(DEFAULT_PAIRS[type]);
@@ -130,15 +132,14 @@ export default function OnboardingPage() {
     setStep(1);
   }
 
-  // Step 2 — submit trade
   async function handleTradeSubmit(e: React.FormEvent) {
     e.preventDefault();
     const errors: Record<string, string> = {};
-    if (!pair.trim()) errors.pair = "El activo es obligatorio.";
+    if (!pair.trim()) errors.pair = t("errorPair");
     if (!entryPrice || isNaN(Number(entryPrice)) || Number(entryPrice) <= 0)
-      errors.entryPrice = "Precio de entrada inválido.";
+      errors.entryPrice = t("errorEntryPrice");
     if (!quantity || isNaN(Number(quantity)) || Number(quantity) <= 0)
-      errors.quantity = "Cantidad inválida.";
+      errors.quantity = t("errorQuantity");
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
       return;
@@ -162,7 +163,7 @@ export default function OnboardingPage() {
       setTradeLogged(true);
       await completeOnboarding();
     } catch {
-      setFormErrors({ general: "Error al guardar la operación." });
+      setFormErrors({ general: t("errorGeneral") });
     } finally {
       setSubmitting(false);
     }
@@ -184,15 +185,10 @@ export default function OnboardingPage() {
     }
   }
 
-  async function goToDashboard() {
-    router.push("/dashboard");
-  }
-
   return (
     <div className="min-h-screen bg-base flex items-center justify-center p-6">
       <div className="w-full max-w-[520px]">
 
-        {/* Logo */}
         <div className="mb-8 text-center">
           <span className="font-mono text-[18px] font-bold text-primary tracking-tight">
             tradalyst
@@ -201,15 +197,15 @@ export default function OnboardingPage() {
 
         <StepDots current={step} total={3} />
 
-        {/* ── Step 0 — Bienvenida ── */}
+        {/* ── Step 0 — Trader type ── */}
         {step === 0 && (
           <div className="space-y-6">
             <div>
               <h1 className="font-sans text-[24px] font-bold text-primary leading-tight mb-2">
-                Bienvenido a Tradalyst.
+                {t("step0Title")}
               </h1>
               <p className="font-sans text-[14px] text-secondary leading-relaxed">
-                ¿Qué tipo de trader eres principalmente?
+                {t("step0Subtitle")}
               </p>
             </div>
 
@@ -237,21 +233,21 @@ export default function OnboardingPage() {
               disabled={!traderType}
               className="w-full flex items-center justify-center gap-2 font-sans text-[13px] font-semibold bg-green hover:bg-green-hover text-white py-[11px] rounded transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              Continuar
+              {t("continue")}
               <ChevronRight size={14} />
             </button>
           </div>
         )}
 
-        {/* ── Step 1 — Primera operación ── */}
+        {/* ── Step 1 — First trade ── */}
         {step === 1 && (
           <div className="space-y-5">
             <div>
               <h1 className="font-sans text-[22px] font-bold text-primary leading-tight mb-1">
-                Registra tu primera operación.
+                {t("step1Title")}
               </h1>
               <p className="font-sans text-[13px] text-muted">
-                La IA necesita al menos 5 operaciones para generar análisis.
+                {t("step1Subtitle")}
               </p>
             </div>
 
@@ -262,7 +258,7 @@ export default function OnboardingPage() {
             )}
 
             <form onSubmit={handleTradeSubmit} className="space-y-4" noValidate>
-              <Field label="Activo" error={formErrors.pair}>
+              <Field label={t("fieldPair")} error={formErrors.pair}>
                 <input
                   type="text"
                   value={pair}
@@ -272,8 +268,7 @@ export default function OnboardingPage() {
                 />
               </Field>
 
-              {/* Direction */}
-              <Field label="Dirección">
+              <Field label={t("fieldDirection")}>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
@@ -301,7 +296,7 @@ export default function OnboardingPage() {
               </Field>
 
               <div className="grid grid-cols-2 gap-3">
-                <Field label="Precio entrada" error={formErrors.entryPrice}>
+                <Field label={t("fieldEntryPrice")} error={formErrors.entryPrice}>
                   <input
                     type="number"
                     step="any"
@@ -312,7 +307,7 @@ export default function OnboardingPage() {
                     className={inputCls}
                   />
                 </Field>
-                <Field label="Precio salida">
+                <Field label={t("fieldExitPrice")}>
                   <input
                     type="number"
                     step="any"
@@ -325,7 +320,7 @@ export default function OnboardingPage() {
                 </Field>
               </div>
 
-              <Field label="Cantidad" error={formErrors.quantity}>
+              <Field label={t("fieldQuantity")} error={formErrors.quantity}>
                 <input
                   type="number"
                   step="any"
@@ -337,7 +332,7 @@ export default function OnboardingPage() {
                 />
               </Field>
 
-              <Field label="Fecha y hora">
+              <Field label={t("fieldDateTime")}>
                 <input
                   type="datetime-local"
                   value={entryTime}
@@ -346,8 +341,7 @@ export default function OnboardingPage() {
                 />
               </Field>
 
-              {/* Result */}
-              <Field label="Resultado (opcional)">
+              <Field label={t("fieldResult")}>
                 <div className="flex gap-2">
                   {RESULT_OPTIONS.map((opt) => {
                     const active = result === opt.value;
@@ -373,8 +367,7 @@ export default function OnboardingPage() {
                 </div>
               </Field>
 
-              {/* Emotion */}
-              <Field label="Estado emocional (opcional)">
+              <Field label={t("fieldEmotion")}>
                 <div className="flex flex-wrap gap-2">
                   {EMOTION_OPTIONS.map((opt) => {
                     const active = emotion === opt.value;
@@ -398,12 +391,12 @@ export default function OnboardingPage() {
                 </div>
               </Field>
 
-              <Field label="Notas (opcional)">
+              <Field label={t("fieldNotes")}>
                 <textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   rows={3}
-                  placeholder="¿Por qué entraste? ¿Qué setup viste?"
+                  placeholder={t("notesPlaceholder")}
                   className="bg-elevated border border-white/[0.10] px-3 py-[9px] font-sans text-[12px] text-primary placeholder:text-muted focus:outline-none focus:border-white/25 transition-colors w-full resize-none"
                 />
               </Field>
@@ -414,7 +407,7 @@ export default function OnboardingPage() {
                   disabled={submitting || completing}
                   className="font-sans text-[13px] font-semibold bg-green hover:bg-green-hover text-white px-6 py-[10px] rounded transition-colors disabled:opacity-50"
                 >
-                  {submitting ? "Guardando…" : "Registrar operación"}
+                  {submitting ? t("submitting") : t("submitTrade")}
                 </button>
                 <button
                   type="button"
@@ -422,14 +415,14 @@ export default function OnboardingPage() {
                   disabled={submitting || completing}
                   className="font-sans text-[13px] text-muted hover:text-secondary transition-colors"
                 >
-                  Prefiero explorar primero
+                  {t("skipLabel")}
                 </button>
               </div>
             </form>
           </div>
         )}
 
-        {/* ── Step 2 — Listo ── */}
+        {/* ── Step 2 — Done ── */}
         {step === 2 && (
           <div className="space-y-6 text-center">
             <div className="w-12 h-12 rounded-full bg-green/20 border border-green/30 flex items-center justify-center mx-auto">
@@ -438,20 +431,18 @@ export default function OnboardingPage() {
 
             <div>
               <h1 className="font-sans text-[22px] font-bold text-primary leading-tight mb-3">
-                ¡Todo listo!
+                {t("step2Title")}
               </h1>
               <p className="font-sans text-[14px] text-secondary leading-relaxed">
-                {tradeLogged
-                  ? "Tu primera operación está registrada. La IA necesita al menos 5 operaciones para generar tu primer análisis."
-                  : "Cuando tengas 5 operaciones registradas, la IA generará tu primer análisis automáticamente."}
+                {tradeLogged ? t("step2BodyLogged") : t("step2BodySkipped")}
               </p>
             </div>
 
             <button
-              onClick={goToDashboard}
+              onClick={() => router.push("/dashboard")}
               className="w-full flex items-center justify-center gap-2 font-sans text-[13px] font-semibold bg-green hover:bg-green-hover text-white py-[11px] rounded transition-colors"
             >
-              Ir al dashboard
+              {t("goToDashboard")}
               <ChevronRight size={14} />
             </button>
           </div>
