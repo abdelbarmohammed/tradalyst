@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { get } from "@/lib/api";
 import { formatPnl, formatPct } from "@/lib/format";
 import type { Trade, PaginatedTrades } from "@/types";
@@ -42,12 +43,14 @@ function BarChart({
   bars,
   formatY = (v: number) => v.toFixed(0),
   colorFn = (v: number) => (v >= 0 ? "#2fac66" : "#f06060"),
+  emptyLabel,
 }: {
   bars: { label: string; value: number }[];
   formatY?: (v: number) => string;
   colorFn?: (v: number) => string;
+  emptyLabel: string;
 }) {
-  if (!bars.length) return <EmptyChart />;
+  if (!bars.length) return <EmptyChart label={emptyLabel} />;
 
   const W = Math.max(bars.length * 52, 300);
   const chartW = W - BAR_PAD.left - BAR_PAD.right;
@@ -69,7 +72,6 @@ function BarChart({
       preserveAspectRatio="none"
       aria-hidden="true"
     >
-      {/* Zero line */}
       <line
         x1={BAR_PAD.left}
         x2={W - BAR_PAD.right}
@@ -108,7 +110,6 @@ function BarChart({
         );
       })}
 
-      {/* Y axis labels */}
       {[maxAbs, 0, hasNeg ? -maxAbs : null]
         .filter((v): v is number => v !== null)
         .map((v, i) => (
@@ -166,10 +167,10 @@ function HorizontalBar({
   );
 }
 
-function EmptyChart() {
+function EmptyChart({ label }: { label: string }) {
   return (
     <div className="flex items-center justify-center h-[100px]">
-      <p className="font-mono text-[11px] text-muted">Sin datos suficientes</p>
+      <p className="font-mono text-[11px] text-muted">{label}</p>
     </div>
   );
 }
@@ -205,6 +206,9 @@ function ChartCard({
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export default function AnalyticsPage() {
+  const t = useTranslations("analytics");
+  const tJournal = useTranslations("journal");
+
   const [trades, setTrades] = useState<Trade[]>([]);
   const [loading, setLoading] = useState(true);
   const [pnlGrouping, setPnlGrouping] = useState<"week" | "month">("month");
@@ -228,6 +232,17 @@ export default function AnalyticsPage() {
   }, [fetchTrades]);
 
   const closed = closedTrades(trades);
+
+  const EMOTION_LABELS: Record<string, string> = {
+    calm: tJournal("emotions.calm"),
+    confident: tJournal("emotions.confident"),
+    fearful: tJournal("emotions.fearful"),
+    greedy: tJournal("emotions.greedy"),
+    anxious: tJournal("emotions.anxious"),
+    fomo: "FOMO",
+    revenge: "Revenge",
+    neutral: tJournal("emotions.neutral"),
+  };
 
   // ── P&L breakdown ──────────────────────────────────────────────────────────
 
@@ -270,12 +285,6 @@ export default function AnalyticsPage() {
   const assetPnlMax = Math.max(...assetBars.map((a) => Math.abs(a.totalPnl)), 0.01);
 
   // ── Win/Loss by emotion ────────────────────────────────────────────────────
-
-  const EMOTION_LABELS: Record<string, string> = {
-    calm: "Tranquilo", confident: "Confiado", fearful: "Incierto",
-    greedy: "Codicioso", anxious: "Ansioso", fomo: "FOMO",
-    revenge: "Revenge", neutral: "Neutral",
-  };
 
   const emotionBars = (() => {
     const tradesWithEmotion = closed.filter((t) => t.emotion);
@@ -327,7 +336,7 @@ export default function AnalyticsPage() {
       if (cum > peak) peak = cum;
       return {
         label: String(i + 1),
-        value: cum - peak, // 0 or negative
+        value: cum - peak,
       };
     });
   })();
@@ -339,15 +348,17 @@ export default function AnalyticsPage() {
   const wins = closed.filter((t) => t.result === "win").length;
   const losses = closed.filter((t) => t.result === "loss").length;
 
+  const noData = t("noData");
+
   return (
     <div className="max-w-[1200px] mx-auto space-y-6">
 
       <div>
         <h1 className="font-sans text-[22px] font-bold text-primary leading-tight">
-          Analítica
+          {t("title")}
         </h1>
         <p className="font-mono text-[11px] text-muted mt-[3px]">
-          {trades.length} operaciones en total
+          {t("subtitle", { count: trades.length })}
         </p>
       </div>
 
@@ -355,23 +366,23 @@ export default function AnalyticsPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
           {
-            label: "P&L Total",
+            label: t("statPnl"),
             value: loading ? "—" : formatPnl(totalPnlVal),
             color: !loading && totalPnlVal > 0 ? "text-profit" : !loading && totalPnlVal < 0 ? "text-loss" : "text-primary",
           },
           {
-            label: "Win Rate",
+            label: t("statWinRate"),
             value: loading ? "—" : formatPct(wr),
             color: !loading && wr >= 50 ? "text-profit" : !loading ? "text-loss" : "text-primary",
             sub: loading ? undefined : `${wins}W / ${losses}L`,
           },
           {
-            label: "Operaciones",
+            label: t("statTrades"),
             value: loading ? "—" : String(trades.length),
             color: "text-primary",
           },
           {
-            label: "Mejor día",
+            label: t("statBestDay"),
             value: loading ? "—" : (() => {
               if (!closed.length) return "—";
               const byDay = groupBy(closed, (t) => t.entry_time.slice(0, 10));
@@ -408,7 +419,7 @@ export default function AnalyticsPage() {
 
       {/* P&L Breakdown */}
       <ChartCard
-        title="P&L por período"
+        title={t("chartPnlPeriod")}
         loading={loading}
         action={
           <div className="flex gap-[2px] bg-base border border-white/[0.08] overflow-hidden">
@@ -420,7 +431,7 @@ export default function AnalyticsPage() {
                   pnlGrouping === v ? "bg-elevated text-primary" : "text-muted hover:text-secondary"
                 }`}
               >
-                {v === "week" ? "Semana" : "Mes"}
+                {v === "week" ? t("periodWeek") : t("periodMonth")}
               </button>
             ))}
           </div>
@@ -429,6 +440,7 @@ export default function AnalyticsPage() {
         <BarChart
           bars={pnlBars}
           formatY={(v) => `${v >= 0 ? "+" : ""}${v.toFixed(0)}€`}
+          emptyLabel={noData}
         />
       </ChartCard>
 
@@ -436,9 +448,9 @@ export default function AnalyticsPage() {
       <div className="grid lg:grid-cols-2 gap-4">
 
         {/* Win/Loss by asset */}
-        <ChartCard title="P&L por activo" loading={loading}>
+        <ChartCard title={t("chartPnlAsset")} loading={loading}>
           {assetBars.length === 0 ? (
-            <EmptyChart />
+            <EmptyChart label={noData} />
           ) : (
             <div className="space-y-1">
               {assetBars.map((a) => (
@@ -455,10 +467,10 @@ export default function AnalyticsPage() {
           )}
         </ChartCard>
 
-        {/* Win/Loss by emotion — most important */}
-        <ChartCard title="Win Rate por emoción" loading={loading}>
+        {/* Win/Loss by emotion */}
+        <ChartCard title={t("chartWrEmotion")} loading={loading}>
           {emotionBars.length === 0 ? (
-            <EmptyChart />
+            <EmptyChart label={noData} />
           ) : (
             <div className="space-y-1">
               {emotionBars.map((e) => (
@@ -480,7 +492,7 @@ export default function AnalyticsPage() {
       <div className="grid lg:grid-cols-2 gap-4">
 
         {/* Win/Loss by time of day */}
-        <ChartCard title="Win Rate por hora del día" loading={loading}>
+        <ChartCard title={t("chartWrTime")} loading={loading}>
           <BarChart
             bars={timeBars.filter((b) => b.count > 0).map((b) => ({
               label: b.label,
@@ -488,13 +500,14 @@ export default function AnalyticsPage() {
             }))}
             formatY={(v) => `${v.toFixed(0)}%`}
             colorFn={(v) => (v >= 50 ? "#2fac66" : "#f06060")}
+            emptyLabel={noData}
           />
         </ChartCard>
 
         {/* Win/Loss by direction */}
-        <ChartCard title="Long vs Short" loading={loading}>
+        <ChartCard title={t("chartLongShort")} loading={loading}>
           {!longTrades.length && !shortTrades.length ? (
-            <EmptyChart />
+            <EmptyChart label={noData} />
           ) : (
             <div className="space-y-4 py-2">
               {[
@@ -508,7 +521,7 @@ export default function AnalyticsPage() {
                     <div className="flex items-center justify-between">
                       <span className="font-mono text-[10px] text-secondary">{label}</span>
                       <span className="font-mono text-[10px] text-muted">
-                        {dt.length} ops · {formatPnl(pl)}
+                        {dt.length} {t("tradesOps")} · {formatPnl(pl)}
                       </span>
                     </div>
                     <div className="h-[10px] bg-white/[0.06] rounded-sm overflow-hidden">
@@ -518,7 +531,7 @@ export default function AnalyticsPage() {
                       />
                     </div>
                     <p className="font-mono text-[10px] text-muted">
-                      Win rate: {wr.toFixed(1)}%
+                      {t("winRateLabel")} {wr.toFixed(1)}%
                     </p>
                   </div>
                 );
@@ -529,11 +542,12 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Drawdown */}
-      <ChartCard title="Drawdown acumulado" loading={loading}>
+      <ChartCard title={t("chartDrawdown")} loading={loading}>
         <BarChart
           bars={drawdownBars.slice(-30)}
           formatY={(v) => `${v.toFixed(0)}€`}
           colorFn={() => "#f06060"}
+          emptyLabel={noData}
         />
       </ChartCard>
     </div>

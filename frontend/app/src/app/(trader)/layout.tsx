@@ -3,6 +3,7 @@ import Sidebar from "@/components/layout/Sidebar";
 import BottomNav from "@/components/layout/BottomNav";
 import MentorSidebar from "@/components/layout/MentorSidebar";
 import MentorBottomNav from "@/components/layout/MentorBottomNav";
+import TickerTapeWrapper from "@/components/layout/TickerTapeWrapper";
 
 function getRoleFromCookie(): string | null {
   try {
@@ -24,6 +25,7 @@ export default function TraderLayout({ children }: { children: React.ReactNode }
     <div className="flex min-h-screen bg-base">
       {isMentor ? <MentorSidebar /> : <Sidebar />}
       <div className="flex-1 flex flex-col min-w-0">
+        {!isMentor && <TickerTapeWrapper />}
         <main className="flex-1 p-5 lg:p-7 pb-20 lg:pb-7 overflow-auto">
           {children}
         </main>

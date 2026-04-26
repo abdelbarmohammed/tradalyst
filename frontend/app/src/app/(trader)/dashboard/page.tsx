@@ -12,7 +12,6 @@ import type {
 } from "@/types";
 
 import StatCard from "@/components/dashboard/StatCard";
-import TickerTape from "@/components/dashboard/TickerTape";
 import MarketQuotes from "@/components/dashboard/MarketQuotes";
 import PnlChart from "@/components/dashboard/PnlChart";
 import AiInsightCard from "@/components/dashboard/AiInsightCard";
@@ -202,11 +201,6 @@ export default function DashboardPage() {
 
   return (
     <div className="max-w-[1200px] mx-auto space-y-6">
-
-      {/* Row 0 — Ticker tape (full width, above everything) */}
-      <div className="-mx-6 -mt-6 mb-0">
-        <TickerTape theme={widgetTheme} locale={tvLocale} />
-      </div>
 
       {/* ── Top bar ── */}
       <div className="flex items-start justify-between gap-4">

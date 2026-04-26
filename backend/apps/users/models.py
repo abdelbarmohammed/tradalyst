@@ -64,6 +64,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     language_preference = models.CharField(
         max_length=2, choices=LanguagePreference.choices, default=LanguagePreference.ES
     )
+    pinned_assets = models.JSONField(default=list, blank=True)
 
     objects = CustomUserManager()
 

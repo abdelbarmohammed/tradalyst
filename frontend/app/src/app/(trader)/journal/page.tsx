@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Plus, Eye, Pencil, Trash2, ChevronLeft, ChevronRight, AlertCircle, X, Upload } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { get, del } from "@/lib/api";
 import { formatDateShort, formatPnl } from "@/lib/format";
 import type { Trade, PaginatedTrades } from "@/types";
@@ -34,38 +35,6 @@ const EMPTY_FILTERS: Filters = {
 };
 
 const PAGE_SIZE = 20;
-
-const DIRECTION_TABS: { value: DirectionFilter; label: string }[] = [
-  { value: "", label: "Todos" },
-  { value: "long", label: "Long" },
-  { value: "short", label: "Short" },
-];
-
-const RESULT_TABS: { value: ResultFilter; label: string }[] = [
-  { value: "", label: "Todos" },
-  { value: "win", label: "Win" },
-  { value: "loss", label: "Loss" },
-  { value: "breakeven", label: "BE" },
-];
-
-const EMOTION_TABS: { value: EmotionFilter; label: string }[] = [
-  { value: "", label: "Todos" },
-  { value: "confident", label: "Confiado" },
-  { value: "fomo", label: "FOMO" },
-  { value: "fearful", label: "Incierto" },
-  { value: "revenge", label: "Revenge" },
-];
-
-const EMOTION_LABELS: Record<string, string> = {
-  calm:      "Tranquilo",
-  confident: "Confiado",
-  fearful:   "Incierto",
-  greedy:    "Codicioso",
-  anxious:   "Ansioso",
-  fomo:      "FOMO",
-  revenge:   "Revenge",
-  neutral:   "Neutral",
-};
 
 // ── Filter pill tab group ─────────────────────────────────────────────────────
 
@@ -104,11 +73,13 @@ function DeleteModal({
   onConfirm,
   onCancel,
   deleting,
+  t,
 }: {
   trade: Trade;
   onConfirm: () => void;
   onCancel: () => void;
   deleting: boolean;
+  t: (key: string) => string;
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -122,14 +93,14 @@ function DeleteModal({
         </button>
 
         <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted mb-3">
-          Confirmar eliminación
+          {t("deleteConfirmTitle")}
         </p>
         <p className="font-sans text-[14px] text-primary mb-1">
-          ¿Eliminar la operación de{" "}
+          {t("deleteBodyPrefix")}{" "}
           <span className="font-semibold">{trade.pair}</span>?
         </p>
         <p className="font-mono text-[11px] text-muted mb-6">
-          {formatDateShort(trade.entry_time)} · Esta acción no se puede deshacer.
+          {formatDateShort(trade.entry_time)} · {t("deleteBodyNote")}
         </p>
 
         <div className="flex gap-2">
@@ -138,14 +109,14 @@ function DeleteModal({
             disabled={deleting}
             className="flex-1 font-sans text-[13px] px-4 py-[9px] border border-white/[0.12] text-secondary hover:text-primary transition-colors disabled:opacity-50"
           >
-            Cancelar
+            {t("deleteCancel")}
           </button>
           <button
             onClick={onConfirm}
             disabled={deleting}
             className="flex-1 font-sans text-[13px] font-semibold px-4 py-[9px] bg-loss/80 hover:bg-loss text-white transition-colors disabled:opacity-50"
           >
-            {deleting ? "Eliminando…" : "Eliminar"}
+            {deleting ? t("deleting") : t("deleteConfirm")}
           </button>
         </div>
       </div>
@@ -157,6 +128,39 @@ function DeleteModal({
 
 export default function JournalPage() {
   const router = useRouter();
+  const t = useTranslations("journal");
+
+  const DIRECTION_TABS: { value: DirectionFilter; label: string }[] = [
+    { value: "", label: t("filterAll") },
+    { value: "long", label: "Long" },
+    { value: "short", label: "Short" },
+  ];
+
+  const RESULT_TABS: { value: ResultFilter; label: string }[] = [
+    { value: "", label: t("filterAll") },
+    { value: "win", label: "Win" },
+    { value: "loss", label: "Loss" },
+    { value: "breakeven", label: "BE" },
+  ];
+
+  const EMOTION_TABS: { value: EmotionFilter; label: string }[] = [
+    { value: "", label: t("filterAll") },
+    { value: "confident", label: t("emotions.confident") },
+    { value: "fomo", label: "FOMO" },
+    { value: "fearful", label: t("emotions.fearful") },
+    { value: "revenge", label: "Revenge" },
+  ];
+
+  const EMOTION_LABELS: Record<string, string> = {
+    calm:      t("emotions.calm"),
+    confident: t("emotions.confident"),
+    fearful:   t("emotions.fearful"),
+    greedy:    t("emotions.greedy"),
+    anxious:   t("emotions.anxious"),
+    fomo:      "FOMO",
+    revenge:   "Revenge",
+    neutral:   t("emotions.neutral"),
+  };
 
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
   const [trades, setTrades] = useState<Trade[]>([]);
@@ -169,7 +173,6 @@ export default function JournalPage() {
   const [deleting, setDeleting] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
 
-  // Debounce pair search
   const pairInputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -195,21 +198,18 @@ export default function JournalPage() {
       setLoading(true);
       setError(null);
       try {
-        const res = await get<PaginatedTrades>(
-          `/api/trades/?${buildParams(f, p)}`
-        );
+        const res = await get<PaginatedTrades>(`/api/trades/?${buildParams(f, p)}`);
         setTrades(res.results);
         setCount(res.count);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Error al cargar las operaciones.");
+        setError(err instanceof Error ? err.message : t("errorLoad"));
       } finally {
         setLoading(false);
       }
     },
-    [buildParams]
+    [buildParams, t]
   );
 
-  // On mount, read ?date=YYYY-MM-DD from URL and pre-filter to that day
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
@@ -242,12 +242,8 @@ export default function JournalPage() {
   }
 
   const hasActiveFilters =
-    filters.pair ||
-    filters.direction ||
-    filters.result ||
-    filters.emotion ||
-    filters.after ||
-    filters.before;
+    filters.pair || filters.direction || filters.result ||
+    filters.emotion || filters.after || filters.before;
 
   async function handleDelete() {
     if (!deleteTarget) return;
@@ -265,6 +261,9 @@ export default function JournalPage() {
 
   const totalPages = Math.ceil(count / PAGE_SIZE);
 
+  const tradeCountLabel =
+    count === 1 ? t("tradeCountSingle") : t("tradeCountPlural", { count });
+
   return (
     <>
       {deleteTarget && (
@@ -273,6 +272,7 @@ export default function JournalPage() {
           onConfirm={handleDelete}
           onCancel={() => setDeleteTarget(null)}
           deleting={deleting}
+          t={t}
         />
       )}
 
@@ -289,11 +289,11 @@ export default function JournalPage() {
         <div className="flex items-center justify-between gap-4">
           <div>
             <h1 className="font-sans text-[22px] font-bold text-primary leading-tight">
-              Diario de operaciones
+              {t("title")}
             </h1>
             {!loading && (
               <p className="font-mono text-[11px] text-muted mt-[3px]">
-                {count} {count === 1 ? "operación" : "operaciones"}
+                {tradeCountLabel}
               </p>
             )}
           </div>
@@ -304,14 +304,14 @@ export default function JournalPage() {
               style={{ border: "1px solid var(--border)" }}
             >
               <Upload size={14} />
-              Importar CSV
+              {t("importCsv")}
             </button>
             <Link
               href="/journal/new"
               className="flex items-center gap-2 font-sans text-[13px] font-semibold bg-green hover:bg-green-hover text-white px-4 py-[9px] rounded transition-colors duration-150"
             >
               <Plus size={14} />
-              Nueva operación
+              {t("newTrade")}
             </Link>
           </div>
         </div>
@@ -325,27 +325,25 @@ export default function JournalPage() {
               onClick={() => fetchTrades(filters, page)}
               className="ml-auto font-mono text-[10px] text-loss underline"
             >
-              Reintentar
+              {t("retry")}
             </button>
           </div>
         )}
 
         {/* ── Filters ── */}
         <div className="space-y-3">
-          {/* Search */}
           <input
             ref={pairInputRef}
             type="text"
-            placeholder="Buscar por activo (BTC, EURUSD…)"
+            placeholder={t("searchPlaceholder")}
             onChange={(e) => handlePairInput(e.target.value)}
             className="w-full sm:w-64 bg-surface border border-white/[0.08] px-3 py-[8px] font-mono text-[12px] text-primary placeholder:text-muted focus:outline-none focus:border-white/20 transition-colors"
           />
 
-          {/* Filter tabs row */}
           <div className="flex flex-wrap gap-3 items-center">
             <div className="flex items-center gap-2">
               <span className="font-mono text-[9px] uppercase text-muted tracking-[0.1em]">
-                Dir.
+                {t("filterDirLabel")}
               </span>
               <TabGroup
                 options={DIRECTION_TABS}
@@ -356,7 +354,7 @@ export default function JournalPage() {
 
             <div className="flex items-center gap-2">
               <span className="font-mono text-[9px] uppercase text-muted tracking-[0.1em]">
-                Result.
+                {t("filterResultLabel")}
               </span>
               <TabGroup
                 options={RESULT_TABS}
@@ -367,7 +365,7 @@ export default function JournalPage() {
 
             <div className="flex items-center gap-2">
               <span className="font-mono text-[9px] uppercase text-muted tracking-[0.1em]">
-                Emoción
+                {t("filterEmotionLabel")}
               </span>
               <TabGroup
                 options={EMOTION_TABS}
@@ -376,10 +374,9 @@ export default function JournalPage() {
               />
             </div>
 
-            {/* Date range */}
             <div className="flex items-center gap-2">
               <span className="font-mono text-[9px] uppercase text-muted tracking-[0.1em]">
-                Desde
+                {t("filterFrom")}
               </span>
               <input
                 type="date"
@@ -390,7 +387,7 @@ export default function JournalPage() {
             </div>
             <div className="flex items-center gap-2">
               <span className="font-mono text-[9px] uppercase text-muted tracking-[0.1em]">
-                Hasta
+                {t("filterTo")}
               </span>
               <input
                 type="date"
@@ -405,7 +402,7 @@ export default function JournalPage() {
                 onClick={clearFilters}
                 className="font-mono text-[10px] text-muted hover:text-secondary underline transition-colors"
               >
-                Limpiar filtros
+                {t("filterClear")}
               </button>
             )}
           </div>
@@ -413,16 +410,12 @@ export default function JournalPage() {
 
         {/* ── Table ── */}
         <div className="card overflow-x-auto">
-          {/* Column headers */}
           <div className="hidden lg:grid grid-cols-[140px_120px_70px_100px_100px_90px_80px_100px_80px] gap-2 px-5 py-3 border-b border-white/[0.06]">
             {[
-              "Fecha", "Activo", "Dir.", "Entrada", "Salida",
-              "P&L", "Result.", "Emoción", "Acciones",
+              t("colDate"), t("colPair"), t("colDir"), t("colEntry"), t("colExit"),
+              t("colPnl"), t("colResult"), t("colEmotion"), t("colActions"),
             ].map((h) => (
-              <span
-                key={h}
-                className="font-mono text-[9px] uppercase tracking-[0.1em] text-muted"
-              >
+              <span key={h} className="font-mono text-[9px] uppercase tracking-[0.1em] text-muted">
                 {h}
               </span>
             ))}
@@ -437,9 +430,7 @@ export default function JournalPage() {
           ) : trades.length === 0 ? (
             <div className="p-16 flex flex-col items-center text-center gap-4">
               <p className="font-sans text-[14px] text-secondary">
-                {hasActiveFilters
-                  ? "No hay operaciones que coincidan con los filtros."
-                  : "Aún no tienes operaciones registradas."}
+                {hasActiveFilters ? t("emptyState") : t("emptyNoTrades")}
               </p>
               {!hasActiveFilters && (
                 <Link
@@ -447,129 +438,71 @@ export default function JournalPage() {
                   className="flex items-center gap-2 font-sans text-[13px] font-semibold bg-green hover:bg-green-hover text-white px-5 py-[10px] rounded transition-colors duration-150"
                 >
                   <Plus size={14} />
-                  Registrar primera operación
+                  {t("newTrade")}
                 </Link>
               )}
               {hasActiveFilters && (
-                <button
-                  onClick={clearFilters}
-                  className="font-mono text-[11px] text-green hover:underline"
-                >
-                  Limpiar filtros
+                <button onClick={clearFilters} className="font-mono text-[11px] text-green hover:underline">
+                  {t("clearFilters")}
                 </button>
               )}
             </div>
           ) : (
-            trades.map((t) => {
-              const pnl = t.pnl !== null ? parseFloat(t.pnl) : null;
-              const isLong = t.direction === "long";
-              const isWin = t.result === "win";
-              const isLoss = t.result === "loss";
+            trades.map((t_) => {
+              const pnl = t_.pnl !== null ? parseFloat(t_.pnl) : null;
+              const isLong = t_.direction === "long";
+              const isWin = t_.result === "win";
+              const isLoss = t_.result === "loss";
 
               return (
                 <div
-                  key={t.id}
+                  key={t_.id}
                   className="group grid grid-cols-[1fr_auto] lg:grid-cols-[140px_120px_70px_100px_100px_90px_80px_100px_80px] gap-2 px-5 py-3 border-b border-white/[0.04] hover:bg-white/[0.03] transition-colors duration-100 items-center cursor-pointer"
-                  onClick={() => router.push(`/journal/${t.id}`)}
+                  onClick={() => router.push(`/journal/${t_.id}`)}
                 >
-                  {/* Date */}
                   <span className="font-mono text-[11px] text-secondary">
-                    {formatDateShort(t.entry_time)}
+                    {formatDateShort(t_.entry_time)}
                   </span>
-
-                  {/* Pair */}
                   <span className="font-sans text-[12px] font-semibold text-primary">
-                    {t.pair}
+                    {t_.pair}
                   </span>
-
-                  {/* Direction */}
-                  <span
-                    className={`hidden lg:inline-flex font-mono text-[10px] px-2 py-[2px] w-fit ${
-                      isLong ? "pill-long" : "pill-short"
-                    }`}
-                  >
+                  <span className={`hidden lg:inline-flex font-mono text-[10px] px-2 py-[2px] w-fit ${isLong ? "pill-long" : "pill-short"}`}>
                     {isLong ? "Long" : "Short"}
                   </span>
-
-                  {/* Entry price */}
                   <span className="hidden lg:block font-mono text-[11px] tabular-nums text-secondary">
-                    {parseFloat(t.entry_price).toLocaleString("es-ES", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 5,
-                    })}
+                    {parseFloat(t_.entry_price).toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 5 })}
                   </span>
-
-                  {/* Exit price */}
                   <span className="hidden lg:block font-mono text-[11px] tabular-nums text-secondary">
-                    {t.exit_price
-                      ? parseFloat(t.exit_price).toLocaleString("es-ES", {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 5,
-                        })
+                    {t_.exit_price
+                      ? parseFloat(t_.exit_price).toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 5 })
                       : "—"}
                   </span>
-
-                  {/* P&L */}
-                  <span
-                    className={`hidden lg:block font-mono text-[11px] tabular-nums ${
-                      pnl === null
-                        ? "text-muted"
-                        : pnl >= 0
-                        ? "text-profit"
-                        : "text-loss"
-                    }`}
-                  >
+                  <span className={`hidden lg:block font-mono text-[11px] tabular-nums ${pnl === null ? "text-muted" : pnl >= 0 ? "text-profit" : "text-loss"}`}>
                     {pnl !== null ? formatPnl(pnl) : "—"}
                   </span>
-
-                  {/* Result */}
                   <span className="hidden lg:block">
-                    {t.result ? (
-                      <span
-                        className={`font-mono text-[10px] px-2 py-[2px] ${
-                          isWin
-                            ? "pill-win"
-                            : isLoss
-                            ? "pill-loss"
-                            : "pill-be"
-                        }`}
-                      >
+                    {t_.result ? (
+                      <span className={`font-mono text-[10px] px-2 py-[2px] ${isWin ? "pill-win" : isLoss ? "pill-loss" : "pill-be"}`}>
                         {isWin ? "Win" : isLoss ? "Loss" : "BE"}
                       </span>
                     ) : (
                       <span className="font-mono text-[10px] text-muted">—</span>
                     )}
                   </span>
-
-                  {/* Emotion */}
                   <span className="hidden lg:block font-mono text-[10px] text-secondary">
-                    {t.emotion ? (EMOTION_LABELS[t.emotion] ?? t.emotion) : "—"}
+                    {t_.emotion ? (EMOTION_LABELS[t_.emotion] ?? t_.emotion) : "—"}
                   </span>
-
-                  {/* Actions */}
                   <div
                     className="flex items-center gap-3 justify-end lg:justify-start"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <Link
-                      href={`/journal/${t.id}`}
-                      className="text-muted hover:text-secondary transition-colors"
-                      title="Ver detalle"
-                    >
+                    <Link href={`/journal/${t_.id}`} className="text-muted hover:text-secondary transition-colors">
                       <Eye size={14} />
                     </Link>
-                    <Link
-                      href={`/journal/${t.id}/edit`}
-                      className="text-muted hover:text-secondary transition-colors"
-                      title="Editar"
-                    >
+                    <Link href={`/journal/${t_.id}/edit`} className="text-muted hover:text-secondary transition-colors">
                       <Pencil size={14} />
                     </Link>
-                    <button
-                      onClick={() => setDeleteTarget(t)}
-                      className="text-muted hover:text-loss transition-colors"
-                      title="Eliminar"
-                    >
+                    <button onClick={() => setDeleteTarget(t_)} className="text-muted hover:text-loss transition-colors">
                       <Trash2 size={14} />
                     </button>
                   </div>
@@ -583,7 +516,7 @@ export default function JournalPage() {
         {totalPages > 1 && (
           <div className="flex items-center justify-between">
             <span className="font-mono text-[10px] text-muted">
-              Página {page} de {totalPages} · {count} resultados
+              {t("pageInfo", { page, total: totalPages, count })}
             </span>
             <div className="flex items-center gap-1">
               <button
@@ -594,38 +527,21 @@ export default function JournalPage() {
                 <ChevronLeft size={14} />
               </button>
 
-              {/* Page numbers — show up to 7 around current */}
               {Array.from({ length: totalPages }, (_, i) => i + 1)
-                .filter(
-                  (n) =>
-                    n === 1 ||
-                    n === totalPages ||
-                    Math.abs(n - page) <= 2
-                )
+                .filter((n) => n === 1 || n === totalPages || Math.abs(n - page) <= 2)
                 .reduce<(number | "…")[]>((acc, n, i, arr) => {
-                  if (i > 0 && (n as number) - (arr[i - 1] as number) > 1) {
-                    acc.push("…");
-                  }
+                  if (i > 0 && (n as number) - (arr[i - 1] as number) > 1) acc.push("…");
                   acc.push(n);
                   return acc;
                 }, [])
                 .map((item, i) =>
                   item === "…" ? (
-                    <span
-                      key={`ellipsis-${i}`}
-                      className="font-mono text-[11px] text-muted px-1"
-                    >
-                      …
-                    </span>
+                    <span key={`ellipsis-${i}`} className="font-mono text-[11px] text-muted px-1">…</span>
                   ) : (
                     <button
                       key={item}
                       onClick={() => setPage(item as number)}
-                      className={`font-mono text-[11px] w-7 h-7 transition-colors ${
-                        page === item
-                          ? "bg-elevated text-primary"
-                          : "text-muted hover:text-secondary"
-                      }`}
+                      className={`font-mono text-[11px] w-7 h-7 transition-colors ${page === item ? "bg-elevated text-primary" : "text-muted hover:text-secondary"}`}
                     >
                       {item}
                     </button>

@@ -18,6 +18,7 @@ export interface UserProfile {
   date_joined: string;
   language_preference?: "es" | "en";
   theme_preference?: "light" | "dark";
+  pinned_assets?: string[];
 }
 
 export interface LoginResponse {

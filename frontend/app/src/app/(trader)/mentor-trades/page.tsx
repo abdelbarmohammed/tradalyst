@@ -3,17 +3,26 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, AlertCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { get } from "@/lib/api";
 import { formatPnl, formatDateShort } from "@/lib/format";
 import type { Trade, PaginatedTrades } from "@/types";
 
-const EMOTION_LABELS: Record<string, string> = {
-  calm: "Tranquilo", confident: "Confiado", fearful: "Incierto",
-  greedy: "Codicioso", anxious: "Ansioso", fomo: "FOMO",
-  revenge: "Revenge", neutral: "Neutral",
-};
-
 export default function MentorTradesPage() {
+  const t = useTranslations("mentorTrades");
+  const tJournal = useTranslations("journal");
+
+  const EMOTION_LABELS: Record<string, string> = {
+    calm: tJournal("emotions.calm"),
+    confident: tJournal("emotions.confident"),
+    fearful: tJournal("emotions.fearful"),
+    greedy: tJournal("emotions.greedy"),
+    anxious: tJournal("emotions.anxious"),
+    fomo: "FOMO",
+    revenge: "Revenge",
+    neutral: tJournal("emotions.neutral"),
+  };
+
   const [trades, setTrades] = useState<Trade[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -21,20 +30,20 @@ export default function MentorTradesPage() {
   useEffect(() => {
     get<PaginatedTrades>("/api/mentors/mentor-trades/?page_size=100")
       .then((res) => setTrades(res.results))
-      .catch((err) => setError(err instanceof Error ? err.message : "Error al cargar las operaciones."))
+      .catch((err) => setError(err instanceof Error ? err.message : t("errorLoad")))
       .finally(() => setLoading(false));
-  }, []);
+  }, [t]);
 
   return (
     <div className="max-w-[900px] mx-auto space-y-5">
       <div>
         <Link href="/settings" className="inline-flex items-center gap-1 font-mono text-[11px] text-muted hover:text-secondary transition-colors mb-3">
           <ChevronLeft size={12} />
-          Ajustes
+          {t("back")}
         </Link>
-        <h1 className="font-sans text-[22px] font-bold text-primary leading-tight">Operaciones de mi mentor</h1>
+        <h1 className="font-sans text-[22px] font-bold text-primary leading-tight">{t("title")}</h1>
         {!loading && !error && (
-          <p className="font-mono text-[11px] text-muted mt-[3px]">{trades.length} operaciones — solo lectura</p>
+          <p className="font-mono text-[11px] text-muted mt-[3px]">{t("subtitle", { count: trades.length })}</p>
         )}
       </div>
 
@@ -51,7 +60,7 @@ export default function MentorTradesPage() {
         </div>
       ) : trades.length === 0 && !error ? (
         <div className="card p-12 flex flex-col items-center text-center gap-3">
-          <p className="font-sans text-[15px] text-secondary">Tu mentor no tiene operaciones todavía.</p>
+          <p className="font-sans text-[15px] text-secondary">{t("empty")}</p>
         </div>
       ) : (
         <div className="card divide-y divide-white/[0.05]">
