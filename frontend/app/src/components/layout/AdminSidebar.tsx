@@ -1,18 +1,78 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Users, Settings, LogOut } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Users, Settings, LogOut, Sun, Moon } from "lucide-react";
 import { logout } from "@/lib/auth";
+import { patch } from "@/lib/api";
 import { MARKETING_URL } from "@/lib/urls";
 
-const NAV_ITEMS = [
-  { href: "/admin", label: "Usuarios", icon: Users },
-  { href: "/settings", label: "Ajustes", icon: Settings },
-];
+function LanguageToggle() {
+  const router = useRouter();
+
+  function switchLocale(locale: string) {
+    document.cookie = `NEXT_LOCALE=${locale};path=/;max-age=31536000`;
+    router.refresh();
+  }
+
+  return (
+    <div className="px-3 py-2 flex items-center gap-2">
+      <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-muted">Lang</span>
+      <div className="flex gap-[2px] ml-auto">
+        {(["es", "en"] as const).map((loc) => (
+          <button
+            key={loc}
+            onClick={() => switchLocale(loc)}
+            className="font-mono text-[10px] px-[6px] py-[3px] transition-colors hover:text-primary text-muted"
+          >
+            {loc.toUpperCase()}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ThemeToggle() {
+  function switchTheme(theme: "light" | "dark") {
+    document.documentElement.classList.remove("light", "dark");
+    document.documentElement.classList.add(theme);
+    document.cookie = `THEME=${theme};path=/;max-age=31536000`;
+    patch("/api/users/me/", { theme_preference: theme }).catch(() => {});
+  }
+
+  return (
+    <div className="px-3 py-2 flex items-center gap-2">
+      <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-muted">Theme</span>
+      <div className="flex gap-[2px] ml-auto">
+        <button
+          onClick={() => switchTheme("light")}
+          className="font-mono text-[10px] px-[6px] py-[3px] transition-colors hover:text-primary text-muted"
+          aria-label="Modo claro"
+        >
+          <Sun size={10} />
+        </button>
+        <button
+          onClick={() => switchTheme("dark")}
+          className="font-mono text-[10px] px-[6px] py-[3px] transition-colors hover:text-primary text-muted"
+          aria-label="Modo oscuro"
+        >
+          <Moon size={10} />
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export default function AdminSidebar() {
   const pathname = usePathname();
+  const t = useTranslations("nav");
+
+  const NAV_ITEMS = [
+    { href: "/admin", label: t("users"), icon: Users },
+    { href: "/settings", label: t("configuration"), icon: Settings },
+  ];
 
   return (
     <aside className="hidden lg:flex flex-col w-sidebar flex-shrink-0 bg-surface border-r border-white/[0.06] h-screen sticky top-0">
@@ -57,11 +117,15 @@ export default function AdminSidebar() {
         })}
       </nav>
 
-      <div className="px-2 py-4 border-t border-white/[0.06]">
-        <button onClick={logout} className="nav-item w-full rounded-md text-left">
-          <LogOut size={16} className="flex-shrink-0" />
-          <span>Cerrar sesión</span>
-        </button>
+      <div className="border-t border-white/[0.06]">
+        <LanguageToggle />
+        <ThemeToggle />
+        <div className="px-2 pb-4">
+          <button onClick={logout} className="nav-item w-full rounded-md text-left">
+            <LogOut size={16} className="flex-shrink-0" />
+            <span>{t("logout")}</span>
+          </button>
+        </div>
       </div>
     </aside>
   );

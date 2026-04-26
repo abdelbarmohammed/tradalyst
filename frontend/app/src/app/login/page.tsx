@@ -4,7 +4,7 @@ import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Sun, Moon } from "lucide-react";
 import { MARKETING_URL } from "@/lib/urls";
 import type { UserProfile } from "@/types";
 
@@ -38,6 +38,33 @@ function LanguageToggle() {
           {loc}
         </button>
       ))}
+    </div>
+  );
+}
+
+function ThemeToggle() {
+  function switchTheme(theme: "light" | "dark") {
+    document.documentElement.classList.remove("light", "dark");
+    document.documentElement.classList.add(theme);
+    document.cookie = `THEME=${theme};path=/;max-age=31536000`;
+  }
+
+  return (
+    <div className="absolute top-4 left-4 flex gap-1">
+      <button
+        onClick={() => switchTheme("light")}
+        className="font-mono text-[10px] px-[6px] py-[3px] text-muted hover:text-primary transition-colors"
+        aria-label="Modo claro"
+      >
+        <Sun size={12} />
+      </button>
+      <button
+        onClick={() => switchTheme("dark")}
+        className="font-mono text-[10px] px-[6px] py-[3px] text-muted hover:text-primary transition-colors"
+        aria-label="Modo oscuro"
+      >
+        <Moon size={12} />
+      </button>
     </div>
   );
 }
@@ -159,6 +186,7 @@ export default function LoginPage() {
 
   return (
     <div className="relative min-h-screen bg-base flex items-center justify-center p-4">
+      <ThemeToggle />
       <LanguageToggle />
       <div className="w-full max-w-[360px]">
         <div className="flex justify-center mb-8">

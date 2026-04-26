@@ -5,9 +5,10 @@ import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
   LayoutDashboard, BookOpen, Sparkles, BarChart2,
-  Users, Settings, LogOut, type LucideIcon,
+  Users, Settings, LogOut, Sun, Moon, type LucideIcon,
 } from "lucide-react";
 import { logout } from "@/lib/auth";
+import { patch } from "@/lib/api";
 import { MARKETING_URL } from "@/lib/urls";
 
 function LanguageToggle() {
@@ -31,6 +32,37 @@ function LanguageToggle() {
             {loc.toUpperCase()}
           </button>
         ))}
+      </div>
+    </div>
+  );
+}
+
+function ThemeToggle() {
+  function switchTheme(theme: "light" | "dark") {
+    document.documentElement.classList.remove("light", "dark");
+    document.documentElement.classList.add(theme);
+    document.cookie = `THEME=${theme};path=/;max-age=31536000`;
+    patch("/api/users/me/", { theme_preference: theme }).catch(() => {});
+  }
+
+  return (
+    <div className="px-3 py-2 flex items-center gap-2">
+      <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-muted">Theme</span>
+      <div className="flex gap-[2px] ml-auto">
+        <button
+          onClick={() => switchTheme("light")}
+          className="font-mono text-[10px] px-[6px] py-[3px] transition-colors hover:text-primary text-muted"
+          aria-label="Modo claro"
+        >
+          <Sun size={10} />
+        </button>
+        <button
+          onClick={() => switchTheme("dark")}
+          className="font-mono text-[10px] px-[6px] py-[3px] transition-colors hover:text-primary text-muted"
+          aria-label="Modo oscuro"
+        >
+          <Moon size={10} />
+        </button>
       </div>
     </div>
   );
@@ -115,6 +147,7 @@ export default function MentorSidebar() {
 
       <div className="border-t border-white/[0.06]">
         <LanguageToggle />
+        <ThemeToggle />
         <div className="px-2 pb-4">
           <button onClick={logout} className="nav-item w-full rounded-sm text-left">
             <LogOut size={16} className="flex-shrink-0" />

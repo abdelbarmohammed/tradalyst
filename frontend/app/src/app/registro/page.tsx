@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { AlertCircle, BarChart2, GraduationCap, Check } from "lucide-react";
+import { AlertCircle, BarChart2, GraduationCap, Check, Sun, Moon } from "lucide-react";
 import { MARKETING_URL } from "@/lib/urls";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -42,6 +42,33 @@ function LanguageToggle() {
           {loc}
         </button>
       ))}
+    </div>
+  );
+}
+
+function ThemeToggle() {
+  function switchTheme(theme: "light" | "dark") {
+    document.documentElement.classList.remove("light", "dark");
+    document.documentElement.classList.add(theme);
+    document.cookie = `THEME=${theme};path=/;max-age=31536000`;
+  }
+
+  return (
+    <div className="absolute top-4 left-4 flex gap-1">
+      <button
+        onClick={() => switchTheme("light")}
+        className="font-mono text-[10px] px-[6px] py-[3px] text-muted hover:text-primary transition-colors"
+        aria-label="Modo claro"
+      >
+        <Sun size={12} />
+      </button>
+      <button
+        onClick={() => switchTheme("dark")}
+        className="font-mono text-[10px] px-[6px] py-[3px] text-muted hover:text-primary transition-colors"
+        aria-label="Modo oscuro"
+      >
+        <Moon size={12} />
+      </button>
     </div>
   );
 }
@@ -131,6 +158,7 @@ export default function RegistroPage() {
 
   return (
     <div className="relative min-h-screen bg-base flex items-center justify-center p-4">
+      <ThemeToggle />
       <LanguageToggle />
       <div className="w-full max-w-[420px]">
         {/* Logo */}

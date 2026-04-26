@@ -2,15 +2,17 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Users, Settings } from "lucide-react";
-
-const ITEMS = [
-  { href: "/admin", label: "Usuarios", icon: Users },
-  { href: "/settings", label: "Ajustes", icon: Settings },
-];
 
 export default function AdminBottomNav() {
   const pathname = usePathname();
+  const t = useTranslations("nav");
+
+  const ITEMS = [
+    { href: "/admin", label: t("users"), icon: Users },
+    { href: "/settings", label: t("configuration"), icon: Settings },
+  ];
 
   return (
     <nav className="lg:hidden fixed bottom-0 inset-x-0 z-50 bg-surface border-t border-white/[0.06] flex">

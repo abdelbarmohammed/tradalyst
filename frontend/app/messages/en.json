@@ -10,7 +10,8 @@
     "trading": "Trading",
     "mentoring": "Mentoring",
     "account": "Account",
-    "configuration": "Configuration"
+    "configuration": "Configuration",
+    "users": "Users"
   },
   "auth": {
     "login": {
