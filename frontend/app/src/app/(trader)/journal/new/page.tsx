@@ -263,11 +263,11 @@ export default function NewTradePage() {
           </p>
           <div className="grid grid-cols-2 gap-2">
             <button type="button" onClick={() => set("direction", "long")}
-              className={`py-[14px] font-sans text-[15px] font-semibold transition-colors border ${form.direction === "long" ? "bg-green/15 border-green/40 text-green" : "bg-base border-white/[0.08] text-muted hover:text-secondary"}`}>
+              className={`min-h-[52px] font-sans text-[15px] font-semibold transition-colors border ${form.direction === "long" ? "bg-green/15 border-green/40 text-green" : "bg-base border-white/[0.08] text-muted hover:text-secondary"}`}>
               ↑ Long
             </button>
             <button type="button" onClick={() => set("direction", "short")}
-              className={`py-[14px] font-sans text-[15px] font-semibold transition-colors border ${form.direction === "short" ? "bg-loss/15 border-loss/40 text-loss" : "bg-base border-white/[0.08] text-muted hover:text-secondary"}`}>
+              className={`min-h-[52px] font-sans text-[15px] font-semibold transition-colors border ${form.direction === "short" ? "bg-loss/15 border-loss/40 text-loss" : "bg-base border-white/[0.08] text-muted hover:text-secondary"}`}>
               ↓ Short
             </button>
           </div>
