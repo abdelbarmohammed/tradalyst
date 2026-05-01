@@ -25,7 +25,7 @@ export default async function Hero() {
             </p>
 
             <h1
-              className="font-sans font-bold text-text leading-[1.08] tracking-[-0.025em] mt-5 opacity-0 animate-fade-up animate-delay-200"
+              className="font-sans font-bold text-text leading-[1.08] tracking-[-0.025em] mt-5 animate-translate-up animate-delay-200"
               style={{ fontSize: "clamp(36px, 4.5vw, 54px)" }}
             >
               {t("headline")}

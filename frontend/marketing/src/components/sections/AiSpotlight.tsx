@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { BrainCircuit, MessageSquare, Zap } from "lucide-react";
 import { useInView } from "@/hooks/useInView";
@@ -12,8 +12,9 @@ export default function AiSpotlight() {
   const t = useTranslations("aiSpotlight");
   const locale = useLocale();
   const { ref, inView } = useInView<HTMLDivElement>(0.1);
-  const [displayed, setDisplayed] = useState("");
   const [tagsVisible, setTagsVisible] = useState(false);
+  const textRef = useRef<HTMLSpanElement>(null);
+  const cursorRef = useRef<HTMLSpanElement>(null);
 
   const insightText = t("insightText");
 
@@ -32,18 +33,31 @@ export default function AiSpotlight() {
 
   useEffect(() => {
     if (!inView) return;
-    let i = 0;
-    setDisplayed("");
+    let rafId: number;
+    let timerId: ReturnType<typeof setTimeout>;
+
+    if (textRef.current) textRef.current.textContent = "";
+    if (cursorRef.current) cursorRef.current.style.display = "inline-block";
     setTagsVisible(false);
-    const interval = setInterval(() => {
-      i++;
-      setDisplayed(insightText.slice(0, i));
-      if (i >= insightText.length) {
-        clearInterval(interval);
-        setTimeout(() => setTagsVisible(true), 300);
+
+    const start = performance.now();
+
+    function tick(now: number) {
+      const chars = Math.min(Math.floor((now - start) / 18), insightText.length);
+      if (textRef.current) textRef.current.textContent = insightText.slice(0, chars);
+      if (chars < insightText.length) {
+        rafId = requestAnimationFrame(tick);
+      } else {
+        if (cursorRef.current) cursorRef.current.style.display = "none";
+        timerId = setTimeout(() => setTagsVisible(true), 300);
       }
-    }, 18);
-    return () => clearInterval(interval);
+    }
+
+    rafId = requestAnimationFrame(tick);
+    return () => {
+      cancelAnimationFrame(rafId);
+      clearTimeout(timerId);
+    };
   }, [inView, insightText]);
 
   return (
@@ -88,10 +102,12 @@ export default function AiSpotlight() {
               </div>
 
               <p className="font-sans text-[15px] text-text-secondary leading-relaxed min-h-[120px]">
-                {displayed}
-                {displayed.length < insightText.length && inView && (
-                  <span className="inline-block w-[2px] h-[1em] bg-green ml-[1px] animate-pulse-slow" />
-                )}
+                <span ref={textRef} />
+                <span
+                  ref={cursorRef}
+                  className="inline-block w-[2px] h-[1em] bg-green ml-[1px] animate-pulse-slow"
+                  style={{ display: "none" }}
+                />
               </p>
 
               <div

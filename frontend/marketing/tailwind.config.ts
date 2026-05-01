@@ -26,7 +26,7 @@ const config: Config = {
         text: {
           DEFAULT: "#0f1110",
           secondary: "#4b5563",
-          muted: "#9ca3af",
+          muted: "#6b7280",
           "dark-primary": "#e8ebe8",
           "dark-secondary": "#9ca3af",
         },
@@ -75,6 +75,11 @@ const config: Config = {
           from: { opacity: "0", transform: "translateY(32px)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
+        // Transform-only — keeps opacity:1 so the element is always visible (LCP-safe)
+        "translate-up": {
+          from: { transform: "translateY(16px)" },
+          to: { transform: "translateY(0)" },
+        },
         typewriter: {
           from: { width: "0" },
           to: { width: "100%" },
@@ -89,8 +94,9 @@ const config: Config = {
         },
       },
       animation: {
-        "fade-up": "fade-up 0.4s ease forwards",
-        "slide-up": "slide-up 0.6s ease forwards",
+        "fade-up": "fade-up 0.4s ease both",
+        "slide-up": "slide-up 0.6s ease both",
+        "translate-up": "translate-up 0.4s ease both",
         scroll: "scroll 28s linear infinite",
         "pulse-slow": "pulse 2s ease-in-out infinite",
       },

@@ -70,9 +70,9 @@ export default function Problem() {
             >
               <div className="mb-5 h-12">{card.chart}</div>
               <div className="eyebrow mb-3">{card.num}</div>
-              <h3 className="font-sans text-[15px] font-semibold text-text leading-snug mb-3">
+              <h2 className="font-sans text-[15px] font-semibold text-text leading-snug mb-3">
                 {card.title}
-              </h3>
+              </h2>
               <p className="font-sans text-sm text-text-secondary leading-relaxed">
                 {card.sub}
               </p>
