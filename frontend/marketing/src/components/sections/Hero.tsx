@@ -1,4 +1,5 @@
 import { getTranslations, getLocale } from "next-intl/server";
+import Image from "next/image";
 import DashboardMockup from "@/components/ui/DashboardMockup";
 import { APP_URL } from "@/lib/urls";
 
@@ -16,6 +17,19 @@ export default async function Hero() {
           backgroundSize: "64px 64px",
         }}
       />
+
+      {/* Atmospheric trading desk photo — right half, purely decorative */}
+      <div className="absolute right-0 top-0 bottom-0 w-1/2 pointer-events-none hidden lg:block">
+        <Image
+          src="/images/hero/trader-workspace.webp"
+          alt=""
+          aria-hidden="true"
+          fill
+          sizes="50vw"
+          className="object-cover opacity-[0.13]"
+          priority
+        />
+      </div>
 
       <div className="relative max-w-[1200px] mx-auto px-6 lg:px-10 w-full py-24 lg:py-0 lg:min-h-screen flex items-center">
         <div className="w-full grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import Image from "next/image";
 import { useInView } from "@/hooks/useInView";
 
 function MiniInsightCard() {
@@ -22,6 +23,12 @@ function MiniInsightCard() {
     </div>
   );
 }
+
+const STEP_PHOTOS = [
+  { src: "/images/steps/step-register.webp", alt: "Manos escribiendo en el teclado de una laptop" },
+  { src: "/images/steps/step-analyze.webp",  alt: "Persona analizando gráficos de trading en pantalla" },
+  { src: "/images/steps/step-improve.webp",  alt: "Persona satisfecha mirando resultados en su laptop" },
+];
 
 export default function HowItWorks() {
   const t = useTranslations("howItWorks");
@@ -76,6 +83,17 @@ export default function HowItWorks() {
               className={`opacity-0 ${inView ? "animate-fade-up" : ""}`}
               style={{ animationDelay: `${i * 150}ms` }}
             >
+              {/* Contextual step photo */}
+              <div className="relative h-[160px] mb-6 overflow-hidden">
+                <Image
+                  src={STEP_PHOTOS[i].src}
+                  alt={STEP_PHOTOS[i].alt}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 400px"
+                  className="object-cover"
+                />
+              </div>
+
               <div
                 className={`w-10 h-10 rounded-full border-2 border-green flex items-center justify-center mb-5 transition-transform duration-300 ${
                   inView ? "scale-100" : "scale-75"

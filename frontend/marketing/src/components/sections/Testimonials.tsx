@@ -1,23 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
-
-const AVATAR_STYLES = [
-  { bg: "#2fac66", text: "#ffffff", initials: "JM" },
-  { bg: "#272727", text: "#e8ebe8", initials: "SL" },
-  { bg: "#f5f6f2", text: "#0f1110", initials: "MA" },
-  { bg: "#2fac66", text: "#ffffff", initials: "LG" },
-  { bg: "#303030", text: "#e8ebe8", initials: "PT" },
-  { bg: "#eceee8", text: "#0f1110", initials: "ER" },
-];
 
 export default function Testimonials() {
   const t = useTranslations("testimonials");
   const [paused, setPaused] = useState(false);
 
-  const TESTIMONIALS = [1, 2, 3, 4, 5, 6].map((n, i) => ({
-    ...AVATAR_STYLES[i],
+  const TESTIMONIALS = [1, 2, 3, 4, 5, 6].map((n) => ({
     name: t(`t${n}.name`),
     role: t(`t${n}.role`),
     quote: t(`t${n}.quote`),
@@ -42,24 +33,23 @@ export default function Testimonials() {
           className="flex gap-4 w-max"
           style={{ animation: "scroll 28s linear infinite", animationPlayState: paused ? "paused" : "running" }}
         >
-          {ALL.map((t, i) => (
+          {ALL.map((item, i) => (
             <div key={i} className="bg-white border border-black/[0.08] p-7 flex-shrink-0" style={{ width: 340 }}>
               <div className="flex items-center gap-3 mb-5">
-                <div
-                  className="w-9 h-9 flex items-center justify-center flex-shrink-0"
-                  style={{ background: t.bg, borderRadius: "2px" }}
-                >
-                  <span className="font-mono text-[11px] font-semibold" style={{ color: t.text }}>
-                    {t.initials}
-                  </span>
-                </div>
+                <Image
+                  src={`/images/people/testimonial-0${(i % TESTIMONIALS.length) + 1}.webp`}
+                  alt={item.name}
+                  width={36}
+                  height={36}
+                  className="w-9 h-9 rounded-full object-cover flex-shrink-0"
+                />
                 <div>
-                  <p className="font-sans text-[13px] font-semibold text-text leading-none">{t.name}</p>
-                  <p className="font-mono text-[9px] text-text-muted mt-[3px]">{t.role}</p>
+                  <p className="font-sans text-[13px] font-semibold text-text leading-none">{item.name}</p>
+                  <p className="font-mono text-[9px] text-text-muted mt-[3px]">{item.role}</p>
                 </div>
               </div>
               <p className="font-sans text-[13px] text-text-secondary leading-relaxed">
-                &ldquo;{t.quote}&rdquo;
+                &ldquo;{item.quote}&rdquo;
               </p>
             </div>
           ))}
