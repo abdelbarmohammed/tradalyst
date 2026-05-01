@@ -311,12 +311,26 @@
   "blog": {
     "title": "Blog — Tradalyst",
     "description": "Artículos sobre trading, psicología y análisis de rendimiento.",
-    "eyebrow": "Blog",
+    "eyebrow": "BLOG · RECURSOS PARA TRADERS",
     "heading": "Aprende a operar mejor.",
+    "subheading": "Artículos prácticos sobre psicología del trading, gestión del riesgo y análisis de rendimiento.",
     "readMore": "Leer →",
     "backToBlog": "← Blog",
     "by": "por",
-    "relatedPosts": "Artículos relacionados"
+    "relatedPosts": "Artículos relacionados",
+    "featuredPost": "Artículo destacado",
+    "stats": {
+      "articles": "{count} artículos",
+      "languages": "ES · EN",
+      "free": "Gratis"
+    },
+    "categories": {
+      "all": "Todos",
+      "journal": "Diario",
+      "psychology": "Psicología",
+      "performance": "Rendimiento",
+      "risk": "Riesgo"
+    }
   },
   "about": {
     "title": "Sobre Tradalyst — El diario que detecta lo que tú no ves",

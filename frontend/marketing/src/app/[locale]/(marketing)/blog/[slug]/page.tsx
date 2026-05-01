@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { remark } from "remark";
 import remarkHtml from "remark-html";
@@ -290,6 +291,19 @@ export default async function BlogPost({ params }: Props) {
               </p>
             </div>
           </div>
+
+          {post.featuredImage && (
+            <div className="relative aspect-[16/9] mt-10 overflow-hidden">
+              <Image
+                src={post.featuredImage}
+                alt={post.featuredImageAlt || post.title}
+                fill
+                sizes="(max-width: 768px) 100vw, 720px"
+                className="object-cover"
+                priority
+              />
+            </div>
+          )}
         </div>
       </section>
 

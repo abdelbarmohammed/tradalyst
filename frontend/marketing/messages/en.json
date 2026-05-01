@@ -311,12 +311,26 @@
   "blog": {
     "title": "Blog — Tradalyst",
     "description": "Articles on trading, psychology, and performance analysis.",
-    "eyebrow": "Blog",
+    "eyebrow": "BLOG · RESOURCES FOR TRADERS",
     "heading": "Learn to trade better.",
+    "subheading": "Practical articles on trading psychology, risk management and performance analysis.",
     "readMore": "Read →",
     "backToBlog": "← Blog",
     "by": "by",
-    "relatedPosts": "Related articles"
+    "relatedPosts": "Related articles",
+    "featuredPost": "Featured article",
+    "stats": {
+      "articles": "{count} articles",
+      "languages": "ES · EN",
+      "free": "Free"
+    },
+    "categories": {
+      "all": "All",
+      "journal": "Journal",
+      "psychology": "Psychology",
+      "performance": "Performance",
+      "risk": "Risk"
+    }
   },
   "about": {
     "title": "About Tradalyst — The journal that catches what you miss",
