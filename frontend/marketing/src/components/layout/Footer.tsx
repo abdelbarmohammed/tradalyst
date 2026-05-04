@@ -12,6 +12,7 @@ export default function Footer() {
     { href: "/sobre-nosotros", label: t("links.about") },
     { href: "/privacidad", label: t("links.privacy") },
     { href: "/terminos", label: t("links.terms") },
+    { href: "/cookies", label: t("links.cookies") },
   ];
 
   return (

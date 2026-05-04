@@ -377,8 +377,8 @@ export default function RegistroPage() {
                     className="text-green hover:underline"
                   >
                     {t("termsLink")}
-                  </a>{" "}
-                  {t("andThe")}{" "}
+                  </a>
+                  {t("privacySep")}{" "}
                   <a
                     href={`${MARKETING_URL}/privacidad`}
                     target="_blank"
@@ -386,6 +386,15 @@ export default function RegistroPage() {
                     className="text-green hover:underline"
                   >
                     {t("privacyLink")}
+                  </a>
+                  {t("cookiesSep")}{" "}
+                  <a
+                    href={`${MARKETING_URL}/cookies`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-green hover:underline"
+                  >
+                    {t("cookiesLink")}
                   </a>
                   .
                 </span>

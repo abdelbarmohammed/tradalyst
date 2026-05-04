@@ -11,14 +11,15 @@
   },
   "footer": {
     "tagline": "El diario que detecta lo que tú no ves.",
-    "copyright": "© Tradalyst 2025",
+    "copyright": "© Tradalyst 2026 · Todos los derechos reservados",
     "links": {
       "features": "Funcionalidades",
       "pricing": "Precios",
       "blog": "Blog",
       "about": "Nosotros",
       "privacy": "Privacidad",
-      "terms": "Términos"
+      "terms": "Términos",
+      "cookies": "Cookies"
     }
   },
   "hero": {
@@ -370,13 +371,26 @@
     "title": "Política de privacidad — Tradalyst",
     "eyebrow": "Legal",
     "heading": "Política de privacidad",
-    "updated": "Última actualización: abril 2026"
+    "updated": "Última actualización: mayo 2026"
   },
   "terms": {
     "title": "Términos de uso — Tradalyst",
     "eyebrow": "Legal",
     "heading": "Términos de uso",
-    "updated": "Última actualización: abril 2026"
+    "updated": "Última actualización: mayo 2026"
+  },
+  "cookies": {
+    "title": "Política de cookies — Tradalyst",
+    "eyebrow": "Legal",
+    "heading": "Política de cookies",
+    "updated": "Última actualización: mayo 2026"
+  },
+  "cookieBanner": {
+    "before": "Usamos cookies necesarias para el servicio y, con tu consentimiento, cookies de Google Analytics. Consulta nuestra ",
+    "linkText": "Política de Cookies",
+    "after": " para más información.",
+    "accept": "Aceptar todas",
+    "reject": "Rechazar"
   },
   "auth": {
     "loginRedirect": "Iniciar sesión en la aplicación",

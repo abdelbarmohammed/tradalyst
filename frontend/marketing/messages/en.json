@@ -11,14 +11,15 @@
   },
   "footer": {
     "tagline": "The journal that catches what you miss.",
-    "copyright": "© Tradalyst 2025",
+    "copyright": "© Tradalyst 2026 · All rights reserved",
     "links": {
       "features": "Features",
       "pricing": "Pricing",
       "blog": "Blog",
       "about": "About",
       "privacy": "Privacy",
-      "terms": "Terms"
+      "terms": "Terms",
+      "cookies": "Cookies"
     }
   },
   "hero": {
@@ -370,13 +371,26 @@
     "title": "Privacy policy — Tradalyst",
     "eyebrow": "Legal",
     "heading": "Privacy policy",
-    "updated": "Last updated: April 2026"
+    "updated": "Last updated: May 2026"
   },
   "terms": {
     "title": "Terms of use — Tradalyst",
     "eyebrow": "Legal",
     "heading": "Terms of use",
-    "updated": "Last updated: April 2026"
+    "updated": "Last updated: May 2026"
+  },
+  "cookies": {
+    "title": "Cookie policy — Tradalyst",
+    "eyebrow": "Legal",
+    "heading": "Cookie policy",
+    "updated": "Last updated: May 2026"
+  },
+  "cookieBanner": {
+    "before": "We use strictly necessary cookies for the service and, with your consent, Google Analytics cookies. See our ",
+    "linkText": "Cookie Policy",
+    "after": " for more information.",
+    "accept": "Accept all",
+    "reject": "Reject"
   },
   "auth": {
     "loginRedirect": "Log in to the app",
