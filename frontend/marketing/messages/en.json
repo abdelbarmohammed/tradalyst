@@ -11,12 +11,11 @@
   },
   "footer": {
     "tagline": "The journal that catches what you miss.",
-    "copyright": "© Tradalyst 2026",
+    "copyright": "© 2026 Tradalyst. All rights reserved.",
     "email": "hola@tradalyst.com",
     "productHeading": "Product",
     "legalHeading": "Legal",
-    "madeIn": "Made with AI in Málaga, Spain 🇪🇸",
-    "poweredBy": "Powered by Claude · Anthropic",
+    "madeIn": "Made in Málaga, Spain",
     "links": {
       "features": "Features",
       "pricing": "Pricing",
