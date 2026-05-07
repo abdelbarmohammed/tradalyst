@@ -829,6 +829,74 @@ Every image needs alt text. No two images in the same post should have identical
 
 ---
 
+## 6b. IMAGE SEO RULES — Mandatory for Every Blog Post
+
+### Featured image (required on every post)
+
+- Size: 1200×630px (OG image ratio — also used for social sharing)
+- Format: WebP, max 100KB
+- Filename: matches post slug exactly — `metricas-trading.webp` for `/blog/metricas-trading`
+- Location: `/public/images/blog/[slug].webp`
+- Alt text formula: `"[Main keyword] — [specific description of image]"`
+  - Example: `"Métricas trading — dashboard con win rate y ratio riesgo beneficio"`
+- Declared in frontmatter:
+  ```yaml
+  featuredImage: "/images/blog/[slug].webp"
+  featuredImageAlt: "[alt text]"
+  ```
+- Rendered with `priority={true}` — it is above the fold
+
+### In-content images (minimum 2 per post at 2,000+ words)
+
+- Size: 800×450px (16:9 ratio)
+- Format: WebP, max 80KB
+- Filename: `[slug]-[descriptor].webp` — e.g. `metricas-trading-dashboard.webp`
+- Location: `/public/images/blog/[slug]-[descriptor].webp`
+- Alt text rules:
+  - Must contain the post's target keyword naturally
+  - Must describe what is visible in the image
+  - Must be unique — no two images share the same alt text
+  - 10–15 words maximum
+  - No "image of" or "photo of" — start with the subject
+  - ES format: `"[Subject] [action/state] [context]"`
+  - EN format: `"[Subject] [action/state] [context]"`
+- Use `<MdxImage>` component in markdown — **never** raw `<img>` tag
+- Add a caption that tells the reader what to notice in the image
+- Placement: AFTER the section it illustrates, NEVER at the top, NEVER two images back to back
+
+### MdxImage component usage in markdown
+
+```markdown
+<MdxImage src="/images/blog/metricas-trading-dashboard.webp" alt="Dashboard mostrando métricas clave de trading: win rate, ratio R:R y profit factor" width="800" height="450" caption="Un dashboard de métricas trading eficaz muestra la tendencia a lo largo del tiempo, no solo el valor puntual." />
+```
+
+All props must be string values (no JSX `{800}` syntax). The blog renderer parses `prop="value"` format.
+
+### Image sourcing rules
+
+- Source: Unsplash only (free commercial licence — no attribution required)
+- Download locally — never hotlink external images
+- Convert to WebP before committing: use `sharp` via Node (available in `node_modules`)
+  ```bash
+  node -e "require('sharp')('/tmp/input.jpg').resize(800,450,{fit:'cover'}).webp({quality:82}).toFile('public/images/blog/output.webp', console.log)"
+  ```
+- Avoid clichés: no handshakes, no generic business people, no fake-looking charts
+- Prefer: real trader setups, real screens, real notebooks, focused people working
+
+### Checklist before publishing any blog post
+
+- [ ] Featured image exists at correct path
+- [ ] Featured image declared in frontmatter with alt text
+- [ ] Featured image alt text contains target keyword
+- [ ] Minimum 2 in-content images added (for posts 2,000+ words)
+- [ ] All images use `<MdxImage>` component in markdown
+- [ ] All alt texts are unique and descriptive (10–15 words)
+- [ ] All images converted to WebP and under size limits
+- [ ] No hotlinked images — all assets downloaded locally
+- [ ] Captions added below each in-content image
+
+---
+
 ## 7. BLOG POST MARKDOWN TEMPLATE
 
 Every blog post must use exactly this frontmatter and content structure. This is the spec Claude Code follows for all blog content generation and optimisation.

@@ -6,6 +6,7 @@ import { remark } from "remark";
 import remarkHtml from "remark-html";
 import { getAllPosts, getPostBySlug } from "@/lib/blog";
 import BlogCta from "@/components/blog/BlogCta";
+import MdxImage from "@/components/blog/MdxImage";
 import PnlCurveChart from "@/components/blog/charts/PnlCurveChart";
 import EmotionWinRateChart from "@/components/blog/charts/EmotionWinRateChart";
 import RiskRewardDiagram from "@/components/blog/charts/RiskRewardDiagram";
@@ -74,7 +75,8 @@ type ComponentName =
   | "PnlCurveChart"
   | "EmotionWinRateChart"
   | "RiskRewardDiagram"
-  | "MetricsTable";
+  | "MetricsTable"
+  | "MdxImage";
 
 interface ParsedComponent {
   name: ComponentName;
@@ -86,7 +88,7 @@ type Segment =
   | { type: "component"; component: ParsedComponent };
 
 const COMPONENT_RE =
-  /<(BlogCta|PnlCurveChart|EmotionWinRateChart|RiskRewardDiagram|MetricsTable)\s*([^/]*)\s*\/>/g;
+  /<(BlogCta|PnlCurveChart|EmotionWinRateChart|RiskRewardDiagram|MetricsTable|MdxImage)([\s\S]*?)\/>/g;
 
 function parseProps(raw: string): Record<string, string> {
   const props: Record<string, string> = {};
@@ -206,6 +208,16 @@ function renderComponent(
       return <RiskRewardDiagram lang={locale} />;
     case "MetricsTable":
       return <MetricsTable lang={locale} />;
+    case "MdxImage":
+      return (
+        <MdxImage
+          src={c.props.src ?? ""}
+          alt={c.props.alt ?? ""}
+          caption={c.props.caption}
+          width={c.props.width ? parseInt(c.props.width, 10) : 800}
+          height={c.props.height ? parseInt(c.props.height, 10) : 450}
+        />
+      );
     default:
       return null;
   }
