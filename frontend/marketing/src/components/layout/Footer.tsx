@@ -20,17 +20,20 @@ export default function Footer() {
 
   return (
     <footer className="bg-surface border-t border-black/[0.08]">
-      <div className="max-w-7xl mx-auto px-6 md:px-8 pt-12 pb-10 md:pt-20 md:pb-[60px]">
+      <div className="max-w-7xl mx-auto px-6 md:px-8 pt-12 pb-10 md:pt-14 md:pb-10">
 
         {/* ── Desktop layout (md+) ── */}
-        <div className="hidden md:grid md:grid-cols-3 gap-12">
+        <div className="hidden md:grid gap-10" style={{ gridTemplateColumns: "280px 1fr 1fr" }}>
 
           {/* Column 1 — Brand */}
           <div>
-            <div className="mb-4">
+            <Link
+              href="/"
+              className="inline-block mb-4 cursor-pointer hover:opacity-80 transition-opacity duration-150"
+            >
               <Logo variant="dark" height={28} />
-            </div>
-            <p className="font-sans text-[15px] text-[#4b5563] leading-[1.6] max-w-[240px] mb-5">
+            </Link>
+            <p className="font-sans text-[15px] text-[#4b5563] leading-[1.6] max-w-[240px] mb-4">
               {t("tagline")}
             </p>
             <a
@@ -43,7 +46,7 @@ export default function Footer() {
 
           {/* Column 2 — Product */}
           <div>
-            <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-[#9ca3af] mb-5">
+            <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-[#9ca3af] mb-[14px]">
               {t("productHeading")}
             </p>
             <nav className="flex flex-col">
@@ -51,7 +54,7 @@ export default function Footer() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="font-sans text-[15px] text-[#4b5563] hover:text-green transition-colors duration-150 leading-[36px]"
+                  className="font-sans text-[15px] text-[#4b5563] hover:text-green transition-colors duration-150 leading-[2]"
                 >
                   {link.label}
                 </Link>
@@ -61,7 +64,7 @@ export default function Footer() {
 
           {/* Column 3 — Legal */}
           <div>
-            <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-[#9ca3af] mb-5">
+            <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-[#9ca3af] mb-[14px]">
               {t("legalHeading")}
             </p>
             <nav className="flex flex-col">
@@ -69,7 +72,7 @@ export default function Footer() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="font-sans text-[15px] text-[#4b5563] hover:text-green transition-colors duration-150 leading-[36px]"
+                  className="font-sans text-[15px] text-[#4b5563] hover:text-green transition-colors duration-150 leading-[2]"
                 >
                   {link.label}
                 </Link>
@@ -79,17 +82,22 @@ export default function Footer() {
         </div>
 
         {/* Desktop bottom bar */}
-        <div className="hidden md:flex justify-between mt-[60px] border-t border-black/[0.08] pt-6">
+        <div className="hidden md:flex justify-between mt-10 border-t border-black/[0.08] pt-5">
           <p className="font-mono text-[13px] text-[#9ca3af]">{t("copyright")}</p>
           <p className="font-mono text-[13px] text-[#9ca3af]">{t("madeIn")}</p>
         </div>
 
-        {/* ── Mobile layout (below md) ── */}
-        <div className="md:hidden">
+        {/* ── Mobile layout (below md) — all centered ── */}
+        <div className="md:hidden text-center">
 
           {/* Logo */}
           <div className="mb-3">
-            <Logo variant="dark" height={28} />
+            <Link
+              href="/"
+              className="inline-block cursor-pointer hover:opacity-80 transition-opacity duration-150"
+            >
+              <Logo variant="dark" height={28} />
+            </Link>
           </div>
 
           {/* Tagline */}
@@ -111,7 +119,7 @@ export default function Footer() {
           <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-[#9ca3af] mb-4">
             {t("productHeading")}
           </p>
-          <nav className="flex flex-col mb-8">
+          <nav className="flex flex-col items-center mb-8">
             {productLinks.map((link) => (
               <Link
                 key={link.href}
@@ -129,7 +137,7 @@ export default function Footer() {
           <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-[#9ca3af] mb-4">
             {t("legalHeading")}
           </p>
-          <nav className="flex flex-col mb-10">
+          <nav className="flex flex-col items-center mb-10">
             {legalLinks.map((link) => (
               <Link
                 key={link.href}
@@ -143,8 +151,10 @@ export default function Footer() {
 
           <div className="border-t border-black/[0.08] mb-5" />
 
-          <p className="font-mono text-[12px] text-[#9ca3af] mb-2">{t("copyright")}</p>
-          <p className="font-mono text-[12px] text-[#9ca3af]">{t("madeIn")}</p>
+          <div className="flex flex-col items-center gap-1">
+            <p className="font-mono text-[12px] text-[#9ca3af]">{t("copyright")}</p>
+            <p className="font-mono text-[12px] text-[#9ca3af]">{t("madeIn")}</p>
+          </div>
         </div>
 
       </div>
