@@ -2,11 +2,10 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { AlertCircle, Check, Download, Trash2, X, UserCheck, Clock, BookOpen, Sun, Moon, LogOut } from "lucide-react";
+import { AlertCircle, Check, Download, Trash2, X, UserCheck, Clock, BookOpen, Sun, Moon, LogOut, Sparkles, ExternalLink } from "lucide-react";
 import { get, patch, post, del } from "@/lib/api";
-import { MARKETING_URL } from "@/lib/urls";
 import { logout } from "@/lib/auth";
 import { formatDateMedium } from "@/lib/format";
 import type { UserProfile, Trade, PaginatedTrades, MentorRequest, MentorAssignment } from "@/types";
@@ -377,10 +376,59 @@ function MisAlumnosTab() {
 
 // ── Tab: Plan ─────────────────────────────────────────────────────────────────
 
-function PlanTab({ user }: { user: UserProfile }) {
+function PlanTab({ user, onRefresh }: { user: UserProfile; onRefresh: () => void }) {
   const isPro = user.plan === "pro";
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [portalLoading, setPortalLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const upgradeStatus = searchParams.get("upgrade");
+
+  useEffect(() => {
+    if (upgradeStatus === "success") {
+      onRefresh();
+      router.replace("/settings?tab=plan");
+    }
+  }, [upgradeStatus, onRefresh, router]);
+
+  async function handleUpgrade() {
+    setCheckoutLoading(true);
+    setError(null);
+    try {
+      const data = await post<{ url: string }>("/api/billing/create-checkout-session/", {});
+      window.location.href = data.url;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "No se pudo iniciar el pago. Inténtalo de nuevo.");
+      setCheckoutLoading(false);
+    }
+  }
+
+  async function handlePortal() {
+    setPortalLoading(true);
+    setError(null);
+    try {
+      const data = await get<{ url: string }>("/api/billing/portal/");
+      window.location.href = data.url;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "No se pudo abrir el portal. Inténtalo de nuevo.");
+      setPortalLoading(false);
+    }
+  }
+
   return (
     <div className="space-y-4 max-w-md">
+      {upgradeStatus === "success" && (
+        <SaveBanner message="¡Bienvenido a Pro! Tu suscripción está activa." />
+      )}
+      {upgradeStatus === "cancelled" && (
+        <div className="flex items-center gap-2 p-3 border border-white/[0.10] bg-surface/50">
+          <p className="font-sans text-[12px] text-secondary">Pago cancelado. Puedes intentarlo de nuevo cuando quieras.</p>
+        </div>
+      )}
+      {error && <ErrorBanner message={error} />}
+
       <div className="card p-5">
         <div className="flex items-center justify-between mb-4">
           <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted">Plan actual</p>
@@ -388,18 +436,51 @@ function PlanTab({ user }: { user: UserProfile }) {
             {isPro ? "PRO" : "FREE"}
           </span>
         </div>
+
         {isPro ? (
-          <>
-            <p className="font-sans text-[13px] text-secondary mb-4">Tienes acceso completo a todas las funciones de Tradalyst.</p>
-            <button className="font-mono text-[11px] text-muted hover:text-loss transition-colors underline">Cancelar suscripción</button>
-          </>
+          <div className="space-y-4">
+            <p className="font-sans text-[13px] text-secondary">Tienes acceso completo a todas las funciones de Tradalyst.</p>
+            <ul className="space-y-[6px]">
+              {["Insights de IA ilimitados", "Chat con IA sin límite", "Analítica avanzada", "Vista mentor incluida", "Forex y acciones en tiempo real"].map((feat) => (
+                <li key={feat} className="flex items-center gap-2 font-sans text-[12px] text-secondary">
+                  <Check size={11} className="text-green flex-shrink-0" />
+                  {feat}
+                </li>
+              ))}
+            </ul>
+            <button
+              onClick={handlePortal}
+              disabled={portalLoading}
+              className="flex items-center gap-2 font-mono text-[11px] text-muted hover:text-secondary transition-colors underline disabled:opacity-50"
+            >
+              <ExternalLink size={11} />
+              {portalLoading ? "Abriendo portal…" : "Gestionar suscripción"}
+            </button>
+          </div>
         ) : (
-          <>
-            <p className="font-sans text-[13px] text-secondary mb-4">Actualiza a Pro para desbloquear análisis de IA ilimitados, acceso a mentor y exportación avanzada.</p>
-            <a href={`${MARKETING_URL}/precios`} className="inline-block font-sans text-[13px] font-semibold bg-green hover:bg-green-hover text-white px-5 py-[9px] transition-colors">
-              Ver planes →
-            </a>
-          </>
+          <div className="space-y-4">
+            <p className="font-sans text-[13px] text-secondary">
+              Actualiza a Pro para desbloquear análisis de IA ilimitados, vista mentor y precios de forex en tiempo real.
+            </p>
+            <ul className="space-y-[6px]">
+              {["3 insights de IA al mes → Ilimitados", "Vista mentor → Incluida", "Precios forex/acciones → Tiempo real", "Analítica avanzada → Desbloqueada"].map((feat) => (
+                <li key={feat} className="flex items-center gap-2 font-sans text-[12px] text-secondary">
+                  <Sparkles size={11} className="text-green flex-shrink-0" />
+                  {feat}
+                </li>
+              ))}
+            </ul>
+            <div className="space-y-2">
+              <button
+                onClick={handleUpgrade}
+                disabled={checkoutLoading}
+                className="flex items-center gap-2 font-sans text-[13px] font-semibold bg-green hover:bg-green-hover text-white px-5 py-[9px] transition-colors disabled:opacity-50"
+              >
+                {checkoutLoading ? "Redirigiendo…" : "Probar 7 días gratis · €9,99/mes"}
+              </button>
+              <p className="font-mono text-[9px] text-muted">Sin tarjeta hasta que decidas continuar.</p>
+            </div>
+          </div>
         )}
       </div>
     </div>
@@ -510,7 +591,8 @@ function CuentaTab() {
 export default function SettingsPage() {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState("perfil");
+  const searchParams = useSearchParams();
+  const [tab, setTab] = useState(searchParams.get("tab") ?? "perfil");
   const t = useTranslations("settings");
 
   const fetchUser = useCallback(async () => {
@@ -572,7 +654,7 @@ export default function SettingsPage() {
             {tab === "seguridad" && <SeguridadTab />}
             {tab === "mentor"    && !isMentor && <MentorTab />}
             {tab === "alumnos"   && isMentor && <MisAlumnosTab />}
-            {tab === "plan"      && !isMentor && user && <PlanTab user={user} />}
+            {tab === "plan"      && !isMentor && user && <PlanTab user={user} onRefresh={fetchUser} />}
             {tab === "cuenta"    && <CuentaTab />}
           </>
         )}

@@ -1,5 +1,4 @@
 import { getTranslations } from "next-intl/server";
-import Image from "next/image";
 import { APP_URL } from "@/lib/urls";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
@@ -16,22 +15,10 @@ export default async function SobreNosotros({ params }: { params: Promise<{ loca
     <div className="bg-light min-h-screen">
       <section className="py-20 lg:py-28 border-b border-black/[0.08]">
         <div className="max-w-[720px] mx-auto px-6 lg:px-10">
-          <div className="flex items-start gap-6 sm:gap-8">
-            <Image
-              src="/images/people/about-founder.webp"
-              alt="Mo, fundador de Tradalyst — desarrollador intern en Ebury, Málaga"
-              width={96}
-              height={96}
-              className="w-20 h-20 sm:w-24 sm:h-24 object-cover flex-shrink-0 mt-1"
-              priority
-            />
-            <div>
-              <p className="eyebrow mb-4">{t("eyebrow")}</p>
-              <h1 className="font-sans text-[40px] lg:text-[52px] font-bold text-text leading-[1.05] tracking-[-0.02em]">
-                {t("heading")}
-              </h1>
-            </div>
-          </div>
+          <p className="eyebrow mb-4">{t("eyebrow")}</p>
+          <h1 className="font-sans text-[40px] lg:text-[52px] font-bold text-text leading-[1.05] tracking-[-0.02em]">
+            {t("heading")}
+          </h1>
         </div>
       </section>
 

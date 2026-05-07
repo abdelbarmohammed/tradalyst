@@ -11,7 +11,12 @@
   },
   "footer": {
     "tagline": "El diario que detecta lo que tú no ves.",
-    "copyright": "© Tradalyst 2026 · Todos los derechos reservados",
+    "copyright": "© Tradalyst 2026",
+    "email": "hola@tradalyst.com",
+    "productHeading": "Producto",
+    "legalHeading": "Legal",
+    "madeIn": "Hecho con IA en Málaga, España 🇪🇸",
+    "poweredBy": "Powered by Claude · Anthropic",
     "links": {
       "features": "Funcionalidades",
       "pricing": "Precios",

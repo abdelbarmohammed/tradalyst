@@ -61,6 +61,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     )
     plan = models.CharField(max_length=4, choices=Plan.choices, default=Plan.FREE)
     trial_ends_at = models.DateTimeField(null=True, blank=True)
+    stripe_customer_id = models.CharField(max_length=100, blank=True)
     language_preference = models.CharField(
         max_length=2, choices=LanguagePreference.choices, default=LanguagePreference.ES
     )

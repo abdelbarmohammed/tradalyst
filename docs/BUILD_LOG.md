@@ -907,6 +907,104 @@ python tools/scripts/topup_trades.py
 
 ---
 
+## Milestone 21 — RGPD Legal Compliance + Cookie Banner
+
+**Date:** 2026-05
+
+### Pages added
+- `/privacidad` + `/en/privacy-policy` — full Spanish/English privacy policy (RGPD/GDPR compliant)
+- `/terminos` + `/en/terms-of-use` — terms of use
+- `/cookies` + `/en/cookie-policy` — cookie policy explaining analytics cookies and session storage
+
+### Cookie consent banner
+- Component: `frontend/marketing/src/components/CookieBanner.tsx`
+- Stores consent in `localStorage` (`cookie_consent: "accepted" | "rejected"`)
+- Only loads Google Analytics if accepted
+- Persists across page loads via localStorage check on mount
+
+---
+
+## Milestone 22 — Blog SEO Expansion + Image Improvements
+
+**Date:** 2026-05
+
+### Blog post rewrites (3 near-page-1 URLs)
+- `/blog/metricas-trading` — expanded 1,800 → 3,200 words; added 5 worked formula examples, 5 common errors, tools section, FAQ (5 PAA questions)
+- `/blog/fomo-trading` — expanded 1,500 → 2,600 words; added 5 FOMO signals, FOMO cycle diagram prose, 3-step protocol, FOMO vs conviction table, FAQ (5 questions)
+- `/en/blog/diario-de-trading` — expanded 850 → 2,800 words; new title "How to Keep a Trading Journal That Actually Improves Your Trading"; 7-field framework, weekly review step-by-step, real example entry, AI analysis section, FAQ (5 questions)
+
+### MdxImage component fix
+- Bug: `COMPONENT_RE` regex used `[^/]*` which failed to match props containing slashes (`href="/registro"`, `src="/images/..."`)
+- Fix: Changed to `[\s\S]*?` (non-greedy, matches any character including `/` and newlines)
+- Added `MdxImage` to ComponentName type, import, and renderComponent switch case
+
+### In-content images (6 new WebP files)
+All at `frontend/marketing/public/images/blog/`, 800×450, <80KB:
+- `metricas-trading-dashboard.webp`, `metricas-trading-analisis.webp`
+- `fomo-trading-stress.webp`, `fomo-trading-control.webp`
+- `trading-journal-notes.webp`, `trading-journal-review.webp`
+
+### SEO strategy doc
+- Added "Image SEO Rules" section to `docs/seo_strategy.md` covering featured image requirements, in-content image requirements, sharp conversion command, sourcing rules, pre-publish checklist
+
+---
+
+## Milestone 23 — Marketing Site: Footer Redesign + Sobre Nosotros Fix
+
+**Date:** 2026-05
+
+### Footer redesign (`frontend/marketing/src/components/layout/Footer.tsx`)
+- Old: single-row flat layout (Logo + tagline | all 7 links | copyright)
+- New: 3-column grid + bottom bar
+  - Brand column: Logo, tagline, `hola@tradalyst.com`, copyright
+  - Producto column: Funcionalidades, Precios, Blog, Nosotros
+  - Legal column: Privacidad, Términos, Cookies
+  - Bottom bar: "Hecho con IA en Málaga, España 🇪🇸" left · "Powered by Claude · Anthropic" right
+- Background changed from `bg-white` to `bg-surface` (`#f5f6f2`)
+- New translation keys added to `es.json` and `en.json`: `productHeading`, `legalHeading`, `email`, `madeIn`, `poweredBy`
+
+### Sobre nosotros hero fix (`frontend/marketing/src/app/[locale]/(marketing)/sobre-nosotros/page.tsx`)
+- Removed stock photo (`about-founder.webp`) and flex wrapper from hero section
+- Hero is now text-only: eyebrow + H1 — no avatar, no photo
+
+### Custom 404 page
+- Created `frontend/marketing/src/app/[locale]/not-found.tsx`
+- Brand-styled: green "404" eyebrow, H1, description, "Volver al inicio" CTA button
+
+---
+
+## Milestone 24 — Stripe Payments Integration (Test Mode)
+
+**Date:** 2026-05
+
+### Backend: `apps/billing/`
+New Django app at `backend/apps/billing/` with three endpoints:
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/billing/create-checkout-session/` | POST | Creates Stripe Checkout session for PRO plan with 7-day trial |
+| `/api/billing/portal/` | GET | Creates Stripe Customer Portal session for subscription management |
+| `/api/billing/webhook/` | POST | Handles Stripe webhook events (no auth, signature verified) |
+
+**Webhook events handled:**
+- `checkout.session.completed` → upgrades user to PRO
+- `customer.subscription.deleted` / `customer.subscription.paused` → downgrades to FREE
+- `customer.subscription.updated` → syncs status (active/trialing → PRO, else FREE)
+
+**Model change:** Added `stripe_customer_id = CharField(max_length=100, blank=True)` to `CustomUser`. Migration: `apps/users/migrations/0005_customuser_stripe_customer_id.py`.
+
+**Settings:** Added `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRO_PRICE_ID` to `base.py` (read from `.env`). All documented in `.env.example`.
+
+**Dependency:** Added `stripe==11.4.1` to `requirements.txt`.
+
+### Frontend: `PlanTab` redesign (`frontend/app/src/app/(trader)/settings/page.tsx`)
+- Free user: "Probar 7 días gratis · €9,99/mes" button → calls `POST /api/billing/create-checkout-session/` → redirects to Stripe Checkout
+- Pro user: feature list + "Gestionar suscripción" link → calls `GET /api/billing/portal/` → redirects to Stripe Customer Portal
+- Handles `?upgrade=success` (refresh user plan, show success banner) and `?upgrade=cancelled` (show dismissable note) URL params after Checkout redirect
+- Tab state now reads from `?tab=plan` URL param for direct linking
+
+---
+
 ## What Is Not Built Yet
 
 ### Backend
@@ -918,14 +1016,18 @@ python tools/scripts/topup_trades.py
 - Change password endpoint (`POST /api/auth/change-password/`) — stubbed in frontend settings
 
 ### Frontend
-- Marketing site (`frontend/marketing/`) — needs full page build
 - Mobile responsive behaviour (partially done in mentor/admin pages, trader pages still desktop-first)
+- Upgrade modal component (in-app upsell at feature gate touchpoints)
+- Feature gates on analytics page, AI chat limit display, mentor tab, Finnhub prices widget
 
 ### Infrastructure
 - Cloudflare DNS/SSL setup
 - CI/CD pipeline
 
+### Stripe
+- Stripe webhook endpoint must be registered in Stripe Dashboard pointing to `https://api.tradalyst.com/api/billing/webhook/`
+- Stripe keys (STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, STRIPE_PRO_PRICE_ID) must be added to `.env` on VPS before deploy
+- Annual pricing plan (€7.99/month) — UI toggle exists on pricing page but not wired to Stripe
+
 ### Other
 - Final logo mark (icon variant)
-- Stripe payment integration (Pro plan)
-- Privacy policy + Terms pages (required for RGPD compliance)

@@ -8,3 +8,4 @@ anthropic==0.97.0
 django-filter==24.2
 requests==2.31.0
 gunicorn==21.2.0
+stripe==11.4.1

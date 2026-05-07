@@ -26,6 +26,9 @@ SECRET_KEY = config("SECRET_KEY")
 
 CLAUDE_API_KEY: str = config("CLAUDE_API_KEY", default="")
 FINNHUB_API_KEY: str = config("FINNHUB_API_KEY", default="")
+STRIPE_SECRET_KEY: str = config("STRIPE_SECRET_KEY", default="")
+STRIPE_WEBHOOK_SECRET: str = config("STRIPE_WEBHOOK_SECRET", default="")
+STRIPE_PRO_PRICE_ID: str = config("STRIPE_PRO_PRICE_ID", default="")
 
 # ALLOWED_HOSTS is set per environment — base leaves it empty on purpose.
 ALLOWED_HOSTS: list[str] = []
@@ -58,6 +61,7 @@ LOCAL_APPS = [
     "apps.analysis",
     "apps.mentors",
     "apps.prices",
+    "apps.billing",
 ]
 
 # Splitting into three groups makes it easy to see what is framework,
