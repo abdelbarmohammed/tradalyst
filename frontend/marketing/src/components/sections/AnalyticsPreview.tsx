@@ -114,8 +114,8 @@ export default function AnalyticsPreview() {
   ];
 
   return (
-    <section className="bg-dark py-24 lg:py-32">
-      <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
+    <section className="bg-dark py-24 lg:py-32 border-b border-white/[0.06]">
+      <div className="max-w-7xl mx-auto px-6 lg:px-10">
         <div
           className={`text-center mb-14 transition-all duration-500 ${
             inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"

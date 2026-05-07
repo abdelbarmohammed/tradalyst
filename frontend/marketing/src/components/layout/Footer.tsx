@@ -20,11 +20,11 @@ export default function Footer() {
 
   return (
     <footer className="bg-surface border-t border-black/[0.08]">
-      <div className="max-w-[1200px] mx-auto px-6 lg:px-10 pt-14 pb-8">
+      <div className="max-w-7xl mx-auto px-6 lg:px-10 py-14">
         {/* 3-column grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 sm:gap-8 pb-12 border-b border-black/[0.08]">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 sm:gap-8">
           {/* Brand column */}
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 items-start">
             <Logo variant="dark" height={20} />
             <p className="font-mono text-[10px] text-text-muted leading-relaxed max-w-[220px]">
               {t("tagline")}
@@ -75,11 +75,6 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Bottom bar */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-6">
-          <p className="font-mono text-[10px] text-text-muted">{t("madeIn")}</p>
-          <p className="font-mono text-[10px] text-text-muted">{t("poweredBy")}</p>
-        </div>
       </div>
     </footer>
   );

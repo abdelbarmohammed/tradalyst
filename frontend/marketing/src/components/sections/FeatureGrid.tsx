@@ -10,7 +10,7 @@ export default function FeatureGrid() {
       title: t("feature1.title"),
       desc: t("feature1.desc"),
       badge: t("feature1.badge"),
-      badgeStyle: "bg-black/[0.06] text-text-secondary",
+      badgeStyle: "text-[#4b5563] border-black/[0.15]",
       mini: (
         <div className="mt-5 space-y-[3px]">
           {[
@@ -36,7 +36,7 @@ export default function FeatureGrid() {
       title: t("feature2.title"),
       desc: t("feature2.desc"),
       badge: t("feature2.badge"),
-      badgeStyle: "bg-green/10 text-green",
+      badgeStyle: "text-green border-green/30 bg-green/[0.06]",
       mini: (
         <div className="mt-5 p-3 bg-surface border border-black/[0.08]">
           <div className="flex items-center gap-2 mb-2">
@@ -54,7 +54,7 @@ export default function FeatureGrid() {
       title: t("feature3.title"),
       desc: t("feature3.desc"),
       badge: t("feature3.badge"),
-      badgeStyle: "bg-green text-white",
+      badgeStyle: "text-green border-green/30 bg-green/[0.06]",
       mini: (
         <div className="mt-5 p-3 bg-surface">
           <div className="flex items-center gap-2 mb-2">
@@ -75,7 +75,7 @@ export default function FeatureGrid() {
       title: t("feature4.title"),
       desc: t("feature4.desc"),
       badge: t("feature4.badge"),
-      badgeStyle: "bg-black/[0.06] text-text-secondary",
+      badgeStyle: "text-[#4b5563] border-black/[0.15]",
       mini: (
         <div className="mt-5">
           <div className="flex gap-[2px] mb-2">
@@ -94,7 +94,7 @@ export default function FeatureGrid() {
 
   return (
     <section className="bg-light py-24 lg:py-32 border-t border-black/[0.08]">
-      <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
+      <div className="max-w-7xl mx-auto px-6 lg:px-10">
         <div className="text-center mb-14">
           <p className="eyebrow mb-4">{t("eyebrow")}</p>
           <h2 className="font-sans text-[36px] font-bold text-text leading-[1.1] tracking-[-0.02em]">
@@ -111,7 +111,7 @@ export default function FeatureGrid() {
                   <div className="w-9 h-9 flex items-center justify-center border border-black/[0.08]">
                     <Icon size={17} className="text-text-secondary" />
                   </div>
-                  <span className={`font-mono text-[9px] px-[10px] py-[4px] rounded uppercase tracking-[0.06em] ${feat.badgeStyle}`}>
+                  <span className={`font-mono text-[9px] px-2 py-[3px] border rounded-[2px] uppercase tracking-[0.08em] ${feat.badgeStyle}`}>
                     {feat.badge}
                   </span>
                 </div>

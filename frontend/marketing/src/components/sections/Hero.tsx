@@ -26,13 +26,18 @@ export default async function Hero() {
           aria-hidden="true"
           fill
           sizes="50vw"
-          className="object-cover opacity-[0.13]"
+          className="object-cover opacity-[0.07]"
           priority
+        />
+        {/* Gradient overlay: clean text area on the left */}
+        <div
+          className="absolute inset-0"
+          style={{ background: "linear-gradient(to right, #eceee8 10%, transparent 60%)" }}
         />
       </div>
 
-      <div className="relative max-w-[1200px] mx-auto px-6 lg:px-10 w-full py-24 lg:py-0 lg:min-h-screen flex items-center">
-        <div className="w-full grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+      <div className="relative max-w-7xl mx-auto px-6 lg:px-10 w-full py-24 lg:py-0 lg:min-h-screen flex items-center">
+        <div className="w-full grid lg:grid-cols-[45%_55%] gap-12 lg:gap-16 items-center">
           <div>
             <p className="eyebrow opacity-0 animate-fade-up animate-delay-100">
               {t("eyebrow")}
@@ -69,7 +74,16 @@ export default async function Hero() {
             </p>
           </div>
 
-          <div className="flex justify-center lg:justify-end opacity-0 animate-slide-up animate-delay-600">
+          <div className="flex justify-center lg:justify-end opacity-0 animate-slide-up animate-delay-600 relative">
+            {/* Subtle green glow behind mockup */}
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background: "radial-gradient(ellipse at center, rgba(47,172,102,0.10) 0%, transparent 70%)",
+                transform: "scale(1.5)",
+                filter: "blur(24px)",
+              }}
+            />
             <DashboardMockup />
           </div>
         </div>

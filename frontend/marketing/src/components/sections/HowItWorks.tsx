@@ -25,9 +25,9 @@ function MiniInsightCard() {
 }
 
 const STEP_PHOTOS = [
-  { src: "/images/steps/step-register.webp", alt: "Manos escribiendo en el teclado de una laptop" },
-  { src: "/images/steps/step-analyze.webp",  alt: "Persona analizando gráficos de trading en pantalla" },
-  { src: "/images/steps/step-improve.webp",  alt: "Persona satisfecha mirando resultados en su laptop" },
+  { src: "/images/steps/step-register.webp", alt: "Persona registrando una operación de trading en su móvil" },
+  { src: "/images/steps/step-analyze.webp",  alt: "Análisis de datos de trading en pantalla con gráficos" },
+  { src: "/images/steps/step-improve.webp",  alt: "Trader satisfecho viendo los resultados de su mejora" },
 ];
 
 export default function HowItWorks() {
@@ -61,7 +61,7 @@ export default function HowItWorks() {
 
   return (
     <section id="how" className="bg-white py-24 lg:py-32 border-t border-black/[0.08]">
-      <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
+      <div className="max-w-7xl mx-auto px-6 lg:px-10">
         <div
           className={`max-w-[520px] mb-16 transition-all duration-500 ${
             inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"

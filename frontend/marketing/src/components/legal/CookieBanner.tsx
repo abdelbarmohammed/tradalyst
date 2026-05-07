@@ -29,7 +29,7 @@ export default function CookieBanner() {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-[1000] bg-text animate-slide-up">
-      <div className="max-w-[1200px] mx-auto px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <p className="font-sans text-[13px] text-text-dark-primary leading-relaxed">
           {t("before")}
           <Link href="/cookies" className="text-green underline hover:no-underline transition-all">

@@ -27,7 +27,7 @@ export default function PricingPreview() {
 
   return (
     <section className="bg-light py-24 lg:py-32 border-t border-black/[0.08]">
-      <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
+      <div className="max-w-7xl mx-auto px-6 lg:px-10">
         <div className="text-center mb-14">
           <p className="eyebrow mb-4">{t("eyebrow")}</p>
           <h2 className="font-sans text-[36px] font-bold text-text leading-[1.1] tracking-[-0.02em]">

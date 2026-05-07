@@ -33,7 +33,7 @@ export default function Nav() {
         scrolled ? "nav-scrolled border-b border-black/[0.06]" : "bg-transparent"
       }`}
     >
-      <div className="max-w-[1200px] mx-auto px-6 lg:px-10 h-16 flex items-center gap-8">
+      <div className="max-w-7xl mx-auto px-6 lg:px-10 h-16 flex items-center gap-8">
         {/* Logo */}
         <Link href="/" className="flex-shrink-0" aria-label="Tradalyst">
           <Logo variant="dark" height={22} />

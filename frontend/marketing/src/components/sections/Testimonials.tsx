@@ -18,7 +18,7 @@ export default function Testimonials() {
 
   return (
     <section className="bg-surface py-24 lg:py-32 border-t border-black/[0.08] overflow-hidden">
-      <div className="max-w-[1200px] mx-auto px-6 lg:px-10 mb-12">
+      <div className="max-w-7xl mx-auto px-6 lg:px-10 mb-12">
         <h2 className="font-sans text-[36px] font-bold text-text leading-[1.1] tracking-[-0.02em] text-center">
           {t("heading")}
         </h2>

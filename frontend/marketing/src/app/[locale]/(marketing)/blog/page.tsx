@@ -46,7 +46,7 @@ export default async function BlogIndex({ params, searchParams }: Props) {
     <div className="bg-light min-h-screen">
       {/* Hero */}
       <section className="py-20 lg:py-28 border-b border-black/[0.08]">
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
+        <div className="max-w-7xl mx-auto px-6 lg:px-10">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-start">
             {/* Left */}
             <div>
@@ -127,7 +127,7 @@ export default async function BlogIndex({ params, searchParams }: Props) {
 
       {/* Posts grid */}
       <section className="py-16 lg:py-20">
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
+        <div className="max-w-7xl mx-auto px-6 lg:px-10">
           {filtered.length === 0 ? (
             <p className="font-sans text-[15px] text-text-muted text-center py-12">
               {t("categories.all")}

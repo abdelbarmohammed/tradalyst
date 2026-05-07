@@ -71,7 +71,7 @@ export default function AiSpotlight() {
         }}
       />
 
-      <div className="relative max-w-[1200px] mx-auto px-6 lg:px-10">
+      <div className="relative max-w-7xl mx-auto px-6 lg:px-10">
         <div
           className={`text-center mb-14 transition-all duration-500 ${
             inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"

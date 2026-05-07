@@ -5,45 +5,67 @@ import { useInView } from "@/hooks/useInView";
 
 function FlatLineChart() {
   return (
-    <svg viewBox="0 0 120 48" width="120" height="48" aria-hidden="true">
+    <svg viewBox="0 0 120 44" width="120" height="44" aria-hidden="true">
+      {/* Faint area under the flat line */}
       <path
-        d="M 0,30 C 12,28 18,34 28,30 C 38,26 42,33 52,30 C 62,27 66,32 76,30 C 86,28 92,34 102,30 C 108,28 114,31 120,30"
+        d="M 0,28 C 10,26 16,30 28,27 C 40,24 44,29 56,27 C 68,25 72,29 84,27 C 96,25 104,29 120,27 L 120,44 L 0,44 Z"
+        fill="rgba(156,163,175,0.12)"
+      />
+      <path
+        d="M 0,28 C 10,26 16,30 28,27 C 40,24 44,29 56,27 C 68,25 72,29 84,27 C 96,25 104,29 120,27"
         fill="none"
-        stroke="rgba(0,0,0,0.12)"
-        strokeWidth="2"
+        stroke="#9ca3af"
+        strokeWidth="1.5"
         strokeLinecap="round"
       />
+      <text x="0" y="11" fontFamily="IBM Plex Mono, monospace" fontSize="7" fill="#9ca3af">P&L</text>
+      <text x="0" y="19" fontFamily="IBM Plex Mono, monospace" fontSize="6" fill="rgba(0,0,0,0.28)">sin progreso</text>
     </svg>
   );
 }
 
 function WinFomoChart() {
   return (
-    <svg viewBox="0 0 120 48" width="120" height="48" aria-hidden="true">
-      <rect x="8" y="8" width="48" height="10" rx="1" fill="rgba(47,172,102,0.3)" />
-      <text x="60" y="17" fontFamily="IBM Plex Mono, monospace" fontSize="7" fill="rgba(0,0,0,0.35)">62%</text>
-      <text x="8" y="28" fontFamily="IBM Plex Mono, monospace" fontSize="7" fill="rgba(0,0,0,0.30)">Win rate</text>
-      <rect x="8" y="34" width="16" height="10" rx="1" fill="rgba(217,64,64,0.25)" />
-      <text x="28" y="43" fontFamily="IBM Plex Mono, monospace" fontSize="7" fill="rgba(0,0,0,0.35)">21%</text>
-      <text x="8" y="31" fontFamily="IBM Plex Mono, monospace" fontSize="6.5" fill="rgba(0,0,0,0.30)">FOMO</text>
+    <svg viewBox="0 0 120 44" width="120" height="44" aria-hidden="true">
+      {/* Win rate general bar */}
+      <rect x="0" y="6" width="2" height="20" rx="1" fill="rgba(47,172,102,0.25)" />
+      <rect x="4" y="6" width="58" height="10" rx="1" fill="rgba(47,172,102,0.25)" />
+      <text x="66" y="15" fontFamily="IBM Plex Mono, monospace" fontSize="8" fontWeight="600" fill="#2fac66">58%</text>
+      <text x="4" y="24" fontFamily="IBM Plex Mono, monospace" fontSize="6" fill="rgba(0,0,0,0.40)">Win rate</text>
+      {/* FOMO bar */}
+      <rect x="0" y="30" width="2" height="10" rx="1" fill="rgba(217,64,64,0.3)" />
+      <rect x="4" y="30" width="19" height="10" rx="1" fill="rgba(217,64,64,0.2)" />
+      <text x="27" y="39" fontFamily="IBM Plex Mono, monospace" fontSize="8" fontWeight="600" fill="#d94040">19%</text>
+      <text x="4" y="38" fontFamily="IBM Plex Mono, monospace" fontSize="6" fill="rgba(0,0,0,0.40)">FOMO</text>
     </svg>
   );
 }
 
 function DrawdownChart() {
   return (
-    <svg viewBox="0 0 120 48" width="120" height="48" aria-hidden="true">
+    <svg viewBox="0 0 120 44" width="120" height="44" aria-hidden="true">
+      {/* Drop fill */}
       <path
-        d="M 0,12 C 15,10 22,14 35,12 C 45,10 50,14 60,24 C 68,32 72,38 80,38 C 88,38 92,30 100,22 C 108,14 114,14 120,12"
+        d="M 52,14 C 62,22 68,32 78,36 C 88,36 96,28 110,20 L 110,44 L 52,44 Z"
+        fill="rgba(217,64,64,0.10)"
+      />
+      {/* Main line going up then dropping */}
+      <path
+        d="M 0,32 C 10,30 18,28 30,22 C 40,17 46,16 52,14 C 62,22 68,32 78,36 C 88,36 96,28 110,20"
         fill="none"
-        stroke="rgba(0,0,0,0.12)"
+        stroke="#9ca3af"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+      {/* Red drop portion */}
+      <path
+        d="M 52,14 C 62,22 68,32 78,36 C 88,36 96,28 110,20"
+        fill="none"
+        stroke="#d94040"
         strokeWidth="2"
         strokeLinecap="round"
       />
-      <path
-        d="M 55,24 C 62,30 68,36 78,38 C 86,38 92,32 100,24 L 100,48 L 55,48 Z"
-        fill="rgba(217,64,64,0.08)"
-      />
+      <text x="54" y="10" fontFamily="IBM Plex Mono, monospace" fontSize="6" fill="#d94040">drawdown</text>
     </svg>
   );
 }
@@ -60,7 +82,7 @@ export default function Problem() {
 
   return (
     <section className="bg-light py-24 lg:py-32">
-      <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
+      <div className="max-w-7xl mx-auto px-6 lg:px-10">
         <div ref={ref} className="grid md:grid-cols-3 gap-px bg-black/[0.08]">
           {CARDS.map((card, i) => (
             <div
