@@ -12,7 +12,7 @@ const EMOTION_ES: Record<string, string> = {
   revenge: "Revenge", neutral: "Neutral",
 };
 
-const WEEKS = 52;
+const WEEKS = 26;
 const CELL = 12;
 const GAP = 2;
 const DAY_LABEL_W = 14;
@@ -100,7 +100,7 @@ export default function ActivityHeatmap({ data, loading }: Props) {
   return (
     <div className="card p-5">
       <p className="font-mono text-[10px] uppercase tracking-eyebrow text-muted mb-3">
-        Actividad · 52 semanas
+        Actividad · 26 semanas
       </p>
 
       <div className="overflow-x-auto">

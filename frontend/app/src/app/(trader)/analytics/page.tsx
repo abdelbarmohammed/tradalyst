@@ -6,6 +6,10 @@ import { get } from "@/lib/api";
 import { formatPnl, formatPct } from "@/lib/format";
 import type { Trade, PaginatedTrades } from "@/types";
 
+// ── Constants ─────────────────────────────────────────────────────────────────
+
+const MONTHS_ES = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function closedTrades(trades: Trade[]) {
@@ -34,21 +38,32 @@ function totalPnl(trades: Trade[]) {
   return closedTrades(trades).reduce((s, t) => s + pnlNum(t), 0);
 }
 
-// ── SVG bar chart helpers ─────────────────────────────────────────────────────
+// Returns the ISO date (YYYY-MM-DD) of the Monday of the week containing d
+function getMondayKey(d: Date): string {
+  const m = new Date(d);
+  m.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+  return m.toISOString().slice(0, 10);
+}
+
+// ── SVG chart constants ────────────────────────────────────────────────────────
 
 const BAR_H = 180;
-const BAR_PAD = { top: 12, right: 8, bottom: 28, left: 56 };
+const BAR_PAD = { top: 20, right: 8, bottom: 28, left: 56 };
+
+// ── BarChart ──────────────────────────────────────────────────────────────────
 
 function BarChart({
   bars,
   formatY = (v: number) => v.toFixed(0),
   colorFn = (v: number) => (v >= 0 ? "#2fac66" : "#f06060"),
   emptyLabel,
+  showValueLabels = false,
 }: {
   bars: { label: string; value: number }[];
   formatY?: (v: number) => string;
   colorFn?: (v: number) => string;
   emptyLabel: string;
+  showValueLabels?: boolean;
 }) {
   if (!bars.length) return <EmptyChart label={emptyLabel} />;
 
@@ -73,12 +88,9 @@ function BarChart({
       aria-hidden="true"
     >
       <line
-        x1={BAR_PAD.left}
-        x2={W - BAR_PAD.right}
-        y1={zeroY}
-        y2={zeroY}
-        stroke="rgba(255,255,255,0.1)"
-        strokeWidth="1"
+        x1={BAR_PAD.left} x2={W - BAR_PAD.right}
+        y1={zeroY} y2={zeroY}
+        stroke="rgba(255,255,255,0.1)" strokeWidth="1"
       />
 
       {bars.map((bar, i) => {
@@ -86,25 +98,35 @@ function BarChart({
         const ratio = Math.abs(bar.value) / maxAbs;
         const barHeight = ratio * (hasNeg ? chartH / 2 : chartH);
         const y = bar.value >= 0 ? zeroY - barHeight : zeroY;
+        const labelY = bar.value >= 0 ? y - 3 : y + barHeight + 9;
+
         return (
           <g key={bar.label}>
+            <title>{`${bar.label}: ${formatY(bar.value)}`}</title>
             <rect
-              x={x}
-              y={y}
-              width={barW}
-              height={Math.max(barHeight, 1)}
-              fill={colorFn(bar.value)}
-              opacity="0.85"
+              x={x} y={y}
+              width={barW} height={Math.max(barHeight, 1)}
+              fill={colorFn(bar.value)} opacity="0.85"
             />
+            {showValueLabels && (
+              <text
+                x={x + barW / 2}
+                y={Math.max(labelY, BAR_PAD.top + 8)}
+                textAnchor="middle"
+                fontSize="9"
+                fontFamily="var(--font-ibm-plex-mono)"
+                fill={colorFn(bar.value)}
+              >
+                {formatY(bar.value)}
+              </text>
+            )}
             <text
-              x={x + barW / 2}
-              y={BAR_H - 4}
-              textAnchor="middle"
-              fontSize="7"
+              x={x + barW / 2} y={BAR_H - 4}
+              textAnchor="middle" fontSize="7"
               fontFamily="var(--font-ibm-plex-mono)"
               fill="rgba(156,163,175,0.8)"
             >
-              {bar.label.length > 6 ? bar.label.slice(0, 6) : bar.label}
+              {bar.label.length > 7 ? bar.label.slice(0, 7) : bar.label}
             </text>
           </g>
         );
@@ -117,14 +139,11 @@ function BarChart({
             key={v}
             x={BAR_PAD.left - 4}
             y={
-              i === 0
-                ? BAR_PAD.top + 4
-                : i === 1
-                ? zeroY + 4
-                : BAR_PAD.top + chartH + 4
+              i === 0 ? BAR_PAD.top + 4
+              : i === 1 ? zeroY + 4
+              : BAR_PAD.top + chartH + 4
             }
-            textAnchor="end"
-            fontSize="7"
+            textAnchor="end" fontSize="7"
             fontFamily="var(--font-ibm-plex-mono)"
             fill="rgba(156,163,175,0.8)"
           >
@@ -135,18 +154,155 @@ function BarChart({
   );
 }
 
-function HorizontalBar({
-  label,
-  value,
-  max,
-  color,
-  sub,
+// ── DrawdownAreaChart ─────────────────────────────────────────────────────────
+
+const DD_H = 180;
+const DD_PAD = { top: 20, right: 16, bottom: 32, left: 64 };
+
+function DrawdownAreaChart({
+  points,
+  emptyLabel,
 }: {
-  label: string;
-  value: number;
-  max: number;
-  color: string;
-  sub?: string;
+  points: { date: string; value: number }[];
+  emptyLabel: string;
+}) {
+  if (!points.length) return <EmptyChart label={emptyLabel} />;
+
+  const W = 640;
+  const chartW = W - DD_PAD.left - DD_PAD.right;
+  const chartH = DD_H - DD_PAD.top - DD_PAD.bottom;
+
+  const minVal = Math.min(...points.map((p) => p.value), -0.01);
+
+  // y=0 → DD_PAD.top (top of chart area)
+  // y=minVal → DD_PAD.top + chartH (bottom of chart area)
+  const xS = (i: number) =>
+    DD_PAD.left + (i / Math.max(points.length - 1, 1)) * chartW;
+  const yS = (v: number) =>
+    DD_PAD.top + (v / minVal) * chartH;
+
+  const linePath = points
+    .map((p, i) => `${i === 0 ? "M" : "L"} ${xS(i).toFixed(1)} ${yS(p.value).toFixed(1)}`)
+    .join(" ");
+
+  // Area: line → right edge at zero → left edge at zero → close
+  const areaPath =
+    `${linePath} ` +
+    `L ${xS(points.length - 1).toFixed(1)} ${DD_PAD.top} ` +
+    `L ${xS(0).toFixed(1)} ${DD_PAD.top} Z`;
+
+  // Lowest point (worst drawdown)
+  const minIdx = points.reduce(
+    (best, p, i) => (p.value < points[best].value ? i : best),
+    0
+  );
+  const minPt = points[minIdx];
+  const minX = xS(minIdx);
+  const minY = yS(minPt.value);
+
+  // X axis: evenly spaced month labels, max 8
+  const labelCount = Math.min(8, points.length);
+  const labelIndices =
+    labelCount <= 1
+      ? [0]
+      : Array.from({ length: labelCount }, (_, i) =>
+          Math.round((i * (points.length - 1)) / (labelCount - 1))
+        );
+
+  // Deduplicate consecutive identical month labels
+  const xLabels = labelIndices
+    .map((i) => {
+      const [, m] = points[i].date.split("-").map(Number);
+      return { i, label: MONTHS_ES[m - 1] };
+    })
+    .filter((item, idx, arr) => idx === 0 || item.label !== arr[idx - 1].label);
+
+  // Y axis: 5 levels from 0 to minVal
+  const yLabels = [0, 0.25, 0.5, 0.75, 1.0].map((f) => f * minVal);
+
+  return (
+    <svg
+      viewBox={`0 0 ${W} ${DD_H}`}
+      width="100%"
+      height={DD_H}
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      {/* Zero line — dashed */}
+      <line
+        x1={DD_PAD.left} y1={DD_PAD.top}
+        x2={W - DD_PAD.right} y2={DD_PAD.top}
+        stroke="rgba(255,255,255,0.2)"
+        strokeWidth="1"
+        strokeDasharray="4,3"
+      />
+
+      {/* Area fill */}
+      <path d={areaPath} fill="rgba(240,96,96,0.15)" />
+
+      {/* Line */}
+      <path
+        d={linePath}
+        fill="none"
+        stroke="#f06060"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+
+      {/* Worst-drawdown dot */}
+      <circle cx={minX} cy={minY} r="3.5" fill="#f06060" />
+
+      {/* Worst-drawdown label — clamp so it stays inside */}
+      <text
+        x={Math.min(Math.max(minX, DD_PAD.left + 4), W - DD_PAD.right - 120)}
+        y={minY > DD_PAD.top + 16 ? minY - 7 : minY + 14}
+        fontFamily="var(--font-ibm-plex-mono)"
+        fontSize="9"
+        fill="#f06060"
+      >
+        {`Máx. drawdown: -€${Math.abs(minPt.value).toFixed(0)}`}
+      </text>
+
+      {/* X axis labels */}
+      {xLabels.map(({ i, label }) => (
+        <text
+          key={i}
+          x={xS(i)}
+          y={DD_H - 4}
+          textAnchor="middle"
+          fontFamily="var(--font-ibm-plex-mono)"
+          fontSize="8"
+          fill="rgba(156,163,175,0.8)"
+        >
+          {label}
+        </text>
+      ))}
+
+      {/* Y axis labels */}
+      {yLabels.map((v, i) => (
+        <text
+          key={i}
+          x={DD_PAD.left - 4}
+          y={yS(v) + 3}
+          textAnchor="end"
+          fontFamily="var(--font-ibm-plex-mono)"
+          fontSize="8"
+          fill="rgba(156,163,175,0.8)"
+        >
+          {v === 0 ? "€0" : `-€${Math.abs(v).toFixed(0)}`}
+        </text>
+      ))}
+    </svg>
+  );
+}
+
+// ── HorizontalBar ─────────────────────────────────────────────────────────────
+
+function HorizontalBar({
+  label, value, max, color, sub,
+}: {
+  label: string; value: number; max: number; color: string; sub?: string;
 }) {
   const pct = max > 0 ? (value / max) * 100 : 0;
   return (
@@ -167,6 +323,8 @@ function HorizontalBar({
   );
 }
 
+// ── EmptyChart / ChartCard ────────────────────────────────────────────────────
+
 function EmptyChart({ label }: { label: string }) {
   return (
     <div className="flex items-center justify-center h-[100px]">
@@ -176,22 +334,14 @@ function EmptyChart({ label }: { label: string }) {
 }
 
 function ChartCard({
-  title,
-  loading,
-  children,
-  action,
+  title, loading, children, action,
 }: {
-  title: string;
-  loading: boolean;
-  children: React.ReactNode;
-  action?: React.ReactNode;
+  title: string; loading: boolean; children: React.ReactNode; action?: React.ReactNode;
 }) {
   return (
     <div className="card p-5">
       <div className="flex items-center justify-between mb-4">
-        <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted">
-          {title}
-        </p>
+        <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted">{title}</p>
         {action}
       </div>
       {loading ? (
@@ -247,24 +397,30 @@ export default function AnalyticsPage() {
   // ── P&L breakdown ──────────────────────────────────────────────────────────
 
   const pnlBars = (() => {
-    const groups = groupBy(closed, (t) => {
-      const d = new Date(t.entry_time);
-      if (pnlGrouping === "week") {
-        const startOfYear = new Date(d.getFullYear(), 0, 1);
-        const week = Math.ceil(
-          ((d.getTime() - startOfYear.getTime()) / 86400000 + startOfYear.getDay() + 1) / 7
-        );
-        return `W${week}`;
-      }
-      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-    });
+    if (pnlGrouping === "week") {
+      const groups = groupBy(closed, (t) => getMondayKey(new Date(t.entry_time)));
+      return Object.entries(groups)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .slice(-12)
+        .map(([key, ts]) => {
+          const [, m, d] = key.split("-").map(Number);
+          return {
+            label: `${d} ${MONTHS_ES[m - 1]}`,
+            value: ts.reduce((s, t) => s + pnlNum(t), 0),
+          };
+        });
+    }
+    // Month grouping — all months that have trades
+    const groups = groupBy(closed, (t) => t.entry_time.slice(0, 7)); // "YYYY-MM"
     return Object.entries(groups)
       .sort(([a], [b]) => a.localeCompare(b))
-      .slice(-16)
-      .map(([label, ts]) => ({
-        label: pnlGrouping === "week" ? label : label.slice(5),
-        value: ts.reduce((s, t) => s + pnlNum(t), 0),
-      }));
+      .map(([key, ts]) => {
+        const [y, m] = key.split("-").map(Number);
+        return {
+          label: `${MONTHS_ES[m - 1]} ${String(y).slice(2)}`,
+          value: ts.reduce((s, t) => s + pnlNum(t), 0),
+        };
+      });
   })();
 
   // ── Win/Loss by asset ──────────────────────────────────────────────────────
@@ -325,19 +481,18 @@ export default function AnalyticsPage() {
   const longTrades = closed.filter((t) => t.direction === "long");
   const shortTrades = closed.filter((t) => t.direction === "short");
 
-  // ── Drawdown ──────────────────────────────────────────────────────────────
+  // ── Drawdown (cumulative, grouped by day) ──────────────────────────────────
 
-  const drawdownBars = (() => {
+  const drawdownPoints = (() => {
     if (!closed.length) return [];
+    const byDay = groupBy(closed, (t) => t.entry_time.slice(0, 10));
+    const sortedDays = Object.entries(byDay).sort(([a], [b]) => a.localeCompare(b));
     let cum = 0;
     let peak = 0;
-    return closed.map((t, i) => {
-      cum += pnlNum(t);
+    return sortedDays.map(([date, ts]) => {
+      cum += ts.reduce((s, t) => s + pnlNum(t), 0);
       if (cum > peak) peak = cum;
-      return {
-        label: String(i + 1),
-        value: cum - peak,
-      };
+      return { date, value: cum - peak }; // always <= 0
     });
   })();
 
@@ -439,8 +594,9 @@ export default function AnalyticsPage() {
       >
         <BarChart
           bars={pnlBars}
-          formatY={(v) => `${v >= 0 ? "+" : ""}${v.toFixed(0)}€`}
+          formatY={(v) => `${v >= 0 ? "+" : ""}€${Math.abs(v).toFixed(0)}`}
           emptyLabel={noData}
+          showValueLabels
         />
       </ChartCard>
 
@@ -541,15 +697,11 @@ export default function AnalyticsPage() {
         </ChartCard>
       </div>
 
-      {/* Drawdown */}
+      {/* Drawdown acumulado */}
       <ChartCard title={t("chartDrawdown")} loading={loading}>
-        <BarChart
-          bars={drawdownBars.slice(-30)}
-          formatY={(v) => `${v.toFixed(0)}€`}
-          colorFn={() => "#f06060"}
-          emptyLabel={noData}
-        />
+        <DrawdownAreaChart points={drawdownPoints} emptyLabel={noData} />
       </ChartCard>
+
     </div>
   );
 }
