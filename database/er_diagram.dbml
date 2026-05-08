@@ -1,0 +1,167 @@
+// ============================================
+// Tradalyst — ER Diagram (DBML)
+// For use at https://dbdiagram.io
+// Generated from production PostgreSQL schema
+// Date: 2026-05-08
+// ============================================
+//
+// Colour coding (set manually in dbdiagram.io):
+//   users_customuser      → #2fac66  (green  — central table)
+//   trades_trade          → #4d9fff  (blue   — core feature)
+//   analysis_*            → #a78bfa  (purple — AI tables)
+//   mentors_*             → #f5a623  (amber  — mentor tables)
+//   token_blacklist_*     → #9ca3af  (grey   — auth tables)
+// ============================================
+
+// ── USERS ────────────────────────────────────────────────────────────────────
+
+Table users_customuser {
+  id                   bigint      [pk, increment, not null]
+  email                varchar(254)[not null, unique]
+  password             varchar(128)[not null]
+  display_name         varchar(100)[not null, note: 'default: ""']
+  bio                  text        [not null, note: 'default: ""']
+  role                 varchar(10) [not null, note: "default: 'trader' | choices: trader, mentor, admin"]
+  is_active            boolean     [not null, note: 'default: true']
+  is_staff             boolean     [not null, note: 'default: false']
+  is_superuser         boolean     [not null, note: 'default: false']
+  date_joined          timestamptz [not null]
+  last_login           timestamptz
+  onboarding_completed boolean     [not null, note: 'default: false']
+  plan                 varchar(4)  [not null, note: "default: 'free' | choices: free, pro"]
+  theme_preference     varchar(5)  [not null, note: "default: 'light' | choices: light, dark"]
+  language_preference  varchar(2)  [not null, note: "default: 'es' | choices: es, en"]
+  trial_ends_at        timestamptz
+  pinned_assets        jsonb       [not null, note: 'default: []']
+  stripe_customer_id   varchar(100)[not null, note: 'default: ""']
+
+  indexes {
+    email [unique, name: 'users_customuser_email_key']
+    email [name: 'users_customuser_email_6445acef_like']
+  }
+}
+
+// ── TRADES ───────────────────────────────────────────────────────────────────
+
+Table trades_trade {
+  id                bigint      [pk, increment, not null]
+  user_id           bigint      [not null, ref: > users_customuser.id]
+  pair              varchar(20) [not null, note: 'e.g. BTC/USDT, EUR/USD']
+  direction         varchar(5)  [not null, note: 'choices: long, short']
+  entry_price       numeric(20,8)[not null]
+  exit_price        numeric(20,8)
+  quantity          numeric(20,8)[not null]
+  entry_time        timestamptz [not null]
+  exit_time         timestamptz
+  pnl               numeric(20,8)[note: 'auto-calculated on save']
+  risk_reward_ratio numeric(10,4)
+  result            varchar(10) [not null, note: 'default: "" | choices: win, loss, breakeven']
+  emotion           varchar(10) [not null, note: 'default: "" | choices: calm, confident, fearful, greedy, anxious, fomo, revenge, neutral']
+  notes             text        [not null, note: 'default: ""']
+  created_at        timestamptz [not null]
+  updated_at        timestamptz [not null]
+
+  indexes {
+    user_id [name: 'trades_trade_user_id_4ce65fb7']
+  }
+}
+
+// ── ANALYSIS ─────────────────────────────────────────────────────────────────
+
+Table analysis_aiinsight {
+  id           bigint      [pk, increment, not null]
+  user_id      bigint      [not null, ref: > users_customuser.id]
+  content      text        [not null]
+  period_start date        [not null]
+  period_end   date        [not null]
+  trade_count  integer     [not null, note: 'default: 0 | CHECK >= 0']
+  created_at   timestamptz [not null]
+
+  indexes {
+    user_id [name: 'analysis_aiinsight_user_id_19b41daf']
+  }
+}
+
+Table analysis_chatmessage {
+  id         bigint     [pk, increment, not null]
+  user_id    bigint     [not null, ref: > users_customuser.id]
+  role       varchar(10)[not null, note: 'choices: user, assistant']
+  content    text       [not null]
+  created_at timestamptz[not null]
+
+  indexes {
+    user_id [name: 'analysis_chatmessage_user_id_23fa0699']
+  }
+}
+
+// ── MENTORS ───────────────────────────────────────────────────────────────────
+
+Table mentors_mentorrequest {
+  id         bigint     [pk, increment, not null]
+  mentor_id  bigint     [not null, ref: > users_customuser.id]
+  trader_id  bigint     [not null, ref: > users_customuser.id]
+  status     varchar(10)[not null, note: "default: 'pending' | choices: pending, accepted, rejected"]
+  created_at timestamptz[not null]
+  updated_at timestamptz[not null]
+
+  indexes {
+    (mentor_id, trader_id) [unique, name: 'mentors_mentorrequest_mentor_id_trader_id_a923b283_uniq']
+    mentor_id [name: 'mentors_mentorrequest_mentor_id_00b8df0e']
+    trader_id [name: 'mentors_mentorrequest_trader_id_f4172170']
+  }
+}
+
+Table mentors_mentorassignment {
+  id         bigint  [pk, increment, not null]
+  trader_id  bigint  [not null, ref: > users_customuser.id]
+  mentor_id  bigint  [not null, ref: > users_customuser.id]
+  is_active  boolean [not null, note: 'default: true']
+  created_at timestamptz[not null]
+
+  indexes {
+    (trader_id, mentor_id) [unique, name: 'mentors_mentorassignment_trader_id_mentor_id_33bdefd0_uniq']
+    mentor_id [name: 'mentors_mentorassignment_mentor_id_f8e235df']
+    trader_id [name: 'mentors_mentorassignment_trader_id_c26097d1']
+  }
+}
+
+Table mentors_mentorannotation {
+  id         bigint [pk, increment, not null]
+  trade_id   bigint [not null, ref: > trades_trade.id]
+  mentor_id  bigint [not null, ref: > users_customuser.id]
+  body       text   [not null]
+  created_at timestamptz[not null]
+  updated_at timestamptz[not null]
+
+  indexes {
+    mentor_id [name: 'mentors_mentorannotation_mentor_id_fba92eaf']
+    trade_id  [name: 'mentors_mentorannotation_trade_id_38a87c68']
+  }
+}
+
+// ── JWT TOKEN BLACKLIST ───────────────────────────────────────────────────────
+
+Table token_blacklist_outstandingtoken {
+  id         bigint        [pk, increment, not null]
+  user_id    bigint        [ref: > users_customuser.id, note: 'nullable — tokens survive user deletion']
+  jti        varchar(255)  [not null, unique]
+  token      text          [not null]
+  created_at timestamptz
+  expires_at timestamptz   [not null]
+
+  indexes {
+    jti    [unique, name: 'token_blacklist_outstandingtoken_jti_hex_d9bdf6f7_uniq']
+    jti    [name: 'token_blacklist_outstandingtoken_jti_hex_d9bdf6f7_like']
+    user_id[name: 'token_blacklist_outstandingtoken_user_id_83bc629a']
+  }
+}
+
+Table token_blacklist_blacklistedtoken {
+  id             bigint     [pk, increment, not null]
+  token_id       bigint     [not null, unique, ref: > token_blacklist_outstandingtoken.id]
+  blacklisted_at timestamptz[not null]
+
+  indexes {
+    token_id [unique, name: 'token_blacklist_blacklistedtoken_token_id_key']
+  }
+}
