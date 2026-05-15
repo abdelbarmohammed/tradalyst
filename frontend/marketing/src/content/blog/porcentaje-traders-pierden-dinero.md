@@ -63,6 +63,8 @@ La CNMV (Comisión Nacional del Mercado de Valores) publicó en 2020 un análisi
 
 El dato más relevante del estudio de la CNMV no es el porcentaje en sí — es que el porcentaje era **consistente entre niveles de experiencia declarada**. Tanto los traders que se autodeclaraban "con experiencia" como los que reconocían ser novatos perdían en proporciones similares. La experiencia autopercibida no protege de las pérdidas.
 
+<MdxImage src="/images/blog/porcentaje-traders-estadisticas.webp" alt="Pantalla de ordenador mostrando estadísticas y datos de rendimiento financiero — análisis de traders retail" width="800" height="450" caption="Los datos publicados por los reguladores europeos son la fuente más objetiva disponible sobre el rendimiento real de los traders retail." />
+
 ---
 
 ## ¿Por qué estas estadísticas son tan altas?
@@ -110,6 +112,8 @@ El 20-30% de los traders retail que son rentables de forma consistente no tiene 
 El gráfico anterior muestra la diferencia en win rate entre estados emocionales al entrar. No es teoría — son datos de cuentas reales. Un trader que puede ver ese gráfico con sus propios números entiende de forma concreta cuánto le cuesta cada operación impulsiva.
 
 **Analizan sus patrones de comportamiento, no solo su análisis técnico.** La pregunta que se hacen no es "¿qué está haciendo el mercado?", sino "¿cuándo tomo las mejores decisiones?" y "¿qué condiciones hacen que mis decisiones sean peores?". Eso incluye hora del día, día de la semana, estado emocional, drawdown acumulado en la sesión.
+
+<MdxImage src="/images/blog/porcentaje-traders-analisis.webp" alt="Trader analizando gráficos y datos de rendimiento en ordenador portátil — proceso estructurado de revisión de operaciones" width="800" height="450" caption="El hábito que más diferencia a los traders rentables no es la estrategia — es la revisión sistemática de sus propios datos." />
 
 **Siguen reglas de gestión del riesgo con consistencia.** Riesgo máximo por operación (generalmente 1-2% del capital), máximo de pérdidas diarias que activa un cierre de sesión, tamaño de posición calculado antes de entrar — no aproximado. Las reglas son específicas, están escritas y no tienen excepciones.
 

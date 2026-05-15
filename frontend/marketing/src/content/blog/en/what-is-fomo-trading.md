@@ -81,6 +81,8 @@ If you don't know exactly where you'll exit if the trade goes wrong before you e
 
 The sensation that if you don't enter in the next thirty seconds, you'll miss the whole move. That urgency is your limbic system responding to price movement, not a signal from your analysis. Valid setups don't disappear in thirty seconds. If yours does, it wasn't a valid setup — it was a price event you wanted to chase.
 
+<MdxImage src="/images/blog/fomo-trading-stress.webp" alt="Stressed trader staring at screen with a fast-moving price chart — the physical sensation of FOMO before executing an impulsive trade" width="800" height="450" caption="The urgency you feel when price moves without you is the most reliable signal that you're about to make a FOMO trade." />
+
 ---
 
 ## The FOMO trading cycle
