@@ -1,9 +1,9 @@
 ---
 title: "How to Keep a Trading Journal That Actually Improves Your Trading"
-seoTitle: "Trading Journal: 7 Fields That Actually Improve Results"
-description: "A trading journal only works if you know what to record and how to review it. Complete guide with the 7 essential fields, a real example entry, and a weekly review system."
+seoTitle: "How to Keep a Trading Journal That Actually Works (2026)"
+description: "Most traders keep a journal but never improve. Learn the 7 fields that matter, how to review it weekly, and what AI analysis reveals that manual review misses."
 date: "2026-04-01"
-lastModified: "2026-05-07"
+lastModified: "2026-05-15"
 author: "Tradalyst"
 category: "journal"
 keywords:

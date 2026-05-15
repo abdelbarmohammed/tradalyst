@@ -1,9 +1,9 @@
 ---
 title: "Qué es el FOMO trading y cómo evitarlo (con datos reales)"
-seoTitle: "FOMO Trading: Qué Es y Cómo Evitarlo | Tradalyst"
-description: "El FOMO trading destruye cuentas en silencio. Datos reales, 5 señales claras y un protocolo de 3 pasos para eliminar el FOMO de tu operativa."
+seoTitle: "FOMO Trading: Qué Es y Cómo Evitar Operar por Impulso"
+description: "El FOMO destruye más cuentas que la falta de estrategia. Aprende a reconocer las 5 señales de FOMO en tiempo real y el protocolo para cortarlo antes de entrar."
 date: "2026-04-05"
-lastModified: "2026-05-07"
+lastModified: "2026-05-15"
 author: "Tradalyst"
 category: "psychology"
 keywords:
