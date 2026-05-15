@@ -48,12 +48,12 @@ Table trades_trade {
   user_id           bigint       [not null, ref: > users_customuser.id]
   pair              varchar(20)  [not null, note: 'e.g. BTC/USDT, EUR/USD']
   direction         varchar(5)   [not null, note: 'choices: long, short']
-  entry_price       decimal(20,8)[not null]
+  entry_price       decimal(20,8) [not null]
   exit_price        decimal(20,8)
-  quantity          decimal(20,8)[not null]
+  quantity          decimal(20,8) [not null]
   entry_time        timestamp    [not null]
   exit_time         timestamp
-  pnl               decimal(20,8)[note: 'auto-calculated on save']
+  pnl               decimal(20,8) [note: 'auto-calculated on save']
   risk_reward_ratio decimal(10,4)
   result            varchar(10)  [not null, note: 'default: "" | choices: win, loss, breakeven']
   emotion           varchar(10)  [not null, note: 'default: "" | choices: calm, confident, fearful, greedy, anxious, fomo, revenge, neutral']
