@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { formatDateShort, formatPnl } from "@/lib/format";
 import type { Trade } from "@/types";
 
@@ -7,30 +10,42 @@ interface Props {
   loading?: boolean;
 }
 
-const EMOTION_LABELS: Record<string, string> = {
-  calm:      "Tranquilo",
-  confident: "Confiado",
-  fearful:   "Incierto",
-  greedy:    "Codicioso",
-  anxious:   "Ansioso",
-  fomo:      "FOMO",
-  revenge:   "Revenge",
-  neutral:   "Neutral",
-};
-
 export default function RecentTradesTable({ trades, loading }: Props) {
+  const t = useTranslations("dashboard");
+  const tJournal = useTranslations("journal");
+
+  const EMOTION_LABELS: Record<string, string> = {
+    calm:      tJournal("emotions.calm"),
+    confident: tJournal("emotions.confident"),
+    fearful:   tJournal("emotions.fearful"),
+    greedy:    tJournal("emotions.greedy"),
+    anxious:   tJournal("emotions.anxious"),
+    fomo:      "FOMO",
+    revenge:   "Revenge",
+    neutral:   tJournal("emotions.neutral"),
+  };
+
+  const columns = [
+    tJournal("colDate"),
+    tJournal("colPair"),
+    tJournal("colDir"),
+    "Result.",
+    tJournal("colPnl"),
+    tJournal("colEmotion"),
+  ];
+
   return (
     <div className="card">
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
         <p className="font-mono text-[10px] uppercase tracking-eyebrow text-muted">
-          Operaciones recientes
+          {t("recentTrades")}
         </p>
         <Link
           href="/journal"
           className="font-mono text-[10px] text-green hover:underline"
         >
-          Ver todas →
+          {t("viewAll")}
         </Link>
       </div>
 
@@ -43,14 +58,14 @@ export default function RecentTradesTable({ trades, loading }: Props) {
       ) : trades.length === 0 ? (
         <div className="p-8 text-center">
           <p className="font-sans text-[13px] text-muted">
-            Aún no tienes operaciones registradas.
+            {t("emptyState")}
           </p>
         </div>
       ) : (
         <>
           {/* Column headers */}
           <div className="hidden sm:grid grid-cols-[1.5fr_1fr_80px_80px_1fr_1fr] gap-3 px-5 py-2 border-b border-white/[0.04]">
-            {["Fecha", "Activo", "Dir.", "Result.", "P&L", "Emoción"].map((h) => (
+            {columns.map((h) => (
               <span key={h} className="font-mono text-[9px] uppercase tracking-[0.1em] text-muted">
                 {h}
               </span>
@@ -58,26 +73,26 @@ export default function RecentTradesTable({ trades, loading }: Props) {
           </div>
 
           {/* Rows */}
-          {trades.map((t) => {
-            const pnl = t.pnl !== null ? parseFloat(t.pnl) : null;
-            const isLong = t.direction === "long";
-            const isWin = t.result === "win";
-            const isLoss = t.result === "loss";
+          {trades.map((trade) => {
+            const pnl = trade.pnl !== null ? parseFloat(trade.pnl) : null;
+            const isLong = trade.direction === "long";
+            const isWin = trade.result === "win";
+            const isLoss = trade.result === "loss";
 
             return (
               <Link
-                key={t.id}
-                href={`/journal/${t.id}`}
+                key={trade.id}
+                href={`/journal/${trade.id}`}
                 className="grid grid-cols-[1fr_1fr_auto] sm:grid-cols-[1.5fr_1fr_80px_80px_1fr_1fr] gap-3 px-5 py-3 border-b border-white/[0.04] hover:bg-white/[0.03] transition-colors duration-100 items-center"
               >
                 {/* Date */}
                 <span className="font-mono text-[11px] text-secondary">
-                  {formatDateShort(t.entry_time)}
+                  {formatDateShort(trade.entry_time)}
                 </span>
 
                 {/* Pair */}
                 <span className="font-sans text-[12px] font-semibold text-primary">
-                  {t.pair}
+                  {trade.pair}
                 </span>
 
                 {/* Direction */}
@@ -86,7 +101,7 @@ export default function RecentTradesTable({ trades, loading }: Props) {
                 </span>
 
                 {/* Result */}
-                {t.result ? (
+                {trade.result ? (
                   <span
                     className={`font-mono text-[10px] px-2 py-[2px] w-fit ${
                       isWin ? "pill-win" : isLoss ? "pill-loss" : "pill-be"
@@ -113,7 +128,7 @@ export default function RecentTradesTable({ trades, loading }: Props) {
 
                 {/* Emotion */}
                 <span className="font-mono text-[10px] text-secondary hidden sm:block">
-                  {t.emotion ? (EMOTION_LABELS[t.emotion] ?? t.emotion) : "—"}
+                  {trade.emotion ? (EMOTION_LABELS[trade.emotion] ?? trade.emotion) : "—"}
                 </span>
               </Link>
             );

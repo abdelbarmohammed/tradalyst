@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { formatRelative } from "@/lib/format";
 import type { AiInsight, TradeStats } from "@/types";
 
@@ -11,6 +14,8 @@ interface Props {
 }
 
 export default function AiInsightCard({ insight, stats, loading }: Props) {
+  const t = useTranslations("aiInsightCard");
+
   if (loading) {
     return (
       <div className="card p-5 flex flex-col gap-3">
@@ -32,16 +37,16 @@ export default function AiInsightCard({ insight, stats, loading }: Props) {
         <div className="flex items-center gap-2 mb-4">
           <span className="w-[7px] h-[7px] rounded-full bg-muted" />
           <span className="font-mono text-[10px] uppercase tracking-eyebrow text-muted">
-            IA · Análisis
+            {t("header")}
           </span>
         </div>
         <p className="font-sans text-[13px] text-secondary leading-relaxed mb-5">
-          Registra {AI_MIN_TRADES} operaciones para activar tu primer análisis de IA.
+          {t("autoGenerate")}
         </p>
         <div className="mb-2">
           <div className="flex justify-between mb-1">
             <span className="font-mono text-[10px] text-muted">
-              {totalTrades} / {AI_MIN_TRADES} operaciones
+              {t("progress", { current: totalTrades, total: AI_MIN_TRADES })}
             </span>
             <span className="font-mono text-[10px] text-muted">{Math.round(pct)}%</span>
           </div>
@@ -53,7 +58,7 @@ export default function AiInsightCard({ insight, stats, loading }: Props) {
           </div>
         </div>
         <Link href="/journal/new" className="mt-auto font-sans text-[12px] font-semibold text-green hover:underline">
-          + Registrar operación
+          {t("logTrade")}
         </Link>
       </div>
     );
@@ -66,17 +71,17 @@ export default function AiInsightCard({ insight, stats, loading }: Props) {
         <div className="flex items-center gap-2 mb-4">
           <span className="w-[7px] h-[7px] rounded-full bg-muted animate-pulse-slow" />
           <span className="font-mono text-[10px] uppercase tracking-eyebrow text-muted">
-            IA · Análisis
+            {t("header")}
           </span>
         </div>
         <p className="font-sans text-[13px] text-secondary leading-relaxed mb-3">
-          Tu análisis semanal se genera automáticamente. Vuelve pronto.
+          {t("autoGenerate")}
         </p>
         <p className="font-mono text-[10px] text-muted mb-5">
-          Tienes {totalTrades} operaciones registradas.
+          {t("tradeCount", { count: totalTrades })}
         </p>
         <Link href="/ai" className="mt-auto font-sans text-[12px] font-semibold text-green hover:underline">
-          Ir a análisis IA →
+          {t("goToAi")}
         </Link>
       </div>
     );
@@ -88,7 +93,7 @@ export default function AiInsightCard({ insight, stats, loading }: Props) {
       <div className="flex items-center gap-2">
         <span className="w-[7px] h-[7px] rounded-full bg-green animate-pulse-slow flex-shrink-0" />
         <span className="font-mono text-[10px] uppercase tracking-eyebrow text-green">
-          IA · Insight semanal
+          {t("weeklyLabel")}
         </span>
         <span className="font-mono text-[9px] text-muted ml-auto whitespace-nowrap">
           {formatRelative(insight.created_at)}
@@ -98,10 +103,10 @@ export default function AiInsightCard({ insight, stats, loading }: Props) {
         {insight.content.length > 300 ? `${insight.content.slice(0, 300)}…` : insight.content}
       </p>
       <p className="font-mono text-[9px] text-muted">
-        Período: {insight.period_start} → {insight.period_end} · {insight.trade_count} ops
+        {t("period", { start: insight.period_start, end: insight.period_end, count: insight.trade_count })}
       </p>
       <Link href="/ai" className="font-sans text-[12px] font-semibold text-green hover:underline">
-        Hablar con la IA →
+        {t("chatCta")}
       </Link>
     </div>
   );

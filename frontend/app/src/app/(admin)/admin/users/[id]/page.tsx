@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { ChevronLeft, AlertCircle, X } from "lucide-react";
 import { get, patch, del } from "@/lib/api";
 import { formatDateMedium } from "@/lib/format";
@@ -19,31 +20,11 @@ interface AdminUser {
 
 type ConfirmAction = "suspend" | "activate" | "delete" | null;
 
-const ACTION_LABELS: Record<NonNullable<ConfirmAction>, { title: string; body: string; confirm: string; danger: boolean }> = {
-  suspend: {
-    title: "Suspender cuenta",
-    body: "El usuario perderá acceso inmediatamente. Podrás reactivarla más tarde.",
-    confirm: "Suspender",
-    danger: true,
-  },
-  activate: {
-    title: "Reactivar cuenta",
-    body: "El usuario recuperará acceso a la plataforma.",
-    confirm: "Reactivar",
-    danger: false,
-  },
-  delete: {
-    title: "Eliminar cuenta",
-    body: "Esta acción es permanente. Todos los datos del usuario serán eliminados y no se pueden recuperar.",
-    confirm: "Eliminar permanentemente",
-    danger: true,
-  },
-};
+interface ActionCfg { title: string; body: string; confirm: string; danger: boolean }
 
 function ConfirmModal({
-  action, onConfirm, onCancel, loading,
-}: { action: NonNullable<ConfirmAction>; onConfirm: () => void; onCancel: () => void; loading: boolean }) {
-  const cfg = ACTION_LABELS[action];
+  cfg, onConfirm, onCancel, loading, confirmActionLabel, cancelLabel, processingLabel,
+}: { cfg: ActionCfg; onConfirm: () => void; onCancel: () => void; loading: boolean; confirmActionLabel: string; cancelLabel: string; processingLabel: string }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/60" onClick={onCancel} />
@@ -51,19 +32,19 @@ function ConfirmModal({
         <button onClick={onCancel} className="absolute top-4 right-4 text-muted hover:text-primary">
           <X size={14} />
         </button>
-        <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted mb-3">Confirmar acción</p>
+        <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted mb-3">{confirmActionLabel}</p>
         <p className="font-sans text-[14px] font-semibold text-primary mb-2">{cfg.title}</p>
         <p className="font-sans text-[13px] text-secondary mb-6">{cfg.body}</p>
         <div className="flex gap-2">
           <button onClick={onCancel} disabled={loading}
             className="flex-1 font-sans text-[13px] px-4 py-[9px] border border-white/[0.12] text-secondary hover:text-primary transition-colors disabled:opacity-50">
-            Cancelar
+            {cancelLabel}
           </button>
           <button onClick={onConfirm} disabled={loading}
             className={`flex-1 font-sans text-[13px] font-semibold px-4 py-[9px] transition-colors disabled:opacity-50 ${
               cfg.danger ? "bg-loss/80 hover:bg-loss text-white" : "bg-green hover:bg-green-hover text-white"
             }`}>
-            {loading ? "Procesando…" : cfg.confirm}
+            {loading ? processingLabel : cfg.confirm}
           </button>
         </div>
       </div>
@@ -82,6 +63,28 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 export default function AdminUserDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const t = useTranslations("adminUserDetail");
+
+  const ACTION_LABELS: Record<NonNullable<ConfirmAction>, ActionCfg> = {
+    suspend: {
+      title: t("suspendTitle"),
+      body: t("suspendBody"),
+      confirm: t("suspendConfirm"),
+      danger: true,
+    },
+    activate: {
+      title: t("activateTitle"),
+      body: t("activateBody"),
+      confirm: t("activateConfirm"),
+      danger: false,
+    },
+    delete: {
+      title: t("deleteTitle"),
+      body: t("deleteBody"),
+      confirm: t("deleteConfirm"),
+      danger: true,
+    },
+  };
 
   const [user, setUser] = useState<AdminUser | null>(null);
   const [loading, setLoading] = useState(true);
@@ -93,7 +96,7 @@ export default function AdminUserDetailPage() {
   useEffect(() => {
     get<AdminUser>(`/api/users/${id}/`)
       .then(setUser)
-      .catch((err) => setError(err instanceof Error ? err.message : "Error al cargar el usuario."))
+      .catch((err) => setError(err instanceof Error ? err.message : t("errorLoad")))
       .finally(() => setLoading(false));
   }, [id]);
 
@@ -110,10 +113,10 @@ export default function AdminUserDetailPage() {
         is_active: confirmAction === "activate",
       });
       setUser(updated);
-      setSuccessMsg(confirmAction === "activate" ? "Cuenta reactivada." : "Cuenta suspendida.");
+      setSuccessMsg(confirmAction === "activate" ? t("successActivated") : t("successSuspended"));
       setTimeout(() => setSuccessMsg(null), 3000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al ejecutar la acción.");
+      setError(err instanceof Error ? err.message : t("errorAction"));
     } finally {
       setActionLoading(false);
       setConfirmAction(null);
@@ -137,7 +140,7 @@ export default function AdminUserDetailPage() {
       <div className="max-w-[700px] mx-auto">
         <p className="font-sans text-[14px] text-loss">{error}</p>
         <Link href="/admin/users" className="font-mono text-[11px] text-green hover:underline mt-3 inline-block">
-          ← Volver a usuarios
+          {t("backToUsers")}
         </Link>
       </div>
     );
@@ -149,10 +152,13 @@ export default function AdminUserDetailPage() {
     <>
       {confirmAction && (
         <ConfirmModal
-          action={confirmAction}
+          cfg={ACTION_LABELS[confirmAction]}
           onConfirm={executeAction}
           onCancel={() => setConfirmAction(null)}
           loading={actionLoading}
+          confirmActionLabel={t("confirmAction")}
+          cancelLabel={t("cancelAction")}
+          processingLabel={t("processing")}
         />
       )}
 
@@ -160,7 +166,7 @@ export default function AdminUserDetailPage() {
         <div>
           <Link href="/admin/users" className="inline-flex items-center gap-1 font-mono text-[11px] text-muted hover:text-secondary transition-colors mb-3">
             <ChevronLeft size={12} />
-            Usuarios
+            {t("backLink")}
           </Link>
           <h1 className="font-sans text-[22px] font-bold text-primary leading-tight">
             {user.display_name || user.email}
@@ -183,12 +189,12 @@ export default function AdminUserDetailPage() {
 
         {/* ── Profile ── */}
         <div className="card p-5">
-          <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted mb-1">Perfil</p>
-          <Field label="ID">{user.id}</Field>
-          <Field label="Email">{user.email}</Field>
-          <Field label="Nombre">{user.display_name || <span className="text-muted">—</span>}</Field>
-          <Field label="Bio">{user.bio || <span className="text-muted">—</span>}</Field>
-          <Field label="Rol">
+          <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted mb-1">{t("sectionProfile")}</p>
+          <Field label={t("fieldId")}>{user.id}</Field>
+          <Field label={t("fieldEmail")}>{user.email}</Field>
+          <Field label={t("fieldName")}>{user.display_name || <span className="text-muted">—</span>}</Field>
+          <Field label={t("fieldBio")}>{user.bio || <span className="text-muted">—</span>}</Field>
+          <Field label={t("fieldRole")}>
             <span className={`font-mono text-[10px] uppercase tracking-[0.08em] px-2 py-[3px] ${
               user.role === "trader" ? "text-secondary border border-white/[0.1]"
               : user.role === "mentor" ? "text-green/80 border border-green/20"
@@ -197,38 +203,38 @@ export default function AdminUserDetailPage() {
               {user.role}
             </span>
           </Field>
-          <Field label="Estado">
+          <Field label={t("fieldStatus")}>
             <span className={`font-mono text-[11px] ${user.is_active ? "text-profit" : "text-loss"}`}>
-              {user.is_active ? "Activo" : "Suspendido"}
+              {user.is_active ? t("statusActive") : t("statusSuspended")}
             </span>
           </Field>
-          <Field label="Registrado">{formatDateMedium(user.date_joined)}</Field>
+          <Field label={t("fieldJoined")}>{formatDateMedium(user.date_joined)}</Field>
         </div>
 
         {/* ── Actions ── */}
         <div className="card p-5">
-          <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted mb-4">Acciones</p>
+          <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted mb-4">{t("sectionActions")}</p>
           <div className="flex flex-col sm:flex-row gap-2">
             {user.is_active ? (
               <button
                 onClick={() => setConfirmAction("suspend")}
                 className="font-sans text-[13px] font-semibold px-4 py-[9px] border border-loss/30 text-loss hover:bg-loss/[0.08] transition-colors"
               >
-                Suspender cuenta
+                {t("suspend")}
               </button>
             ) : (
               <button
                 onClick={() => setConfirmAction("activate")}
                 className="font-sans text-[13px] font-semibold px-4 py-[9px] bg-green hover:bg-green-hover text-white transition-colors"
               >
-                Reactivar cuenta
+                {t("activate")}
               </button>
             )}
             <button
               onClick={() => setConfirmAction("delete")}
               className="font-sans text-[13px] px-4 py-[9px] border border-white/[0.1] text-muted hover:text-loss hover:border-loss/30 transition-colors"
             >
-              Eliminar cuenta
+              {t("delete")}
             </button>
           </div>
         </div>

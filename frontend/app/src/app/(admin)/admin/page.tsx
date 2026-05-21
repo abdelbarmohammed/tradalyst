@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { AlertCircle, Users, TrendingUp, Shield, BookOpen } from "lucide-react";
 import { get } from "@/lib/api";
 import { formatDateMedium } from "@/lib/format";
@@ -43,6 +44,8 @@ function StatTile({ label, value, icon: Icon, href }: { label: string; value: st
 }
 
 export default function AdminPage() {
+  const t = useTranslations("adminHome");
+
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -54,7 +57,7 @@ export default function AdminPage() {
         setUsers(res.results);
         setTotal(res.count);
       })
-      .catch((err) => setError(err instanceof Error ? err.message : "Error al cargar los datos."))
+      .catch((err) => setError(err instanceof Error ? err.message : t("errorLoad")))
       .finally(() => setLoading(false));
   }, []);
 
@@ -69,8 +72,8 @@ export default function AdminPage() {
   return (
     <div className="max-w-[1000px] mx-auto space-y-6">
       <div>
-        <h1 className="font-sans text-[22px] font-bold text-primary leading-tight">Panel de administración</h1>
-        <p className="font-mono text-[11px] text-muted mt-[3px]">Vista general de la plataforma</p>
+        <h1 className="font-sans text-[22px] font-bold text-primary leading-tight">{t("title")}</h1>
+        <p className="font-mono text-[11px] text-muted mt-[3px]">{t("subtitle")}</p>
       </div>
 
       {error && (
@@ -87,10 +90,10 @@ export default function AdminPage() {
         </div>
       ) : (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <StatTile label="Usuarios totales" value={total} icon={Users} href="/admin/users" />
-          <StatTile label="Traders" value={counts.traders} icon={TrendingUp} />
-          <StatTile label="Mentores" value={counts.mentors} icon={BookOpen} />
-          <StatTile label="Admins" value={counts.admins} icon={Shield} />
+          <StatTile label={t("totalUsers")} value={total} icon={Users} href="/admin/users" />
+          <StatTile label={t("traders")} value={counts.traders} icon={TrendingUp} />
+          <StatTile label={t("mentors")} value={counts.mentors} icon={BookOpen} />
+          <StatTile label={t("admins")} value={counts.admins} icon={Shield} />
         </div>
       )}
 
@@ -98,10 +101,10 @@ export default function AdminPage() {
       <div>
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-sans text-[15px] font-semibold text-primary">
-            Registros recientes
+            {t("recentUsers")}
           </h2>
           <Link href="/admin/users" className="font-mono text-[11px] text-green hover:underline">
-            Ver todos →
+            {t("viewAll")}
           </Link>
         </div>
 
@@ -112,7 +115,7 @@ export default function AdminPage() {
             </div>
           ) : users.length === 0 ? (
             <div className="p-10 text-center">
-              <p className="font-sans text-[14px] text-secondary">No hay usuarios registrados.</p>
+              <p className="font-sans text-[14px] text-secondary">{t("noUsers")}</p>
             </div>
           ) : (
             users.slice(0, 8).map((user) => (
@@ -137,7 +140,7 @@ export default function AdminPage() {
                   </span>
                   {!user.is_active && (
                     <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-loss border border-loss/30 px-2 py-[3px]">
-                      Suspendido
+                      {t("suspended")}
                     </span>
                   )}
                   <span className="font-mono text-[10px] text-muted hidden sm:inline">

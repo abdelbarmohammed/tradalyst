@@ -3,6 +3,8 @@ import Sidebar from "@/components/layout/Sidebar";
 import BottomNav from "@/components/layout/BottomNav";
 import MentorSidebar from "@/components/layout/MentorSidebar";
 import MentorBottomNav from "@/components/layout/MentorBottomNav";
+import AdminSidebar from "@/components/layout/AdminSidebar";
+import AdminBottomNav from "@/components/layout/AdminBottomNav";
 import TickerTapeWrapper from "@/components/layout/TickerTapeWrapper";
 
 function getRoleFromCookie(): string | null {
@@ -20,6 +22,21 @@ function getRoleFromCookie(): string | null {
 export default function TraderLayout({ children }: { children: React.ReactNode }) {
   const role = getRoleFromCookie();
   const isMentor = role === "mentor";
+  const isAdmin = role === "admin";
+
+  if (isAdmin) {
+    return (
+      <div className="flex min-h-screen bg-base">
+        <AdminSidebar />
+        <div className="flex-1 flex flex-col min-w-0">
+          <main className="flex-1 p-5 lg:p-7 pb-20 lg:pb-7 overflow-auto">
+            {children}
+          </main>
+        </div>
+        <AdminBottomNav />
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-base">

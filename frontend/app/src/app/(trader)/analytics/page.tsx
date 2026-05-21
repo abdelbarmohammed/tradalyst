@@ -1,16 +1,19 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { get } from "@/lib/api";
 import { formatPnl, formatPct } from "@/lib/format";
 import type { Trade, PaginatedTrades } from "@/types";
 
-// ── Constants ─────────────────────────────────────────────────────────────────
-
-const MONTHS_ES = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
-
 // ── Helpers ───────────────────────────────────────────────────────────────────
+
+function getMonthShort(month0: number, locale: string): string {
+  return new Date(2024, month0, 1).toLocaleDateString(
+    locale === "en" ? "en-US" : "es-ES",
+    { month: "short" }
+  );
+}
 
 function closedTrades(trades: Trade[]) {
   return trades.filter((t) => t.pnl !== null);
@@ -162,9 +165,13 @@ const DD_PAD = { top: 20, right: 16, bottom: 32, left: 64 };
 function DrawdownAreaChart({
   points,
   emptyLabel,
+  locale,
+  maxDrawdownLabel,
 }: {
   points: { date: string; value: number }[];
   emptyLabel: string;
+  locale: string;
+  maxDrawdownLabel: (value: string) => string;
 }) {
   if (!points.length) return <EmptyChart label={emptyLabel} />;
 
@@ -213,7 +220,7 @@ function DrawdownAreaChart({
   const xLabels = labelIndices
     .map((i) => {
       const [, m] = points[i].date.split("-").map(Number);
-      return { i, label: MONTHS_ES[m - 1] };
+      return { i, label: getMonthShort(m - 1, locale) };
     })
     .filter((item, idx, arr) => idx === 0 || item.label !== arr[idx - 1].label);
 
@@ -261,7 +268,7 @@ function DrawdownAreaChart({
         fontSize="9"
         fill="#f06060"
       >
-        {`Máx. drawdown: -€${Math.abs(minPt.value).toFixed(0)}`}
+        {maxDrawdownLabel(Math.abs(minPt.value).toFixed(0))}
       </text>
 
       {/* X axis labels */}
@@ -358,6 +365,7 @@ function ChartCard({
 export default function AnalyticsPage() {
   const t = useTranslations("analytics");
   const tJournal = useTranslations("journal");
+  const locale = useLocale();
 
   const [trades, setTrades] = useState<Trade[]>([]);
   const [loading, setLoading] = useState(true);
@@ -405,7 +413,7 @@ export default function AnalyticsPage() {
         .map(([key, ts]) => {
           const [, m, d] = key.split("-").map(Number);
           return {
-            label: `${d} ${MONTHS_ES[m - 1]}`,
+            label: `${d} ${getMonthShort(m - 1, locale)}`,
             value: ts.reduce((s, t) => s + pnlNum(t), 0),
           };
         });
@@ -417,7 +425,7 @@ export default function AnalyticsPage() {
       .map(([key, ts]) => {
         const [y, m] = key.split("-").map(Number);
         return {
-          label: `${MONTHS_ES[m - 1]} ${String(y).slice(2)}`,
+          label: `${getMonthShort(m - 1, locale)} ${String(y).slice(2)}`,
           value: ts.reduce((s, t) => s + pnlNum(t), 0),
         };
       });
@@ -699,7 +707,12 @@ export default function AnalyticsPage() {
 
       {/* Drawdown acumulado */}
       <ChartCard title={t("chartDrawdown")} loading={loading}>
-        <DrawdownAreaChart points={drawdownPoints} emptyLabel={noData} />
+        <DrawdownAreaChart
+          points={drawdownPoints}
+          emptyLabel={noData}
+          locale={locale}
+          maxDrawdownLabel={(value) => t("maxDrawdown", { value })}
+        />
       </ChartCard>
 
     </div>

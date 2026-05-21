@@ -2,15 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations, useLocale } from "next-intl";
 import type { HeatmapDay } from "@/types";
-
-const DAYS_ES = ["L", "M", "X", "J", "V", "S", "D"];
-const MONTHS_ES = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
-const EMOTION_ES: Record<string, string> = {
-  calm: "Tranquilo", confident: "Confiado", fearful: "Incierto",
-  greedy: "Codicioso", anxious: "Ansioso", fomo: "FOMO",
-  revenge: "Revenge", neutral: "Neutral",
-};
 
 const WEEKS = 26;
 const CELL = 12;
@@ -31,15 +24,22 @@ function heatColor(pnl: number, maxAbs: number): string {
     : `rgba(240,96,96,${opacity})`;
 }
 
-function formatTooltipDate(iso: string): string {
+function formatTooltipDate(iso: string, locale: string): string {
   const [y, m, d] = iso.split("-").map(Number);
-  return new Date(y, m - 1, d).toLocaleDateString("es-ES", {
+  return new Date(y, m - 1, d).toLocaleDateString(locale === "en" ? "en-US" : "es-ES", {
     weekday: "long", day: "numeric", month: "long", year: "numeric",
   });
 }
 
 function formatPnl(n: number): string {
   return `${n >= 0 ? "+" : ""}${n.toFixed(2)}€`;
+}
+
+function getMonthShort(month0: number, locale: string): string {
+  return new Date(2024, month0, 1).toLocaleDateString(
+    locale === "en" ? "en-US" : "es-ES",
+    { month: "short" }
+  );
 }
 
 interface Props {
@@ -49,7 +49,26 @@ interface Props {
 
 export default function ActivityHeatmap({ data, loading }: Props) {
   const router = useRouter();
+  const locale = useLocale();
+  const t = useTranslations("dashboard");
+  const tJournal = useTranslations("journal");
+
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
+
+  const DAYS = locale === "en"
+    ? ["M", "T", "W", "T", "F", "S", "S"]
+    : ["L", "M", "X", "J", "V", "S", "D"];
+
+  const EMOTION_LABELS: Record<string, string> = {
+    calm:      tJournal("emotions.calm"),
+    confident: tJournal("emotions.confident"),
+    fearful:   tJournal("emotions.fearful"),
+    greedy:    tJournal("emotions.greedy"),
+    anxious:   tJournal("emotions.anxious"),
+    fomo:      "FOMO",
+    revenge:   "Revenge",
+    neutral:   tJournal("emotions.neutral"),
+  };
 
   if (loading) {
     return (
@@ -89,7 +108,7 @@ export default function ActivityHeatmap({ data, loading }: Props) {
     mondayDate.setDate(gridEnd.getDate() - w * 7 - 6);
     const month = mondayDate.getMonth();
     if (month !== prevMonth) {
-      monthLabels.push({ weekIndex, label: MONTHS_ES[month] });
+      monthLabels.push({ weekIndex, label: getMonthShort(month, locale) });
       prevMonth = month;
     }
     weeks.push(week);
@@ -100,7 +119,7 @@ export default function ActivityHeatmap({ data, loading }: Props) {
   return (
     <div className="card p-5">
       <p className="font-mono text-[10px] uppercase tracking-eyebrow text-muted mb-3">
-        Actividad · 26 semanas
+        {t("heatmapTitle")}
       </p>
 
       <div className="overflow-x-auto">
@@ -123,9 +142,9 @@ export default function ActivityHeatmap({ data, loading }: Props) {
           <div style={{ display: "flex", gap: 4 }}>
             {/* Day labels */}
             <div style={{ display: "flex", flexDirection: "column", gap: GAP, width: DAY_LABEL_W, flexShrink: 0 }}>
-              {DAYS_ES.map((label, i) => (
+              {DAYS.map((label, i) => (
                 <div
-                  key={label}
+                  key={`${label}-${i}`}
                   className="font-mono text-muted flex items-center justify-end"
                   style={{
                     height: CELL,
@@ -186,18 +205,18 @@ export default function ActivityHeatmap({ data, loading }: Props) {
       {/* Legend */}
       <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-4">
         <div className="flex items-center gap-[3px]">
-          <span className="font-mono text-[8px] text-muted mr-1">Menos</span>
+          <span className="font-mono text-[8px] text-muted mr-1">{t("heatmapLessLabel")}</span>
           {[0.3, 0.5, 0.7, 0.85, 1.0].map((o) => (
             <div key={o} style={{ width: CELL, height: CELL, borderRadius: 2, background: `rgba(47,172,102,${o})`, flexShrink: 0 }} />
           ))}
-          <span className="font-mono text-[8px] text-muted ml-1">Más</span>
+          <span className="font-mono text-[8px] text-muted ml-1">{t("heatmapMoreLabel")}</span>
         </div>
         <div className="flex items-center gap-[3px]">
-          <span className="font-mono text-[8px] text-muted mr-1">Menos</span>
+          <span className="font-mono text-[8px] text-muted mr-1">{t("heatmapLessLabel")}</span>
           {[0.3, 0.5, 0.7, 0.85, 1.0].map((o) => (
             <div key={o} style={{ width: CELL, height: CELL, borderRadius: 2, background: `rgba(240,96,96,${o})`, flexShrink: 0 }} />
           ))}
-          <span className="font-mono text-[8px] text-muted ml-1">Más</span>
+          <span className="font-mono text-[8px] text-muted ml-1">{t("heatmapMoreLabel")}</span>
         </div>
       </div>
 
@@ -216,13 +235,15 @@ export default function ActivityHeatmap({ data, loading }: Props) {
             style={{ backgroundColor: "var(--elevated)", border: "1px solid var(--border)" }}
           >
             <p className="font-mono text-[9px] text-muted mb-2 capitalize leading-tight">
-              {formatTooltipDate(tooltip.day.date)}
+              {formatTooltipDate(tooltip.day.date, locale)}
             </p>
             <p className={`font-mono text-[14px] font-semibold mb-[6px] ${tooltip.day.pnl >= 0 ? "text-profit" : "text-loss"}`}>
               {formatPnl(tooltip.day.pnl)}
             </p>
             <p className="font-mono text-[10px] text-secondary mb-2">
-              {tooltip.day.tradeCount} operación{tooltip.day.tradeCount !== 1 ? "es" : ""}
+              {tooltip.day.tradeCount === 1
+                ? tJournal("tradeCountSingle")
+                : tJournal("tradeCountPlural", { count: tooltip.day.tradeCount })}
             </p>
             {tooltip.day.bestTrade && (
               <div className="flex items-center gap-1 mb-[6px]">
@@ -236,7 +257,7 @@ export default function ActivityHeatmap({ data, loading }: Props) {
             {tooltip.day.emotions && Object.keys(tooltip.day.emotions).length > 0 && (
               <p className="font-mono text-[9px] text-muted leading-relaxed">
                 {Object.entries(tooltip.day.emotions)
-                  .map(([e, c]) => `${EMOTION_ES[e] ?? e}${c > 1 ? ` ×${c}` : ""}`)
+                  .map(([e, c]) => `${EMOTION_LABELS[e] ?? e}${c > 1 ? ` ×${c}` : ""}`)
                   .join(" · ")}
               </p>
             )}

@@ -3,16 +3,11 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { ChevronLeft, Send } from "lucide-react";
 import { get, post } from "@/lib/api";
 import { formatPnl, formatDateShort, formatDateTime, formatRelative } from "@/lib/format";
 import type { Trade, PaginatedTrades, MentorAnnotation } from "@/types";
-
-const EMOTION_LABELS: Record<string, string> = {
-  calm: "Tranquilo", confident: "Confiado", fearful: "Incierto",
-  greedy: "Codicioso", anxious: "Ansioso", fomo: "FOMO",
-  revenge: "Revenge", neutral: "Neutral",
-};
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -25,6 +20,19 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 
 export default function MentorTradeDetailPage() {
   const { traderId, id } = useParams<{ traderId: string; id: string }>();
+  const t = useTranslations("mentorTradeDetail");
+  const tJournal = useTranslations("journal");
+
+  const EMOTION_LABELS: Record<string, string> = {
+    calm:      tJournal("emotions.calm"),
+    confident: tJournal("emotions.confident"),
+    fearful:   tJournal("emotions.fearful"),
+    greedy:    tJournal("emotions.greedy"),
+    anxious:   tJournal("emotions.anxious"),
+    fomo:      "FOMO",
+    revenge:   "Revenge",
+    neutral:   tJournal("emotions.neutral"),
+  };
 
   const [trade, setTrade] = useState<Trade | null>(null);
   const [annotations, setAnnotations] = useState<MentorAnnotation[]>([]);
@@ -42,10 +50,10 @@ export default function MentorTradeDetailPage() {
         if (found) {
           setTrade(found);
         } else {
-          setError("Operación no encontrada.");
+          setError(t("errorNotFound"));
         }
       })
-      .catch(() => setError("Error al cargar la operación."))
+      .catch(() => setError(t("errorLoad")))
       .finally(() => setLoadingTrade(false));
   }, [traderId, id]);
 
@@ -66,7 +74,7 @@ export default function MentorTradeDetailPage() {
       setAnnotations((prev) => [created, ...prev]);
       setNewNote("");
     } catch (err) {
-      setNoteError(err instanceof Error ? err.message : "Error al guardar la anotación.");
+      setNoteError(err instanceof Error ? err.message : t("annotationError"));
     } finally {
       setSubmitting(false);
     }
@@ -91,9 +99,9 @@ export default function MentorTradeDetailPage() {
   if (error || !trade) {
     return (
       <div className="max-w-[900px] mx-auto">
-        <p className="font-sans text-[14px] text-loss">{error ?? "Operación no encontrada."}</p>
+        <p className="font-sans text-[14px] text-loss">{error ?? t("errorNotFound")}</p>
         <Link href={`/mentor/${traderId}`} className="font-mono text-[11px] text-green hover:underline mt-3 inline-block">
-          ← Volver al diario
+          {t("backToJournal")}
         </Link>
       </div>
     );
@@ -114,7 +122,7 @@ export default function MentorTradeDetailPage() {
           className="inline-flex items-center gap-1 font-mono text-[11px] text-muted hover:text-secondary transition-colors mb-3"
         >
           <ChevronLeft size={12} />
-          Diario del trader
+          {t("backLink")}
         </Link>
         <h1 className="font-sans text-[22px] font-bold text-primary leading-tight">{trade.pair}</h1>
         <p className="font-mono text-[11px] text-muted mt-[3px]">
@@ -128,52 +136,52 @@ export default function MentorTradeDetailPage() {
         {/* Left — trade fields */}
         <div className="space-y-4">
           <div className="card p-5">
-            <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted mb-1">Detalles</p>
-            <Row label="Dirección">
+            <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted mb-1">{t("sectionDetails")}</p>
+            <Row label={tJournal("detailDirection")}>
               <span className={`inline-block font-mono text-[10px] px-2 py-[2px] ${isLong ? "pill-long" : "pill-short"}`}>
                 {isLong ? "Long" : "Short"}
               </span>
             </Row>
-            <Row label="Resultado">
+            <Row label={tJournal("detailResult")}>
               {trade.result ? (
                 <span className={`inline-block font-mono text-[10px] px-2 py-[2px] ${isWin ? "pill-win" : isLoss ? "pill-loss" : "pill-be"}`}>
                   {isWin ? "Win" : isLoss ? "Loss" : "Breakeven"}
                 </span>
               ) : <span className="text-muted">—</span>}
             </Row>
-            <Row label="P&L">
+            <Row label={tJournal("detailPnl")}>
               {pnl !== null ? (
                 <span className={pnl >= 0 ? "text-profit" : "text-loss"}>{formatPnl(pnl)}</span>
               ) : <span className="text-muted">—</span>}
             </Row>
-            <Row label="Precio entrada">
+            <Row label={tJournal("detailEntryPrice")}>
               {parseFloat(trade.entry_price).toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 8 })}
             </Row>
-            <Row label="Precio salida">
+            <Row label={tJournal("detailExitPrice")}>
               {trade.exit_price
                 ? parseFloat(trade.exit_price).toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 8 })
                 : <span className="text-muted">—</span>}
             </Row>
-            <Row label="Cantidad">
+            <Row label={tJournal("detailQuantity")}>
               {parseFloat(trade.quantity).toLocaleString("es-ES", { minimumFractionDigits: 0, maximumFractionDigits: 8 })}
             </Row>
             {trade.risk_reward_ratio && (
-              <Row label="Risk/Reward">{parseFloat(trade.risk_reward_ratio).toFixed(2)}</Row>
+              <Row label={tJournal("detailRR")}>{parseFloat(trade.risk_reward_ratio).toFixed(2)}</Row>
             )}
-            <Row label="Entrada">{formatDateShort(trade.entry_time)}</Row>
-            {trade.exit_time && <Row label="Salida">{formatDateShort(trade.exit_time)}</Row>}
-            <Row label="Emoción">
+            <Row label={tJournal("detailEntryDate")}>{formatDateShort(trade.entry_time)}</Row>
+            {trade.exit_time && <Row label={tJournal("detailExitDate")}>{formatDateShort(trade.exit_time)}</Row>}
+            <Row label={tJournal("detailEmotion")}>
               {trade.emotion ? (EMOTION_LABELS[trade.emotion] ?? trade.emotion) : <span className="text-muted">—</span>}
             </Row>
           </div>
 
           {/* Trader's notes */}
           <div className="card p-5">
-            <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted mb-3">Razonamiento del trader</p>
+            <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted mb-3">{t("sectionNotes")}</p>
             {trade.notes ? (
               <p className="font-sans text-[13px] text-secondary leading-relaxed whitespace-pre-wrap">{trade.notes}</p>
             ) : (
-              <p className="font-sans text-[13px] text-muted italic">El trader no añadió notas.</p>
+              <p className="font-sans text-[13px] text-muted italic">{t("noNotes")}</p>
             )}
           </div>
         </div>
@@ -182,7 +190,7 @@ export default function MentorTradeDetailPage() {
         <div className="card p-5 flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted">
-              Mis anotaciones
+              {t("sectionAnnotations")}
             </p>
             {annotations.length > 0 && (
               <span className="font-mono text-[9px] text-muted">{annotations.length}</span>
@@ -194,7 +202,7 @@ export default function MentorTradeDetailPage() {
             <textarea
               value={newNote}
               onChange={(e) => setNewNote(e.target.value)}
-              placeholder="Añadir anotación…"
+              placeholder={t("annotationPlaceholder")}
               rows={3}
               className="w-full bg-base border border-white/[0.08] px-3 py-2 font-sans text-[13px] text-primary placeholder:text-muted focus:outline-none focus:border-white/20 transition-colors resize-none"
             />
@@ -205,7 +213,7 @@ export default function MentorTradeDetailPage() {
               className="flex items-center gap-2 font-sans text-[12px] font-semibold bg-green hover:bg-green-hover text-white px-4 py-[8px] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <Send size={12} />
-              {submitting ? "Guardando…" : "Guardar anotación"}
+              {submitting ? t("annotationSaving") : t("annotationSave")}
             </button>
           </div>
 
@@ -216,7 +224,7 @@ export default function MentorTradeDetailPage() {
                 {[...Array(2)].map((_, i) => <div key={i} className="skeleton h-16 w-full rounded-sm" />)}
               </div>
             ) : annotations.length === 0 ? (
-              <p className="font-sans text-[12px] text-muted">Todavía no has anotado nada en esta operación.</p>
+              <p className="font-sans text-[12px] text-muted">{t("annotationEmpty")}</p>
             ) : (
               annotations.map((annotation) => (
                 <div key={annotation.id} className="bg-base border border-white/[0.06] p-3">

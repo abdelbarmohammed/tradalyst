@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   ChevronLeft, ChevronRight, Eye, LayoutDashboard, AlertCircle,
 } from "lucide-react";
@@ -23,12 +24,6 @@ interface Filters {
 
 const EMPTY_FILTERS: Filters = { pair: "", direction: "", result: "", after: "", before: "" };
 const PAGE_SIZE = 20;
-
-const EMOTION_LABELS: Record<string, string> = {
-  calm: "Tranquilo", confident: "Confiado", fearful: "Incierto",
-  greedy: "Codicioso", anxious: "Ansioso", fomo: "FOMO",
-  revenge: "Revenge", neutral: "Neutral",
-};
 
 function TabGroup<T extends string>({
   options, value, onChange,
@@ -53,6 +48,20 @@ function TabGroup<T extends string>({
 export default function MentorTraderJournalPage() {
   const { traderId } = useParams<{ traderId: string }>();
   const router = useRouter();
+  const t = useTranslations("mentorTraderJournal");
+  const tJournal = useTranslations("journal");
+  const tCommon = useTranslations("common");
+
+  const EMOTION_LABELS: Record<string, string> = {
+    calm:      tJournal("emotions.calm"),
+    confident: tJournal("emotions.confident"),
+    fearful:   tJournal("emotions.fearful"),
+    greedy:    tJournal("emotions.greedy"),
+    anxious:   tJournal("emotions.anxious"),
+    fomo:      "FOMO",
+    revenge:   "Revenge",
+    neutral:   tJournal("emotions.neutral"),
+  };
 
   const [traderName, setTraderName] = useState<string>("");
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
@@ -97,7 +106,7 @@ export default function MentorTraderJournalPage() {
       setTrades(res.results);
       setCount(res.count);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al cargar las operaciones.");
+      setError(err instanceof Error ? err.message : tJournal("errorLoad"));
     } finally {
       setLoading(false);
     }
@@ -130,14 +139,14 @@ export default function MentorTraderJournalPage() {
             className="inline-flex items-center gap-1 font-mono text-[11px] text-muted hover:text-secondary transition-colors mb-3"
           >
             <ChevronLeft size={12} />
-            Mis traders
+            {t("backLink")}
           </Link>
           <h1 className="font-sans text-[22px] font-bold text-primary leading-tight">
-            {traderName || "Cargando…"}
+            {traderName || tCommon("loadingText")}
           </h1>
           {!loading && (
             <p className="font-mono text-[11px] text-muted mt-[3px]">
-              {count} {count === 1 ? "operación" : "operaciones"}
+              {count} {count === 1 ? t("tradeCountOne") : t("tradeCountMany")}
             </p>
           )}
         </div>
@@ -156,7 +165,7 @@ export default function MentorTraderJournalPage() {
           <AlertCircle size={15} className="text-loss flex-shrink-0" />
           <p className="font-sans text-[13px] text-loss">{error}</p>
           <button onClick={() => fetchTrades(filters, page)} className="ml-auto font-mono text-[10px] text-loss underline">
-            Reintentar
+            {t("retry")}
           </button>
         </div>
       )}
@@ -166,7 +175,7 @@ export default function MentorTraderJournalPage() {
         <input
           ref={pairInputRef}
           type="text"
-          placeholder="Buscar por activo (BTC, EURUSD…)"
+          placeholder={t("searchPlaceholder")}
           onChange={(e) => handlePairInput(e.target.value)}
           className="w-full sm:w-64 bg-surface border border-white/[0.08] px-3 py-[8px] font-mono text-[12px] text-primary placeholder:text-muted focus:outline-none focus:border-white/20 transition-colors"
         />
@@ -174,7 +183,7 @@ export default function MentorTraderJournalPage() {
           <div className="flex items-center gap-2">
             <span className="font-mono text-[9px] uppercase text-muted tracking-[0.1em]">Dir.</span>
             <TabGroup
-              options={[{ value: "" as DirectionFilter, label: "Todos" }, { value: "long", label: "Long" }, { value: "short", label: "Short" }]}
+              options={[{ value: "" as DirectionFilter, label: t("filterAll") }, { value: "long", label: "Long" }, { value: "short", label: "Short" }]}
               value={filters.direction}
               onChange={(v) => handleFilterChange("direction", v)}
             />
@@ -182,18 +191,18 @@ export default function MentorTraderJournalPage() {
           <div className="flex items-center gap-2">
             <span className="font-mono text-[9px] uppercase text-muted tracking-[0.1em]">Result.</span>
             <TabGroup
-              options={[{ value: "" as ResultFilter, label: "Todos" }, { value: "win", label: "Win" }, { value: "loss", label: "Loss" }, { value: "breakeven", label: "BE" }]}
+              options={[{ value: "" as ResultFilter, label: t("filterAll") }, { value: "win", label: "Win" }, { value: "loss", label: "Loss" }, { value: "breakeven", label: "BE" }]}
               value={filters.result}
               onChange={(v) => handleFilterChange("result", v)}
             />
           </div>
           <div className="flex items-center gap-2">
-            <span className="font-mono text-[9px] uppercase text-muted tracking-[0.1em]">Desde</span>
+            <span className="font-mono text-[9px] uppercase text-muted tracking-[0.1em]">{t("filterFrom")}</span>
             <input type="date" value={filters.after} onChange={(e) => handleFilterChange("after", e.target.value)}
               className="bg-surface border border-white/[0.08] px-2 py-[6px] font-mono text-[11px] text-secondary focus:outline-none focus:border-white/20 transition-colors" />
           </div>
           <div className="flex items-center gap-2">
-            <span className="font-mono text-[9px] uppercase text-muted tracking-[0.1em]">Hasta</span>
+            <span className="font-mono text-[9px] uppercase text-muted tracking-[0.1em]">{t("filterTo")}</span>
             <input type="date" value={filters.before} onChange={(e) => handleFilterChange("before", e.target.value)}
               className="bg-surface border border-white/[0.08] px-2 py-[6px] font-mono text-[11px] text-secondary focus:outline-none focus:border-white/20 transition-colors" />
           </div>
@@ -203,7 +212,7 @@ export default function MentorTraderJournalPage() {
       {/* ── Table ── */}
       <div className="card overflow-x-auto">
         <div className="hidden lg:grid grid-cols-[140px_120px_70px_100px_100px_90px_80px_100px_60px] gap-2 px-5 py-3 border-b border-white/[0.06]">
-          {["Fecha", "Activo", "Dir.", "Entrada", "Salida", "P&L", "Result.", "Emoción", "Ver"].map((h) => (
+          {[tJournal("colDate"), tJournal("colPair"), tJournal("colDir"), tJournal("colEntry"), tJournal("colExit"), tJournal("colPnl"), tJournal("colResult"), tJournal("colEmotion"), tJournal("colActions")].map((h) => (
             <span key={h} className="font-mono text-[9px] uppercase tracking-[0.1em] text-muted">{h}</span>
           ))}
         </div>
@@ -215,7 +224,7 @@ export default function MentorTraderJournalPage() {
         ) : trades.length === 0 ? (
           <div className="p-16 text-center">
             <p className="font-sans text-[14px] text-secondary">
-              Este trader aún no tiene operaciones registradas.
+              {t("noTrades")}
             </p>
           </div>
         ) : (
@@ -270,7 +279,7 @@ export default function MentorTraderJournalPage() {
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
           <span className="font-mono text-[10px] text-muted">
-            Página {page} de {totalPages} · {count} resultados
+            {t("pageInfo", { page, total: totalPages, count })}
           </span>
           <div className="flex items-center gap-1">
             <button disabled={page <= 1} onClick={() => setPage((p) => p - 1)}

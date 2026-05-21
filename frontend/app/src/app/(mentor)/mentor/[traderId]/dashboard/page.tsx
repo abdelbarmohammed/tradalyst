@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { ChevronLeft, BookOpen, AlertCircle } from "lucide-react";
 import { get } from "@/lib/api";
 import { formatPnl, formatPct, formatRR, formatCount, formatDateShort } from "@/lib/format";
@@ -75,6 +76,8 @@ async function fetchAllTrades(traderId: string): Promise<Trade[]> {
 
 export default function MentorTraderDashboardPage() {
   const { traderId } = useParams<{ traderId: string }>();
+  const t = useTranslations("mentorDashboard");
+  const tCommon = useTranslations("common");
 
   const [traderName, setTraderName] = useState<string>("");
   const [stats, setStats] = useState<TradeStats | null>(null);
@@ -104,7 +107,7 @@ export default function MentorTraderDashboardPage() {
       setHeatmap(computeHeatmap(allTrades));
       setRecentTrades(recentRes.results);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al cargar los datos.");
+      setError(err instanceof Error ? err.message : t("errorLoad"));
     } finally {
       setLoading(false);
     }
@@ -125,11 +128,11 @@ export default function MentorTraderDashboardPage() {
             className="inline-flex items-center gap-1 font-mono text-[11px] text-muted hover:text-secondary transition-colors mb-3"
           >
             <ChevronLeft size={12} />
-            Mis traders
+            {t("backLink")}
           </Link>
           <div className="flex items-center gap-3">
             <h1 className="font-sans text-[22px] font-bold text-primary leading-tight">
-              {traderName || "Cargando…"}
+              {traderName || tCommon("loadingText")}
             </h1>
             <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-muted border border-white/[0.1] px-2 py-[3px]">
               Dashboard
@@ -141,7 +144,7 @@ export default function MentorTraderDashboardPage() {
           className="flex items-center gap-2 flex-shrink-0 font-sans text-[12px] font-semibold border border-white/[0.12] text-secondary hover:text-primary px-4 py-[8px] transition-colors"
         >
           <BookOpen size={13} />
-          Diario
+          {t("journalLink")}
         </Link>
       </div>
 
@@ -149,7 +152,7 @@ export default function MentorTraderDashboardPage() {
         <div className="flex items-center gap-3 p-4 border border-loss/30 bg-loss/[0.06] rounded-sm">
           <AlertCircle size={15} className="text-loss flex-shrink-0" />
           <p className="font-sans text-[13px] text-loss">{error}</p>
-          <button onClick={fetchData} className="ml-auto font-mono text-[10px] text-loss underline">Reintentar</button>
+          <button onClick={fetchData} className="ml-auto font-mono text-[10px] text-loss underline">{t("retry")}</button>
         </div>
       )}
 
@@ -170,9 +173,9 @@ export default function MentorTraderDashboardPage() {
       {/* ── Recent trades ── */}
       <div className="card">
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
-          <p className="font-mono text-[10px] uppercase tracking-eyebrow text-muted">Operaciones recientes</p>
+          <p className="font-mono text-[10px] uppercase tracking-eyebrow text-muted">{t("recentTrades")}</p>
           <Link href={`/mentor/${traderId}`} className="font-mono text-[10px] text-green hover:underline">
-            Ver todas →
+            {t("viewAll")}
           </Link>
         </div>
         {loading ? (
@@ -181,7 +184,7 @@ export default function MentorTraderDashboardPage() {
           </div>
         ) : recentTrades.length === 0 ? (
           <div className="p-8 text-center">
-            <p className="font-sans text-[13px] text-muted">Sin operaciones registradas.</p>
+            <p className="font-sans text-[13px] text-muted">{t("noTrades")}</p>
           </div>
         ) : (
           recentTrades.map((t) => {

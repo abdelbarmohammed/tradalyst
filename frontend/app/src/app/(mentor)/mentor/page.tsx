@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import {
   AlertCircle, BookOpen, LayoutDashboard, Plus, Search,
   X, Clock, TrendingUp, UserMinus,
@@ -11,6 +12,8 @@ import { formatPnl, formatDateMedium } from "@/lib/format";
 import type { MentorAssignment, MentorRequest } from "@/types";
 
 export default function MentorHomePage() {
+  const t = useTranslations("mentorHome");
+
   const [assignments, setAssignments] = useState<MentorAssignment[]>([]);
   const [sentRequests, setSentRequests] = useState<MentorRequest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -32,7 +35,7 @@ export default function MentorHomePage() {
         setAssignments(traders.results);
         setSentRequests(requests.results.filter((r) => r.status === "pending"));
       })
-      .catch((err) => setError(err instanceof Error ? err.message : "Error al cargar datos."))
+      .catch((err) => setError(err instanceof Error ? err.message : t("errorLoad")))
       .finally(() => setLoading(false));
   }, []);
 
@@ -46,10 +49,10 @@ export default function MentorHomePage() {
     try {
       const req = await post<MentorRequest>("/api/mentors/requests/", { trader_email: email });
       setSentRequests((prev) => [req, ...prev]);
-      setSearchSuccess(`Solicitud enviada a ${email}.`);
+      setSearchSuccess(`${t("searchSuccessPrefix")} ${email}.`);
       setSearchEmail("");
     } catch (err) {
-      setSearchError(err instanceof Error ? err.message : "Error al enviar solicitud.");
+      setSearchError(err instanceof Error ? err.message : t("searchError"));
     } finally {
       setSearching(false);
     }
@@ -60,7 +63,7 @@ export default function MentorHomePage() {
       await del(`/api/mentors/assignments/${assignmentId}/`);
       setAssignments((prev) => prev.filter((a) => a.id !== assignmentId));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al revocar acceso.");
+      setError(err instanceof Error ? err.message : t("errorRevoke"));
     }
   }
 
@@ -72,11 +75,11 @@ export default function MentorHomePage() {
       {/* ── Header ── */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="font-sans text-[22px] font-bold text-primary leading-tight">Mis alumnos</h1>
+          <h1 className="font-sans text-[22px] font-bold text-primary leading-tight">{t("title")}</h1>
           {!loading && (
             <p className="font-mono text-[11px] text-muted mt-[3px]">
-              {assignments.length} {assignments.length === 1 ? "alumno activo" : "alumnos activos"}
-              {pendingCount > 0 && ` · ${pendingCount} solicitud${pendingCount > 1 ? "es" : ""} pendiente${pendingCount > 1 ? "s" : ""}`}
+              {assignments.length} {assignments.length === 1 ? t("subtitleOne") : t("subtitleMany")}
+              {pendingCount > 0 && ` · ${pendingCount} ${pendingCount === 1 ? t("pendingOne") : t("pendingMany")}`}
             </p>
           )}
         </div>
@@ -85,7 +88,7 @@ export default function MentorHomePage() {
           className="flex items-center gap-2 font-sans text-[12px] font-semibold bg-green hover:bg-green-hover text-white px-4 py-[8px] transition-colors flex-shrink-0"
         >
           <Plus size={14} />
-          Buscar trader
+          {t("searchButton")}
         </button>
       </div>
 
@@ -105,7 +108,7 @@ export default function MentorHomePage() {
           {/* ── Pending sent requests ── */}
           {sentRequests.length > 0 && (
             <div className="space-y-2">
-              <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted">Solicitudes enviadas</p>
+              <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted">{t("sentRequestsTitle")}</p>
               <div className="card divide-y divide-white/[0.05]">
                 {sentRequests.map((req) => (
                   <div key={req.id} className="flex items-center justify-between gap-4 px-5 py-3">
@@ -117,7 +120,7 @@ export default function MentorHomePage() {
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <Clock size={11} className="text-muted" />
-                      <span className="font-mono text-[10px] text-muted">Pendiente</span>
+                      <span className="font-mono text-[10px] text-muted">{t("pending")}</span>
                     </div>
                   </div>
                 ))}
@@ -128,9 +131,9 @@ export default function MentorHomePage() {
           {/* ── Active students ── */}
           {assignments.length === 0 ? (
             <div className="card p-12 flex flex-col items-center text-center gap-3">
-              <p className="font-sans text-[15px] text-secondary">No tienes alumnos activos todavía.</p>
+              <p className="font-sans text-[15px] text-secondary">{t("emptyTitle")}</p>
               <p className="font-mono text-[11px] text-muted max-w-xs">
-                Busca un trader por su email y envíale una solicitud.
+                {t("emptySubtitle")}
               </p>
             </div>
           ) : (
@@ -144,23 +147,23 @@ export default function MentorHomePage() {
                         {a.trader_detail.display_name || a.trader_detail.email}
                       </p>
                       <p className="font-mono text-[10px] text-muted mt-[2px]">
-                        {a.trader_detail.email} · Desde {formatDateMedium(a.created_at)}
+                        {a.trader_detail.email} · {t("since")} {formatDateMedium(a.created_at)}
                       </p>
                     </div>
                     <button
                       onClick={() => handleRevoke(a.id)}
                       className="flex items-center gap-1 font-mono text-[10px] text-muted hover:text-loss transition-colors flex-shrink-0"
-                      title="Dejar de mentorizar"
+                      title={t("revokeTooltip")}
                     >
                       <UserMinus size={12} />
-                      <span className="hidden sm:inline">Dejar</span>
+                      <span className="hidden sm:inline">{t("revoke")}</span>
                     </button>
                   </div>
 
                   {/* Stats row */}
                   <div className="grid grid-cols-3 gap-3 mb-4">
                     <div className="bg-base px-3 py-2">
-                      <p className="font-mono text-[9px] text-muted uppercase tracking-[0.08em]">Operaciones</p>
+                      <p className="font-mono text-[9px] text-muted uppercase tracking-[0.08em]">{t("tradeCountLabel")}</p>
                       <p className="font-mono text-[14px] text-primary mt-[2px]">{a.stats.total_trades}</p>
                     </div>
                     <div className="bg-base px-3 py-2">
@@ -187,14 +190,14 @@ export default function MentorHomePage() {
                       className="flex items-center gap-[6px] font-mono text-[11px] text-secondary hover:text-primary border border-white/[0.1] px-3 py-[7px] transition-colors"
                     >
                       <LayoutDashboard size={13} />
-                      Dashboard
+                      {t("actionDashboard")}
                     </Link>
                     <Link
                       href={`/mentor/${a.trader_detail.id}`}
                       className="flex items-center gap-[6px] font-mono text-[11px] text-secondary hover:text-primary border border-white/[0.1] px-3 py-[7px] transition-colors"
                     >
                       <BookOpen size={13} />
-                      Diario
+                      {t("actionJournal")}
                     </Link>
                   </div>
                 </div>
@@ -209,7 +212,7 @@ export default function MentorHomePage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
           <div className="bg-surface border border-white/[0.10] p-6 w-full max-w-[380px]">
             <div className="flex items-center justify-between mb-5">
-              <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted">Buscar trader</p>
+              <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted">{t("searchModalTitle")}</p>
               <button onClick={() => setShowSearch(false)} className="text-muted hover:text-primary transition-colors">
                 <X size={16} />
               </button>
@@ -218,7 +221,7 @@ export default function MentorHomePage() {
             <form onSubmit={handleSendRequest} className="space-y-3">
               <div className="flex flex-col gap-1">
                 <label className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted">
-                  Email del trader
+                  {t("searchEmailLabel")}
                 </label>
                 <div className="relative">
                   <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
@@ -226,7 +229,7 @@ export default function MentorHomePage() {
                     type="email"
                     value={searchEmail}
                     onChange={(e) => { setSearchEmail(e.target.value); setSearchError(null); setSearchSuccess(null); }}
-                    placeholder="trader@email.com"
+                    placeholder={t("searchEmailPlaceholder")}
                     className="w-full bg-elevated border border-white/[0.10] pl-9 pr-3 py-[11px] font-mono text-[13px] text-primary placeholder:text-muted focus:outline-none focus:border-white/25 transition-colors"
                     autoFocus
                     disabled={searching}
@@ -237,7 +240,7 @@ export default function MentorHomePage() {
               </div>
 
               <p className="font-sans text-[12px] text-muted leading-relaxed">
-                El trader recibirá tu solicitud y podrá aceptarla o rechazarla desde su configuración.
+                {t("searchExplainer")}
               </p>
 
               <div className="flex gap-2 pt-1">
@@ -246,14 +249,14 @@ export default function MentorHomePage() {
                   onClick={() => setShowSearch(false)}
                   className="flex-1 font-sans text-[12px] font-semibold border border-white/[0.10] text-secondary hover:text-primary py-[8px] transition-colors"
                 >
-                  Cancelar
+                  {t("searchCancel")}
                 </button>
                 <button
                   type="submit"
                   disabled={searching || !searchEmail.trim()}
                   className="flex-1 font-sans text-[12px] font-semibold bg-green hover:bg-green-hover text-white py-[8px] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 >
-                  {searching ? "Enviando…" : "Enviar solicitud"}
+                  {searching ? t("searchSending") : t("searchSend")}
                 </button>
               </div>
             </form>

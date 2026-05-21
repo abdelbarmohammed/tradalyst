@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import type { PnlPoint } from "@/types";
 
 interface Props {
@@ -17,6 +20,8 @@ function toPath(points: { x: number; y: number }[]): string {
 }
 
 export default function PnlChart({ data, loading }: Props) {
+  const t = useTranslations("dashboard");
+
   if (loading) {
     return (
       <div className="card p-5">
@@ -33,7 +38,7 @@ export default function PnlChart({ data, loading }: Props) {
     return (
       <div className="card p-5 flex items-center justify-center" style={{ minHeight: H + 40 }}>
         <p className="font-mono text-[11px] text-muted">
-          Sin suficientes datos para la curva P&L.
+          {t("pnlNoData")}
         </p>
       </div>
     );
@@ -78,7 +83,7 @@ export default function PnlChart({ data, loading }: Props) {
   return (
     <div className="card p-5">
       <p className="font-mono text-[10px] uppercase tracking-eyebrow text-muted mb-3">
-        Curva P&L
+        {t("pnlTitle")}
       </p>
       <svg
         viewBox={`0 0 ${W} ${H}`}
