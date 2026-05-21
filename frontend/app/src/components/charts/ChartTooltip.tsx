@@ -1,10 +1,12 @@
 "use client";
 
-interface Entry {
+export interface ChartEntry {
   value: number;
   name: string;
   payload: Record<string, unknown>;
 }
+
+type Entry = ChartEntry;
 
 interface Props {
   active?: boolean;

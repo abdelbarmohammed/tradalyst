@@ -9,9 +9,10 @@ import {
   ReferenceLine,
   ResponsiveContainer,
 } from "recharts";
+import type { TooltipContentProps } from "recharts";
 import { useTranslations } from "next-intl";
 import { formatPnl, formatDateMedium } from "@/lib/format";
-import ChartTooltip from "@/components/charts/ChartTooltip";
+import ChartTooltip, { type ChartEntry } from "@/components/charts/ChartTooltip";
 import type { PnlPoint } from "@/types";
 
 const H = 160;
@@ -94,11 +95,11 @@ export default function PnlChart({ data, loading }: Props) {
           <XAxis dataKey="date" hide />
 
           <Tooltip
-            content={(props: any) => (
+            content={(props: TooltipContentProps) => (
               <ChartTooltip
                 active={props.active}
-                payload={props.payload}
-                label={props.label}
+                payload={props.payload as unknown as ChartEntry[]}
+                label={props.label !== undefined ? String(props.label) : undefined}
                 formatValue={formatPnl}
                 formatLabel={(l) => formatDateMedium(l)}
               />

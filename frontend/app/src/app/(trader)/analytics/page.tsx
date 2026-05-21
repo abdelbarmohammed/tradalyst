@@ -17,9 +17,10 @@ import {
   AreaChart,
   Area,
 } from "recharts";
+import type { TooltipContentProps } from "recharts";
 import { get } from "@/lib/api";
 import { formatPnl, formatPct } from "@/lib/format";
-import ChartTooltip from "@/components/charts/ChartTooltip";
+import ChartTooltip, { type ChartEntry } from "@/components/charts/ChartTooltip";
 import type { Trade, PaginatedTrades } from "@/types";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -426,11 +427,11 @@ export default function AnalyticsPage() {
               <YAxis hide />
               <Tooltip
                 cursor={{ fill: "rgba(255,255,255,0.03)" }}
-                content={(props: any) => (
+                content={(props: TooltipContentProps) => (
                   <ChartTooltip
                     active={props.active}
-                    payload={props.payload}
-                    label={props.label}
+                    payload={props.payload as unknown as ChartEntry[]}
+                    label={props.label !== undefined ? String(props.label) : undefined}
                     formatValue={formatPnl}
                   />
                 )}
@@ -487,11 +488,11 @@ export default function AnalyticsPage() {
                 <XAxis type="number" hide />
                 <Tooltip
                   cursor={{ fill: "rgba(255,255,255,0.03)" }}
-                  content={(props: any) => (
+                  content={(props: TooltipContentProps) => (
                     <ChartTooltip
                       active={props.active}
-                      payload={props.payload}
-                      label={props.label}
+                      payload={props.payload as unknown as ChartEntry[]}
+                      label={props.label !== undefined ? String(props.label) : undefined}
                       formatValue={formatPnl}
                     />
                   )}
@@ -546,11 +547,11 @@ export default function AnalyticsPage() {
                 />
                 <Tooltip
                   cursor={{ fill: "rgba(255,255,255,0.03)" }}
-                  content={(props: any) => (
+                  content={(props: TooltipContentProps) => (
                     <ChartTooltip
                       active={props.active}
-                      payload={props.payload}
-                      label={props.label}
+                      payload={props.payload as unknown as ChartEntry[]}
+                      label={props.label !== undefined ? String(props.label) : undefined}
                       formatValue={(v) => `${v.toFixed(1)}%`}
                       getColor={(v) => (v > 50 ? "#2fac66" : "#f06060")}
                     />
@@ -623,11 +624,11 @@ export default function AnalyticsPage() {
                 />
                 <Tooltip
                   cursor={{ fill: "rgba(255,255,255,0.03)" }}
-                  content={(props: any) => (
+                  content={(props: TooltipContentProps) => (
                     <ChartTooltip
                       active={props.active}
-                      payload={props.payload}
-                      label={props.label}
+                      payload={props.payload as unknown as ChartEntry[]}
+                      label={props.label !== undefined ? String(props.label) : undefined}
                       formatValue={(v) => `${v.toFixed(1)}%`}
                       getColor={(v) =>
                         v >= overallWr ? "#2fac66" : "#f06060"
@@ -745,11 +746,11 @@ export default function AnalyticsPage() {
               />
               <Tooltip
                 cursor={{ stroke: "rgba(255,255,255,0.1)" }}
-                content={(props: any) => (
+                content={(props: TooltipContentProps) => (
                   <ChartTooltip
                     active={props.active}
-                    payload={props.payload}
-                    label={props.label}
+                    payload={props.payload as unknown as ChartEntry[]}
+                    label={props.label !== undefined ? String(props.label) : undefined}
                     formatValue={(v) =>
                       v === 0 ? "€0" : `−€${Math.abs(v).toFixed(0)}`
                     }
