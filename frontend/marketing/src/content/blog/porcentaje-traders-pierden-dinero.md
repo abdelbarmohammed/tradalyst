@@ -3,7 +3,7 @@ title: "¿Qué Porcentaje de Traders Pierde Dinero? Estadísticas Reales 2026"
 seoTitle: "Porcentaje de Traders que Pierden Dinero: Estadísticas 2026"
 description: "Entre el 70-80% de traders retail pierde dinero según reguladores europeos. Analizamos las estadísticas reales, las causas y cómo evitar estar en ese grupo."
 date: "2026-05-15"
-lastModified: "2026-05-15"
+lastModified: "2026-05-21"
 author: "Tradalyst"
 category: "performance"
 keywords:

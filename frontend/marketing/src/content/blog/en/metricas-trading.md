@@ -3,7 +3,7 @@ title: "The Trading Metrics That Actually Matter (And What to Ignore)"
 seoTitle: "Trading Metrics: Win Rate, R:R, Profit Factor | Tradalyst"
 description: "Total P&L doesn't tell you if you're a good trader. These are the trading metrics that do: win rate, risk-reward ratio, profit factor and max drawdown explained."
 date: "2026-04-10"
-lastModified: "2026-04-25"
+lastModified: "2026-05-21"
 author: "Tradalyst"
 category: "performance"
 keywords:

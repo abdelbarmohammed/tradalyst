@@ -3,7 +3,7 @@ title: "Why Most Traders Lose Money (It's Not the Strategy)"
 seoTitle: "Why Traders Lose Money — The Real Reason | Tradalyst"
 description: "Studies show 70–80% of retail traders lose money. The cause isn't bad setups — it's behaviour. Data-backed breakdown with actionable fixes you can apply today."
 date: "2026-04-15"
-lastModified: "2026-04-25"
+lastModified: "2026-05-21"
 author: "Tradalyst"
 category: "psychology"
 keywords:

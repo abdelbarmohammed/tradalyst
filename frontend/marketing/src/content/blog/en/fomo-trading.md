@@ -3,7 +3,7 @@ title: "FOMO Trading: What It Is and How to Stop It"
 seoTitle: "FOMO Trading: What It Is and How to Stop It | Tradalyst"
 description: "FOMO trading silently drains accounts. Here are the real data, the patterns that trigger it, and concrete strategies to remove it from your trading."
 date: "2026-04-05"
-lastModified: "2026-04-25"
+lastModified: "2026-05-21"
 author: "Tradalyst"
 category: "psychology"
 keywords:

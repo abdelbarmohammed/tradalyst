@@ -3,7 +3,7 @@ title: "Qué es el revenge trading y cómo detenerlo antes de que arruine tu cue
 seoTitle: "Revenge Trading: Qué Es y Cómo Detenerlo | Tradalyst"
 description: "El revenge trading convierte una pérdida puntual en una cadena de ellas. Aquí está la psicología detrás, el coste real en datos y un sistema concreto para romper el ciclo."
 date: "2026-04-20"
-lastModified: "2026-04-25"
+lastModified: "2026-05-21"
 author: "Tradalyst"
 category: "psychology"
 keywords:

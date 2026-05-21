@@ -3,7 +3,7 @@ title: "Revenge Trading: Why You Do It and How to Stop"
 seoTitle: "Revenge Trading: Why It Happens and How to Stop | Tradalyst"
 description: "Revenge trading turns a single bad loss into a string of them. Here's the psychology behind it, what it costs in real numbers, and a concrete system to break the cycle."
 date: "2026-04-20"
-lastModified: "2026-04-25"
+lastModified: "2026-05-21"
 author: "Tradalyst"
 category: "psychology"
 keywords:

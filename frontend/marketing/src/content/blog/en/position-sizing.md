@@ -3,7 +3,7 @@ title: "Position Sizing in Trading: The Rule That Protects Your Account"
 seoTitle: "Position Sizing in Trading: How to Calculate Your Trade Size | Tradalyst"
 description: "Position sizing is the most ignored and most important skill in retail trading. Here is the exact mechanics of how to calculate trade size to protect your account long-term."
 date: "2026-04-15"
-lastModified: "2026-04-29"
+lastModified: "2026-05-21"
 author: "Tradalyst"
 category: "risk"
 keywords:

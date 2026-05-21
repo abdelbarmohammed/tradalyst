@@ -3,7 +3,7 @@ title: "Ratio Riesgo-Beneficio: qué es y por qué define si tu trading es renta
 seoTitle: "Ratio Riesgo Beneficio en Trading: Guía Completa | Tradalyst"
 description: "El ratio riesgo-beneficio es la métrica que determina si una estrategia puede ser rentable a largo plazo. Guía completa con ejemplos, cálculos y errores comunes."
 date: "2026-04-22"
-lastModified: "2026-04-25"
+lastModified: "2026-05-21"
 author: "Tradalyst"
 category: "performance"
 keywords:

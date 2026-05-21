@@ -3,7 +3,7 @@ title: "What Is FOMO in Trading? (And How to Stop It)"
 seoTitle: "What Is FOMO in Trading? Causes, Signs & How to Stop It"
 description: "FOMO trading costs retail traders thousands. Learn what FOMO is, the 5 warning signs, and a 3-step protocol to stop emotional trading before it destroys your account."
 date: "2026-05-15"
-lastModified: "2026-05-15"
+lastModified: "2026-05-21"
 author: "Tradalyst"
 category: "psychology"
 keywords:

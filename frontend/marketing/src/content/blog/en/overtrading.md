@@ -3,7 +3,7 @@ title: "What Is Overtrading and Why More Trades Mean Lower Returns"
 seoTitle: "Overtrading: What It Is and How to Stop It | Tradalyst"
 description: "Overtrading is one of the most silent account-killers in retail trading. More trades don't mean more profits — the data shows the exact opposite."
 date: "2026-04-10"
-lastModified: "2026-04-29"
+lastModified: "2026-05-21"
 author: "Tradalyst"
 category: "psychology"
 keywords:

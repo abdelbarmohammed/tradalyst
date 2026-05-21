@@ -3,7 +3,7 @@ title: "How to Keep a Trading Journal: The Complete Guide for Retail Traders"
 seoTitle: "How to Keep a Trading Journal That Works | Tradalyst"
 description: "Most trading journals fail within three weeks. This guide shows you what to record, how to analyse it, and what to do with the data to actually improve your results."
 date: "2026-04-18"
-lastModified: "2026-04-25"
+lastModified: "2026-05-21"
 author: "Tradalyst"
 category: "journal"
 keywords:

@@ -3,7 +3,7 @@ title: "Trading Journal Template: What to Track and How to Use It"
 seoTitle: "Trading Journal Template: What to Track | Tradalyst"
 description: "A trading journal template that actually works needs more than entry and exit prices. Here's the complete structure, what each field is for, and how to turn the data into improvement."
 date: "2026-04-23"
-lastModified: "2026-04-25"
+lastModified: "2026-05-21"
 author: "Tradalyst"
 category: "journal"
 keywords:

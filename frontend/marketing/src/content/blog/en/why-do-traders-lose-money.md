@@ -3,7 +3,7 @@ title: "Why Do Traders Lose Money? The Behavioural Data Behind the 80% Statistic
 seoTitle: "Why Do Traders Lose Money? The Real Reasons | Tradalyst"
 description: "80% of retail traders lose money. The industry blames strategy. The data points elsewhere — to specific, measurable behavioural patterns that are fixable. Here's the breakdown."
 date: "2026-04-24"
-lastModified: "2026-04-25"
+lastModified: "2026-05-21"
 author: "Tradalyst"
 category: "psychology"
 keywords:

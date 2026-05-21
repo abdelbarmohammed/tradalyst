@@ -3,7 +3,7 @@ title: "How to Keep a Trading Journal That Actually Improves Your Trading"
 seoTitle: "How to Keep a Trading Journal That Actually Works (2026)"
 description: "Most traders keep a journal but never improve. Learn the 7 fields that matter, how to review it weekly, and what AI analysis reveals that manual review misses."
 date: "2026-04-01"
-lastModified: "2026-05-15"
+lastModified: "2026-05-21"
 author: "Tradalyst"
 category: "journal"
 keywords:

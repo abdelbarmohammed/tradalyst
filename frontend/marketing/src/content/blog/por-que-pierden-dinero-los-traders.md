@@ -3,7 +3,7 @@ title: "Por qué el 80% de los traders pierden dinero (y no es lo que crees)"
 seoTitle: "Por Qué el 80% de los Traders Pierde Dinero (Con Datos)"
 description: "Estadísticas reales sobre traders retail: por qué la mayoría pierde dinero y los patrones de comportamiento que lo explican. ¿Reconoces alguno?"
 date: "2026-04-14"
-lastModified: "2026-05-15"
+lastModified: "2026-05-21"
 author: "Tradalyst"
 category: "psychology"
 keywords:

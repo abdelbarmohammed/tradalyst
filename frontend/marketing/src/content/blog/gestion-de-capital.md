@@ -3,7 +3,7 @@ title: "Gestión de capital en trading: cómo calcular el tamaño de cada operac
 seoTitle: "Gestión de Capital en Trading: Cómo Calcular el Tamaño | Tradalyst"
 description: "La gestión de capital es la habilidad más ignorada y más importante del trading retail. Aquí está la mecánica exacta de cómo calcular el tamaño de posición para proteger tu cuenta."
 date: "2026-04-15"
-lastModified: "2026-04-29"
+lastModified: "2026-05-21"
 author: "Tradalyst"
 category: "risk"
 keywords:

@@ -3,7 +3,7 @@ title: "Las métricas de trading que importan (y las que solo distraen)"
 seoTitle: "Métricas de Trading Esenciales: Win Rate, R:R y Más (2026)"
 description: "Descubre las 5 métricas que todo trader debe calcular. Win rate, ratio R:R, profit factor y drawdown explicados con ejemplos reales. Analiza las tuyas gratis."
 date: "2026-04-10"
-lastModified: "2026-05-15"
+lastModified: "2026-05-21"
 author: "Tradalyst"
 category: "performance"
 keywords:

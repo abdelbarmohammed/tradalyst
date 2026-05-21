@@ -3,7 +3,7 @@ title: "Qué es el overtrading y por qué más operaciones significan menos gana
 seoTitle: "Overtrading: Qué Es y Cómo Detectarlo en Tu Cuenta | Tradalyst"
 description: "El overtrading es uno de los problemas más silenciosos del trading retail. Más operaciones no significan más ganancias — los datos muestran exactamente lo contrario."
 date: "2026-04-10"
-lastModified: "2026-04-29"
+lastModified: "2026-05-21"
 author: "Tradalyst"
 category: "psychology"
 keywords:

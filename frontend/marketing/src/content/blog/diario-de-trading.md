@@ -3,7 +3,7 @@ title: "Cómo llevar un diario de trading efectivo (y por qué el 90% lo abandon
 seoTitle: "Diario de Trading: Cómo Llevarlo y Mejorar | Tradalyst"
 description: "Un diario de trading bien llevado es la herramienta más infravalorada del trader retail. Guía práctica con estructura, ejemplos y claves para no abandonarlo."
 date: "2026-04-01"
-lastModified: "2026-04-25"
+lastModified: "2026-05-21"
 author: "Tradalyst"
 category: "journal"
 keywords:
