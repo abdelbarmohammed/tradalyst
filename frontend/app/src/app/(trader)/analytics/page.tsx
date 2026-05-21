@@ -2,8 +2,24 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useTranslations, useLocale } from "next-intl";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Cell,
+  LabelList,
+  ResponsiveContainer,
+  CartesianGrid,
+  ReferenceLine,
+  ReferenceDot,
+  AreaChart,
+  Area,
+} from "recharts";
 import { get } from "@/lib/api";
 import { formatPnl, formatPct } from "@/lib/format";
+import ChartTooltip from "@/components/charts/ChartTooltip";
 import type { Trade, PaginatedTrades } from "@/types";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -41,296 +57,19 @@ function totalPnl(trades: Trade[]) {
   return closedTrades(trades).reduce((s, t) => s + pnlNum(t), 0);
 }
 
-// Returns the ISO date (YYYY-MM-DD) of the Monday of the week containing d
 function getMondayKey(d: Date): string {
   const m = new Date(d);
   m.setDate(d.getDate() - ((d.getDay() + 6) % 7));
   return m.toISOString().slice(0, 10);
 }
 
-// ── SVG chart constants ────────────────────────────────────────────────────────
-
-const BAR_H = 180;
-const BAR_PAD = { top: 20, right: 8, bottom: 28, left: 56 };
-
-// ── BarChart ──────────────────────────────────────────────────────────────────
-
-function BarChart({
-  bars,
-  formatY = (v: number) => v.toFixed(0),
-  colorFn = (v: number) => (v >= 0 ? "#2fac66" : "#f06060"),
-  emptyLabel,
-  showValueLabels = false,
-}: {
-  bars: { label: string; value: number }[];
-  formatY?: (v: number) => string;
-  colorFn?: (v: number) => string;
-  emptyLabel: string;
-  showValueLabels?: boolean;
-}) {
-  if (!bars.length) return <EmptyChart label={emptyLabel} />;
-
-  const W = Math.max(bars.length * 52, 300);
-  const chartW = W - BAR_PAD.left - BAR_PAD.right;
-  const chartH = BAR_H - BAR_PAD.top - BAR_PAD.bottom;
-
-  const maxAbs = Math.max(...bars.map((b) => Math.abs(b.value)), 0.01);
-  const hasNeg = bars.some((b) => b.value < 0);
-  const zeroY = hasNeg
-    ? BAR_PAD.top + (maxAbs / (2 * maxAbs)) * chartH
-    : BAR_PAD.top + chartH;
-
-  const barW = Math.max(chartW / bars.length - 4, 8);
-
-  return (
-    <svg
-      viewBox={`0 0 ${W} ${BAR_H}`}
-      width="100%"
-      height={BAR_H}
-      preserveAspectRatio="none"
-      aria-hidden="true"
-    >
-      <line
-        x1={BAR_PAD.left} x2={W - BAR_PAD.right}
-        y1={zeroY} y2={zeroY}
-        stroke="rgba(255,255,255,0.1)" strokeWidth="1"
-      />
-
-      {bars.map((bar, i) => {
-        const x = BAR_PAD.left + (i / bars.length) * chartW + (chartW / bars.length - barW) / 2;
-        const ratio = Math.abs(bar.value) / maxAbs;
-        const barHeight = ratio * (hasNeg ? chartH / 2 : chartH);
-        const y = bar.value >= 0 ? zeroY - barHeight : zeroY;
-        const labelY = bar.value >= 0 ? y - 3 : y + barHeight + 9;
-
-        return (
-          <g key={bar.label}>
-            <title>{`${bar.label}: ${formatY(bar.value)}`}</title>
-            <rect
-              x={x} y={y}
-              width={barW} height={Math.max(barHeight, 1)}
-              fill={colorFn(bar.value)} opacity="0.85"
-            />
-            {showValueLabels && (
-              <text
-                x={x + barW / 2}
-                y={Math.max(labelY, BAR_PAD.top + 8)}
-                textAnchor="middle"
-                fontSize="9"
-                fontFamily="var(--font-ibm-plex-mono)"
-                fill={colorFn(bar.value)}
-              >
-                {formatY(bar.value)}
-              </text>
-            )}
-            <text
-              x={x + barW / 2} y={BAR_H - 4}
-              textAnchor="middle" fontSize="7"
-              fontFamily="var(--font-ibm-plex-mono)"
-              fill="rgba(156,163,175,0.8)"
-            >
-              {bar.label.length > 7 ? bar.label.slice(0, 7) : bar.label}
-            </text>
-          </g>
-        );
-      })}
-
-      {[maxAbs, 0, hasNeg ? -maxAbs : null]
-        .filter((v): v is number => v !== null)
-        .map((v, i) => (
-          <text
-            key={v}
-            x={BAR_PAD.left - 4}
-            y={
-              i === 0 ? BAR_PAD.top + 4
-              : i === 1 ? zeroY + 4
-              : BAR_PAD.top + chartH + 4
-            }
-            textAnchor="end" fontSize="7"
-            fontFamily="var(--font-ibm-plex-mono)"
-            fill="rgba(156,163,175,0.8)"
-          >
-            {formatY(v)}
-          </text>
-        ))}
-    </svg>
-  );
+function shortPnl(v: number): string {
+  return v >= 0
+    ? `+€${Math.abs(v).toFixed(0)}`
+    : `−€${Math.abs(v).toFixed(0)}`;
 }
 
-// ── DrawdownAreaChart ─────────────────────────────────────────────────────────
-
-const DD_H = 180;
-const DD_PAD = { top: 20, right: 16, bottom: 32, left: 64 };
-
-function DrawdownAreaChart({
-  points,
-  emptyLabel,
-  locale,
-  maxDrawdownLabel,
-}: {
-  points: { date: string; value: number }[];
-  emptyLabel: string;
-  locale: string;
-  maxDrawdownLabel: (value: string) => string;
-}) {
-  if (!points.length) return <EmptyChart label={emptyLabel} />;
-
-  const W = 640;
-  const chartW = W - DD_PAD.left - DD_PAD.right;
-  const chartH = DD_H - DD_PAD.top - DD_PAD.bottom;
-
-  const minVal = Math.min(...points.map((p) => p.value), -0.01);
-
-  // y=0 → DD_PAD.top (top of chart area)
-  // y=minVal → DD_PAD.top + chartH (bottom of chart area)
-  const xS = (i: number) =>
-    DD_PAD.left + (i / Math.max(points.length - 1, 1)) * chartW;
-  const yS = (v: number) =>
-    DD_PAD.top + (v / minVal) * chartH;
-
-  const linePath = points
-    .map((p, i) => `${i === 0 ? "M" : "L"} ${xS(i).toFixed(1)} ${yS(p.value).toFixed(1)}`)
-    .join(" ");
-
-  // Area: line → right edge at zero → left edge at zero → close
-  const areaPath =
-    `${linePath} ` +
-    `L ${xS(points.length - 1).toFixed(1)} ${DD_PAD.top} ` +
-    `L ${xS(0).toFixed(1)} ${DD_PAD.top} Z`;
-
-  // Lowest point (worst drawdown)
-  const minIdx = points.reduce(
-    (best, p, i) => (p.value < points[best].value ? i : best),
-    0
-  );
-  const minPt = points[minIdx];
-  const minX = xS(minIdx);
-  const minY = yS(minPt.value);
-
-  // X axis: evenly spaced month labels, max 8
-  const labelCount = Math.min(8, points.length);
-  const labelIndices =
-    labelCount <= 1
-      ? [0]
-      : Array.from({ length: labelCount }, (_, i) =>
-          Math.round((i * (points.length - 1)) / (labelCount - 1))
-        );
-
-  // Deduplicate consecutive identical month labels
-  const xLabels = labelIndices
-    .map((i) => {
-      const [, m] = points[i].date.split("-").map(Number);
-      return { i, label: getMonthShort(m - 1, locale) };
-    })
-    .filter((item, idx, arr) => idx === 0 || item.label !== arr[idx - 1].label);
-
-  // Y axis: 5 levels from 0 to minVal
-  const yLabels = [0, 0.25, 0.5, 0.75, 1.0].map((f) => f * minVal);
-
-  return (
-    <svg
-      viewBox={`0 0 ${W} ${DD_H}`}
-      width="100%"
-      height={DD_H}
-      preserveAspectRatio="none"
-      aria-hidden="true"
-    >
-      {/* Zero line — dashed */}
-      <line
-        x1={DD_PAD.left} y1={DD_PAD.top}
-        x2={W - DD_PAD.right} y2={DD_PAD.top}
-        stroke="rgba(255,255,255,0.2)"
-        strokeWidth="1"
-        strokeDasharray="4,3"
-      />
-
-      {/* Area fill */}
-      <path d={areaPath} fill="rgba(240,96,96,0.15)" />
-
-      {/* Line */}
-      <path
-        d={linePath}
-        fill="none"
-        stroke="#f06060"
-        strokeWidth="1.5"
-        strokeLinejoin="round"
-        strokeLinecap="round"
-      />
-
-      {/* Worst-drawdown dot */}
-      <circle cx={minX} cy={minY} r="3.5" fill="#f06060" />
-
-      {/* Worst-drawdown label — clamp so it stays inside */}
-      <text
-        x={Math.min(Math.max(minX, DD_PAD.left + 4), W - DD_PAD.right - 120)}
-        y={minY > DD_PAD.top + 16 ? minY - 7 : minY + 14}
-        fontFamily="var(--font-ibm-plex-mono)"
-        fontSize="9"
-        fill="#f06060"
-      >
-        {maxDrawdownLabel(Math.abs(minPt.value).toFixed(0))}
-      </text>
-
-      {/* X axis labels */}
-      {xLabels.map(({ i, label }) => (
-        <text
-          key={i}
-          x={xS(i)}
-          y={DD_H - 4}
-          textAnchor="middle"
-          fontFamily="var(--font-ibm-plex-mono)"
-          fontSize="8"
-          fill="rgba(156,163,175,0.8)"
-        >
-          {label}
-        </text>
-      ))}
-
-      {/* Y axis labels */}
-      {yLabels.map((v, i) => (
-        <text
-          key={i}
-          x={DD_PAD.left - 4}
-          y={yS(v) + 3}
-          textAnchor="end"
-          fontFamily="var(--font-ibm-plex-mono)"
-          fontSize="8"
-          fill="rgba(156,163,175,0.8)"
-        >
-          {v === 0 ? "€0" : `-€${Math.abs(v).toFixed(0)}`}
-        </text>
-      ))}
-    </svg>
-  );
-}
-
-// ── HorizontalBar ─────────────────────────────────────────────────────────────
-
-function HorizontalBar({
-  label, value, max, color, sub,
-}: {
-  label: string; value: number; max: number; color: string; sub?: string;
-}) {
-  const pct = max > 0 ? (value / max) * 100 : 0;
-  return (
-    <div className="flex items-center gap-3 py-[6px]">
-      <span className="font-mono text-[10px] text-secondary w-20 flex-shrink-0 text-right truncate">
-        {label}
-      </span>
-      <div className="flex-1 h-[8px] bg-white/[0.06] rounded-sm overflow-hidden">
-        <div
-          className="h-full rounded-sm transition-all duration-500"
-          style={{ width: `${pct}%`, background: color }}
-        />
-      </div>
-      <span className="font-mono text-[10px] text-primary w-14 flex-shrink-0">
-        {sub ?? value.toFixed(1)}
-      </span>
-    </div>
-  );
-}
-
-// ── EmptyChart / ChartCard ────────────────────────────────────────────────────
+// ── Sub-components ────────────────────────────────────────────────────────────
 
 function EmptyChart({ label }: { label: string }) {
   return (
@@ -341,24 +80,40 @@ function EmptyChart({ label }: { label: string }) {
 }
 
 function ChartCard({
-  title, loading, children, action,
+  title,
+  loading,
+  children,
+  action,
 }: {
-  title: string; loading: boolean; children: React.ReactNode; action?: React.ReactNode;
+  title: string;
+  loading: boolean;
+  children: React.ReactNode;
+  action?: React.ReactNode;
 }) {
   return (
     <div className="card p-5">
       <div className="flex items-center justify-between mb-4">
-        <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted">{title}</p>
+        <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted">
+          {title}
+        </p>
         {action}
       </div>
       {loading ? (
-        <div className="skeleton w-full rounded-sm" style={{ height: BAR_H }} />
+        <div className="skeleton w-full rounded-sm" style={{ height: 180 }} />
       ) : (
         children
       )}
     </div>
   );
 }
+
+// ── Axis / tick styles ────────────────────────────────────────────────────────
+
+const TICK_STYLE = {
+  fill: "#9ca3af",
+  fontSize: 11,
+  fontFamily: "IBM Plex Mono",
+} as const;
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 
@@ -379,7 +134,7 @@ export default function AnalyticsPage() {
       );
       setTrades(res.results);
     } catch {
-      // Silently ignore — empty state shown
+      // Empty state shown
     } finally {
       setLoading(false);
     }
@@ -412,61 +167,66 @@ export default function AnalyticsPage() {
         .slice(-12)
         .map(([key, ts]) => {
           const [, m, d] = key.split("-").map(Number);
+          const value = parseFloat(ts.reduce((s, t) => s + pnlNum(t), 0).toFixed(2));
           return {
             label: `${d} ${getMonthShort(m - 1, locale)}`,
-            value: ts.reduce((s, t) => s + pnlNum(t), 0),
+            value,
+            count: ts.length,
           };
         });
     }
-    // Month grouping — all months that have trades
-    const groups = groupBy(closed, (t) => t.entry_time.slice(0, 7)); // "YYYY-MM"
+    const groups = groupBy(closed, (t) => t.entry_time.slice(0, 7));
     return Object.entries(groups)
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([key, ts]) => {
         const [y, m] = key.split("-").map(Number);
+        const value = parseFloat(ts.reduce((s, t) => s + pnlNum(t), 0).toFixed(2));
         return {
           label: `${getMonthShort(m - 1, locale)} ${String(y).slice(2)}`,
-          value: ts.reduce((s, t) => s + pnlNum(t), 0),
+          value,
+          count: ts.length,
         };
       });
   })();
 
-  // ── Win/Loss by asset ──────────────────────────────────────────────────────
+  // ── Asset PnL ──────────────────────────────────────────────────────────────
 
-  const assetBars = (() => {
+  const assetChartData = (() => {
     const groups = groupBy(closed, (t) => t.pair);
     return Object.entries(groups)
       .map(([pair, ts]) => ({
-        label: pair,
-        winRate: winRate(ts),
-        totalPnl: totalPnl(ts),
+        asset: pair,
+        pnl: parseFloat(totalPnl(ts).toFixed(2)),
         count: ts.length,
+        displayLabel: shortPnl(totalPnl(ts)),
       }))
-      .sort((a, b) => b.totalPnl - a.totalPnl)
+      .sort((a, b) => b.pnl - a.pnl)
       .slice(0, 8);
   })();
 
-  const assetPnlMax = Math.max(...assetBars.map((a) => Math.abs(a.totalPnl)), 0.01);
+  // ── Emotion win rate ───────────────────────────────────────────────────────
 
-  // ── Win/Loss by emotion ────────────────────────────────────────────────────
-
-  const emotionBars = (() => {
+  const emotionChartData = (() => {
     const tradesWithEmotion = closed.filter((t) => t.emotion);
     const groups = groupBy(tradesWithEmotion, (t) => t.emotion!);
     return Object.entries(groups)
-      .map(([emotion, ts]) => ({
-        label: EMOTION_LABELS[emotion] ?? emotion,
-        winRate: winRate(ts),
-        count: ts.length,
-      }))
+      .map(([emotion, ts]) => {
+        const wr = winRate(ts);
+        return {
+          emotion: EMOTION_LABELS[emotion] ?? emotion,
+          winRate: parseFloat(wr.toFixed(1)),
+          count: ts.length,
+          displayLabel: `${wr.toFixed(0)}% (${ts.length})`,
+        };
+      })
       .sort((a, b) => b.winRate - a.winRate);
   })();
 
-  const emotionWrMax = Math.max(...emotionBars.map((e) => e.winRate), 0.01);
+  // ── Time of day win rate ───────────────────────────────────────────────────
 
-  // ── Win/Loss by time of day ────────────────────────────────────────────────
+  const overallWr = winRate(closed);
 
-  const hourBins = [
+  const timeBars = [
     { label: "00-06", range: [0, 6] },
     { label: "06-09", range: [6, 9] },
     { label: "09-12", range: [9, 12] },
@@ -474,22 +234,22 @@ export default function AnalyticsPage() {
     { label: "15-18", range: [15, 18] },
     { label: "18-21", range: [18, 21] },
     { label: "21-24", range: [21, 24] },
-  ];
+  ]
+    .map(({ label, range }) => {
+      const inBin = closed.filter((t) => {
+        const h = new Date(t.entry_time).getHours();
+        return h >= range[0] && h < range[1];
+      });
+      return { label, winRate: winRate(inBin), count: inBin.length };
+    })
+    .filter((b) => b.count > 0);
 
-  const timeBars = hourBins.map(({ label, range }) => {
-    const inBin = closed.filter((t) => {
-      const h = new Date(t.entry_time).getHours();
-      return h >= range[0] && h < range[1];
-    });
-    return { label, value: winRate(inBin), count: inBin.length };
-  });
-
-  // ── Win/Loss by direction ──────────────────────────────────────────────────
+  // ── Long/Short ─────────────────────────────────────────────────────────────
 
   const longTrades = closed.filter((t) => t.direction === "long");
   const shortTrades = closed.filter((t) => t.direction === "short");
 
-  // ── Drawdown (cumulative, grouped by day) ──────────────────────────────────
+  // ── Drawdown ───────────────────────────────────────────────────────────────
 
   const drawdownPoints = (() => {
     if (!closed.length) return [];
@@ -500,8 +260,32 @@ export default function AnalyticsPage() {
     return sortedDays.map(([date, ts]) => {
       cum += ts.reduce((s, t) => s + pnlNum(t), 0);
       if (cum > peak) peak = cum;
-      return { date, value: cum - peak }; // always <= 0
+      return { date, value: cum - peak };
     });
+  })();
+
+  const maxDrawdownPoint =
+    drawdownPoints.length > 0
+      ? drawdownPoints.reduce(
+          (min, p) => (p.value < min.value ? p : min),
+          drawdownPoints[0]
+        )
+      : null;
+
+  const drawdownXTicks = (() => {
+    if (!drawdownPoints.length) return [];
+    const count = Math.min(8, drawdownPoints.length);
+    const seen = new Set<string>();
+    return Array.from({ length: count }, (_, i) =>
+      Math.round((i * (drawdownPoints.length - 1)) / Math.max(count - 1, 1))
+    )
+      .map((i) => drawdownPoints[i].date)
+      .filter((date) => {
+        const mk = date.slice(0, 7);
+        if (seen.has(mk)) return false;
+        seen.add(mk);
+        return true;
+      });
   })();
 
   // ── Stat cards ─────────────────────────────────────────────────────────────
@@ -531,12 +315,22 @@ export default function AnalyticsPage() {
           {
             label: t("statPnl"),
             value: loading ? "—" : formatPnl(totalPnlVal),
-            color: !loading && totalPnlVal > 0 ? "text-profit" : !loading && totalPnlVal < 0 ? "text-loss" : "text-primary",
+            color:
+              !loading && totalPnlVal > 0
+                ? "text-profit"
+                : !loading && totalPnlVal < 0
+                ? "text-loss"
+                : "text-primary",
           },
           {
             label: t("statWinRate"),
             value: loading ? "—" : formatPct(wr),
-            color: !loading && wr >= 50 ? "text-profit" : !loading ? "text-loss" : "text-primary",
+            color:
+              !loading && wr >= 50
+                ? "text-profit"
+                : !loading
+                ? "text-loss"
+                : "text-primary",
             sub: loading ? undefined : `${wins}W / ${losses}L`,
           },
           {
@@ -546,14 +340,19 @@ export default function AnalyticsPage() {
           },
           {
             label: t("statBestDay"),
-            value: loading ? "—" : (() => {
-              if (!closed.length) return "—";
-              const byDay = groupBy(closed, (t) => t.entry_time.slice(0, 10));
-              const best = Object.entries(byDay).sort(
-                ([, a], [, b]) => totalPnl(b) - totalPnl(a)
-              )[0];
-              return best ? formatPnl(totalPnl(best[1])) : "—";
-            })(),
+            value: loading
+              ? "—"
+              : (() => {
+                  if (!closed.length) return "—";
+                  const byDay = groupBy(
+                    closed,
+                    (t) => t.entry_time.slice(0, 10)
+                  );
+                  const best = Object.entries(byDay).sort(
+                    ([, a], [, b]) => totalPnl(b) - totalPnl(a)
+                  )[0];
+                  return best ? formatPnl(totalPnl(best[1])) : "—";
+                })(),
             color: "text-primary",
           },
         ].map(({ label, value, color, sub }) => (
@@ -580,7 +379,7 @@ export default function AnalyticsPage() {
         ))}
       </div>
 
-      {/* P&L Breakdown */}
+      {/* ── A: P&L por Período ── */}
       <ChartCard
         title={t("chartPnlPeriod")}
         loading={loading}
@@ -591,7 +390,9 @@ export default function AnalyticsPage() {
                 key={v}
                 onClick={() => setPnlGrouping(v)}
                 className={`font-mono text-[9px] px-3 py-[5px] transition-colors ${
-                  pnlGrouping === v ? "bg-elevated text-primary" : "text-muted hover:text-secondary"
+                  pnlGrouping === v
+                    ? "bg-elevated text-primary"
+                    : "text-muted hover:text-secondary"
                 }`}
               >
                 {v === "week" ? t("periodWeek") : t("periodMonth")}
@@ -600,54 +401,184 @@ export default function AnalyticsPage() {
           </div>
         }
       >
-        <BarChart
-          bars={pnlBars}
-          formatY={(v) => `${v >= 0 ? "+" : ""}€${Math.abs(v).toFixed(0)}`}
-          emptyLabel={noData}
-          showValueLabels
-        />
+        {pnlBars.length === 0 ? (
+          <EmptyChart label={noData} />
+        ) : (
+          <ResponsiveContainer width="100%" height={240}>
+            <BarChart
+              data={pnlBars}
+              {...(pnlBars.length < 5
+                ? { barSize: 80 }
+                : { barCategoryGap: "30%" })}
+              margin={{ top: 24, right: 8, bottom: 5, left: 8 }}
+            >
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="rgba(255,255,255,0.04)"
+                vertical={false}
+              />
+              <XAxis
+                dataKey="label"
+                tick={TICK_STYLE}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis hide />
+              <Tooltip
+                cursor={{ fill: "rgba(255,255,255,0.03)" }}
+                content={(props: any) => (
+                  <ChartTooltip
+                    active={props.active}
+                    payload={props.payload}
+                    label={props.label}
+                    formatValue={formatPnl}
+                  />
+                )}
+              />
+              <Bar dataKey="value" radius={[2, 2, 0, 0]} animationDuration={600}>
+                {pnlBars.map((entry, i) => (
+                  <Cell
+                    key={i}
+                    fill={entry.value >= 0 ? "#2fac66" : "#f06060"}
+                  />
+                ))}
+                <LabelList
+                  dataKey="value"
+                  position="center"
+                  formatter={(v: string | number | boolean | null | undefined) =>
+                    typeof v === "number" ? shortPnl(v) : ""
+                  }
+                  style={{
+                    fontFamily: "IBM Plex Mono",
+                    fontSize: 13,
+                    fontWeight: 600,
+                    fill: "#ffffff",
+                  }}
+                />
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        )}
       </ChartCard>
 
       {/* Two-column row */}
       <div className="grid lg:grid-cols-2 gap-4">
 
-        {/* Win/Loss by asset */}
+        {/* ── B: P&L por Activo ── */}
         <ChartCard title={t("chartPnlAsset")} loading={loading}>
-          {assetBars.length === 0 ? (
+          {assetChartData.length === 0 ? (
             <EmptyChart label={noData} />
           ) : (
-            <div className="space-y-1">
-              {assetBars.map((a) => (
-                <HorizontalBar
-                  key={a.label}
-                  label={a.label}
-                  value={Math.abs(a.totalPnl)}
-                  max={assetPnlMax}
-                  color={a.totalPnl >= 0 ? "#2fac66" : "#f06060"}
-                  sub={formatPnl(a.totalPnl)}
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart
+                data={assetChartData}
+                layout="vertical"
+                margin={{ top: 5, right: 80, bottom: 5, left: 0 }}
+                barCategoryGap="15%"
+              >
+                <YAxis
+                  type="category"
+                  dataKey="asset"
+                  width={90}
+                  tick={TICK_STYLE}
+                  axisLine={false}
+                  tickLine={false}
                 />
-              ))}
-            </div>
+                <XAxis type="number" hide />
+                <Tooltip
+                  cursor={{ fill: "rgba(255,255,255,0.03)" }}
+                  content={(props: any) => (
+                    <ChartTooltip
+                      active={props.active}
+                      payload={props.payload}
+                      label={props.label}
+                      formatValue={formatPnl}
+                    />
+                  )}
+                />
+                <Bar dataKey="pnl" radius={[0, 2, 2, 0]} animationDuration={600}>
+                  {assetChartData.map((entry, i) => (
+                    <Cell
+                      key={i}
+                      fill={entry.pnl >= 0 ? "#2fac66" : "#f06060"}
+                    />
+                  ))}
+                  <LabelList
+                    dataKey="displayLabel"
+                    position="right"
+                    style={{
+                      fontFamily: "IBM Plex Mono",
+                      fontSize: 12,
+                      fill: "#9ca3af",
+                    }}
+                  />
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
           )}
         </ChartCard>
 
-        {/* Win/Loss by emotion */}
+        {/* ── C: Win Rate por Emoción ── */}
         <ChartCard title={t("chartWrEmotion")} loading={loading}>
-          {emotionBars.length === 0 ? (
+          {emotionChartData.length === 0 ? (
             <EmptyChart label={noData} />
           ) : (
-            <div className="space-y-1">
-              {emotionBars.map((e) => (
-                <HorizontalBar
-                  key={e.label}
-                  label={e.label}
-                  value={e.winRate}
-                  max={emotionWrMax}
-                  color={e.winRate >= 50 ? "#2fac66" : "#f06060"}
-                  sub={`${e.winRate.toFixed(0)}% (${e.count})`}
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart
+                data={emotionChartData}
+                layout="vertical"
+                margin={{ top: 5, right: 90, bottom: 5, left: 0 }}
+                barCategoryGap="15%"
+              >
+                <YAxis
+                  type="category"
+                  dataKey="emotion"
+                  width={90}
+                  tick={TICK_STYLE}
+                  axisLine={false}
+                  tickLine={false}
                 />
-              ))}
-            </div>
+                <XAxis type="number" domain={[0, 100]} hide />
+                <ReferenceLine
+                  x={50}
+                  stroke="rgba(255,255,255,0.15)"
+                  strokeDasharray="4 4"
+                />
+                <Tooltip
+                  cursor={{ fill: "rgba(255,255,255,0.03)" }}
+                  content={(props: any) => (
+                    <ChartTooltip
+                      active={props.active}
+                      payload={props.payload}
+                      label={props.label}
+                      formatValue={(v) => `${v.toFixed(1)}%`}
+                      getColor={(v) => (v > 50 ? "#2fac66" : "#f06060")}
+                    />
+                  )}
+                />
+                <Bar
+                  dataKey="winRate"
+                  radius={[0, 2, 2, 0]}
+                  animationDuration={600}
+                >
+                  {emotionChartData.map((entry, i) => (
+                    <Cell
+                      key={i}
+                      fill={entry.winRate > 50 ? "#2fac66" : "#f06060"}
+                    />
+                  ))}
+                  <LabelList
+                    dataKey="displayLabel"
+                    position="right"
+                    style={{
+                      fontFamily: "IBM Plex Mono",
+                      fontSize: 11,
+                      fill: "#9ca3af",
+                    }}
+                  />
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
           )}
         </ChartCard>
       </div>
@@ -655,20 +586,75 @@ export default function AnalyticsPage() {
       {/* Two-column row */}
       <div className="grid lg:grid-cols-2 gap-4">
 
-        {/* Win/Loss by time of day */}
+        {/* ── D: Win Rate por Hora ── */}
         <ChartCard title={t("chartWrTime")} loading={loading}>
-          <BarChart
-            bars={timeBars.filter((b) => b.count > 0).map((b) => ({
-              label: b.label,
-              value: b.value,
-            }))}
-            formatY={(v) => `${v.toFixed(0)}%`}
-            colorFn={(v) => (v >= 50 ? "#2fac66" : "#f06060")}
-            emptyLabel={noData}
-          />
+          {timeBars.length === 0 ? (
+            <EmptyChart label={noData} />
+          ) : (
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart
+                data={timeBars}
+                barCategoryGap="30%"
+                margin={{ top: 20, right: 8, bottom: 5, left: 8 }}
+              >
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="rgba(255,255,255,0.04)"
+                  vertical={false}
+                />
+                <XAxis
+                  dataKey="label"
+                  tick={TICK_STYLE}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis hide />
+                <ReferenceLine
+                  y={overallWr}
+                  stroke="#2fac66"
+                  strokeDasharray="4 4"
+                  label={{
+                    value: locale === "en" ? "Your avg" : "Tu media",
+                    fill: "#9ca3af",
+                    fontSize: 10,
+                    fontFamily: "IBM Plex Mono",
+                    position: "right",
+                  }}
+                />
+                <Tooltip
+                  cursor={{ fill: "rgba(255,255,255,0.03)" }}
+                  content={(props: any) => (
+                    <ChartTooltip
+                      active={props.active}
+                      payload={props.payload}
+                      label={props.label}
+                      formatValue={(v) => `${v.toFixed(1)}%`}
+                      getColor={(v) =>
+                        v >= overallWr ? "#2fac66" : "#f06060"
+                      }
+                    />
+                  )}
+                />
+                <Bar
+                  dataKey="winRate"
+                  radius={[2, 2, 0, 0]}
+                  animationDuration={600}
+                >
+                  {timeBars.map((entry, i) => (
+                    <Cell
+                      key={i}
+                      fill={
+                        entry.winRate >= overallWr ? "#2fac66" : "#f06060"
+                      }
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          )}
         </ChartCard>
 
-        {/* Win/Loss by direction */}
+        {/* Win/Loss by direction — CSS bars (unchanged) */}
         <ChartCard title={t("chartLongShort")} loading={loading}>
           {!longTrades.length && !shortTrades.length ? (
             <EmptyChart label={noData} />
@@ -683,7 +669,9 @@ export default function AnalyticsPage() {
                 return (
                   <div key={label} className="space-y-1">
                     <div className="flex items-center justify-between">
-                      <span className="font-mono text-[10px] text-secondary">{label}</span>
+                      <span className="font-mono text-[10px] text-secondary">
+                        {label}
+                      </span>
                       <span className="font-mono text-[10px] text-muted">
                         {dt.length} {t("tradesOps")} · {formatPnl(pl)}
                       </span>
@@ -705,14 +693,107 @@ export default function AnalyticsPage() {
         </ChartCard>
       </div>
 
-      {/* Drawdown acumulado */}
+      {/* ── E: Drawdown Acumulado ── */}
       <ChartCard title={t("chartDrawdown")} loading={loading}>
-        <DrawdownAreaChart
-          points={drawdownPoints}
-          emptyLabel={noData}
-          locale={locale}
-          maxDrawdownLabel={(value) => t("maxDrawdown", { value })}
-        />
+        {drawdownPoints.length === 0 ? (
+          <EmptyChart label={noData} />
+        ) : (
+          <ResponsiveContainer width="100%" height={240}>
+            <AreaChart
+              data={drawdownPoints}
+              margin={{ top: 20, right: 16, bottom: 40, left: 0 }}
+            >
+              <defs>
+                <linearGradient id="dd-grad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#f06060" stopOpacity={0.15} />
+                  <stop offset="100%" stopColor="#f06060" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="rgba(255,255,255,0.04)"
+                vertical={false}
+              />
+              <ReferenceLine
+                y={0}
+                stroke="rgba(255,255,255,0.15)"
+                strokeDasharray="4 4"
+              />
+              <XAxis
+                dataKey="date"
+                ticks={drawdownXTicks}
+                tickFormatter={(date: string) => {
+                  const [, m] = date.split("-").map(Number);
+                  return getMonthShort(m - 1, locale);
+                }}
+                tick={TICK_STYLE}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis
+                width={52}
+                axisLine={false}
+                tickLine={false}
+                tickFormatter={(v: number) =>
+                  v === 0 ? "€0" : `-€${Math.abs(v).toFixed(0)}`
+                }
+                tick={{
+                  fill: "rgba(156,163,175,0.8)",
+                  fontSize: 8,
+                  fontFamily: "var(--font-ibm-plex-mono)",
+                }}
+              />
+              <Tooltip
+                cursor={{ stroke: "rgba(255,255,255,0.1)" }}
+                content={(props: any) => (
+                  <ChartTooltip
+                    active={props.active}
+                    payload={props.payload}
+                    label={props.label}
+                    formatValue={(v) =>
+                      v === 0 ? "€0" : `−€${Math.abs(v).toFixed(0)}`
+                    }
+                    formatLabel={(l) => {
+                      const [y, m, d] = l.split("-").map(Number);
+                      return new Date(y, m - 1, d).toLocaleDateString(
+                        locale === "en" ? "en-US" : "es-ES",
+                        { day: "numeric", month: "long", year: "numeric" }
+                      );
+                    }}
+                    getColor={() => "#f06060"}
+                  />
+                )}
+              />
+              <Area
+                type="monotone"
+                dataKey="value"
+                stroke="#f06060"
+                strokeWidth={1.5}
+                fill="url(#dd-grad)"
+                dot={false}
+                activeDot={{ r: 4, fill: "#f06060" }}
+                animationDuration={600}
+              />
+              {maxDrawdownPoint && (
+                <ReferenceDot
+                  x={maxDrawdownPoint.date}
+                  y={maxDrawdownPoint.value}
+                  r={5}
+                  fill="#ffffff"
+                  stroke="#f06060"
+                  strokeWidth={2}
+                  label={{
+                    value: `Máx: −€${Math.abs(maxDrawdownPoint.value).toFixed(0)}`,
+                    position: "bottom",
+                    fill: "#f06060",
+                    fontSize: 11,
+                    fontFamily: "IBM Plex Mono",
+                  }}
+                />
+              )}
+            </AreaChart>
+          </ResponsiveContainer>
+        )}
       </ChartCard>
 
     </div>
