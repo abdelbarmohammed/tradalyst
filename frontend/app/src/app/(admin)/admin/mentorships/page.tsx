@@ -10,12 +10,10 @@ import type { AdminMentorshipsData } from "@/types";
 type Tab = "active" | "pending";
 
 function DissolveModal({
-  assignmentId,
   onConfirm,
   onCancel,
   loading,
 }: {
-  assignmentId: number;
   onConfirm: () => void;
   onCancel: () => void;
   loading: boolean;
@@ -108,7 +106,6 @@ export default function AdminMentorshipsPage() {
     <div className="max-w-[1100px] mx-auto space-y-5">
       {dissolveId !== null && (
         <DissolveModal
-          assignmentId={dissolveId}
           onConfirm={handleDissolve}
           onCancel={() => { setDissolveId(null); setDissolveError(null); }}
           loading={dissolving}
