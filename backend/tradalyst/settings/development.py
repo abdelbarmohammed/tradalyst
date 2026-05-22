@@ -18,3 +18,9 @@ CORS_ALLOWED_ORIGINS = [
 # httpOnly JWT cookie settings — no HTTPS required in development.
 COOKIE_SECURE: bool = False
 COOKIE_SAMESITE: str = "Lax"
+
+# Keep the browsable HTML interface available locally for debugging.
+REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"] = [  # type: ignore[index]
+    "rest_framework.renderers.JSONRenderer",
+    "rest_framework.renderers.BrowsableAPIRenderer",
+]

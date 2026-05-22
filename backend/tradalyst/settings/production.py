@@ -52,3 +52,9 @@ SECURE_HSTS_PRELOAD = True
 COOKIE_SECURE: bool = True
 COOKIE_SAMESITE: str = "None"
 COOKIE_DOMAIN: str = ".tradalyst.com"
+
+# Disable the DRF browsable HTML interface in production.
+# The API continues to work normally — responses are JSON only.
+REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"] = [  # type: ignore[index]
+    "rest_framework.renderers.JSONRenderer",
+]
