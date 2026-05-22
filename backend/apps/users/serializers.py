@@ -41,7 +41,51 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 
 class AdminUserSerializer(serializers.ModelSerializer):
+    trade_count = serializers.SerializerMethodField()
+    last_active = serializers.SerializerMethodField()
+    mentor_name = serializers.SerializerMethodField()
+    student_count = serializers.SerializerMethodField()
+
     class Meta:
         model = CustomUser
-        fields = ("id", "email", "display_name", "bio", "role", "is_active", "date_joined")
+        fields = (
+            "id", "email", "display_name", "bio", "role", "plan",
+            "is_active", "date_joined",
+            "trade_count", "last_active", "mentor_name", "student_count",
+        )
         read_only_fields = ("id", "email", "date_joined")
+
+    def get_trade_count(self, obj: CustomUser) -> int:
+        ann = getattr(obj, "trade_count_ann", None)
+        if ann is not None:
+            return ann
+        return obj.trades.count()
+
+    def get_last_active(self, obj: CustomUser) -> str:
+        last = getattr(obj, "last_trade_date_ann", None)
+        if last is None:
+            first_trade = obj.trades.order_by("-entry_time").first()
+            if first_trade:
+                last = first_trade.entry_time
+        if last:
+            return last.date().isoformat()
+        return obj.date_joined.date().isoformat()
+
+    def get_mentor_name(self, obj: CustomUser) -> str | None:
+        if obj.role != "trader":
+            return None
+        active = getattr(obj, "active_mentor_assignments", None)
+        if active is not None:
+            return active[0].mentor.display_name or active[0].mentor.email.split("@")[0] if active else None
+        assignment = obj.mentor_assignments.filter(is_active=True).select_related("mentor").first()
+        if assignment:
+            return assignment.mentor.display_name or assignment.mentor.email.split("@")[0]
+        return None
+
+    def get_student_count(self, obj: CustomUser) -> int | None:
+        if obj.role != "mentor":
+            return None
+        active = getattr(obj, "active_trader_assignments", None)
+        if active is not None:
+            return len(active)
+        return obj.trader_assignments.filter(is_active=True).count()

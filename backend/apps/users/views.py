@@ -1,7 +1,7 @@
 import logging
 from django.contrib.auth import authenticate
 from django.conf import settings
-from django.db.models import QuerySet
+from django.db.models import Count, Max, Prefetch, Q, QuerySet
 from rest_framework import generics, status, permissions
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -132,13 +132,47 @@ class UserMeView(generics.RetrieveUpdateAPIView):
 
 
 class AdminUserListView(generics.ListAPIView):
-    """Admin: list all users on the platform."""
+    """Admin: list all users on the platform with trade stats and mentor info."""
 
     permission_classes = [IsAdmin]
     serializer_class = AdminUserSerializer
 
     def get_queryset(self) -> QuerySet:
-        return CustomUser.objects.all().order_by("-date_joined")
+        from apps.mentors.models import MentorAssignment
+
+        qs = (
+            CustomUser.objects
+            .annotate(
+                trade_count_ann=Count("trades"),
+                last_trade_date_ann=Max("trades__entry_time"),
+            )
+            .prefetch_related(
+                Prefetch(
+                    "mentor_assignments",
+                    queryset=MentorAssignment.objects.filter(is_active=True).select_related("mentor"),
+                    to_attr="active_mentor_assignments",
+                ),
+                Prefetch(
+                    "trader_assignments",
+                    queryset=MentorAssignment.objects.filter(is_active=True),
+                    to_attr="active_trader_assignments",
+                ),
+            )
+        )
+
+        role = self.request.query_params.get("role")
+        if role:
+            qs = qs.filter(role=role)
+
+        search = self.request.query_params.get("search", "").strip()
+        if search:
+            qs = qs.filter(Q(email__icontains=search) | Q(display_name__icontains=search))
+
+        allowed_orderings = {"-date_joined", "date_joined", "email", "-email"}
+        ordering = self.request.query_params.get("ordering", "-date_joined")
+        qs = qs.order_by(ordering if ordering in allowed_orderings else "-date_joined")
+
+        return qs
 
 
 class AdminUserDetailView(generics.RetrieveUpdateAPIView):

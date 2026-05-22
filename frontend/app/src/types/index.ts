@@ -202,3 +202,76 @@ export type DateRange = "today" | "week" | "month" | "all";
 export interface ApiValidationError {
   [field: string]: string | string[];
 }
+
+// ── Admin ─────────────────────────────────────────────────────────────────────
+
+export interface AdminStats {
+  users: {
+    total: number;
+    traders: number;
+    mentors: number;
+    admins: number;
+    free: number;
+    pro: number;
+    new_this_week: number;
+    new_last_week: number;
+  };
+  trades: {
+    total: number;
+    this_week: number;
+    last_week: number;
+    today: number;
+  };
+  mentorships: {
+    active: number;
+    pending_requests: number;
+  };
+  top_traders: Array<{
+    id: number;
+    display_name: string;
+    email: string;
+    trade_count: number;
+    win_rate: number;
+    plan: "free" | "pro";
+    last_active: string | null;
+  }>;
+  signups_last_30_days: Array<{ date: string; count: number }>;
+  recent_activity: Array<{
+    type: "registration" | "assignment";
+    display_name?: string;
+    mentor_name?: string;
+    trader_name?: string;
+    timestamp: string;
+  }>;
+}
+
+export interface AdminUserEnhanced {
+  id: number;
+  email: string;
+  display_name: string;
+  role: "trader" | "mentor" | "admin";
+  plan: "free" | "pro";
+  is_active: boolean;
+  date_joined: string;
+  trade_count: number;
+  last_active: string;
+  mentor_name: string | null;
+  student_count: number | null;
+}
+
+export interface AdminMentorshipsData {
+  assignments: Array<{
+    id: number;
+    mentor: { id: number; display_name: string; email: string };
+    trader: { id: number; display_name: string; email: string; trade_count: number; plan: string };
+    assigned_at: string;
+    is_active: boolean;
+  }>;
+  requests: Array<{
+    id: number;
+    mentor: { id: number; display_name: string; email: string };
+    trader: { id: number; display_name: string; email: string };
+    status: "pending" | "accepted" | "rejected";
+    created_at: string;
+  }>;
+}

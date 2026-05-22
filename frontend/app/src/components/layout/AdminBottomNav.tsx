@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Users, Settings } from "lucide-react";
+import { Users, GitMerge, Settings } from "lucide-react";
 
 export default function AdminBottomNav() {
   const pathname = usePathname();
@@ -11,13 +11,16 @@ export default function AdminBottomNav() {
 
   const ITEMS = [
     { href: "/admin", label: t("users"), icon: Users },
+    { href: "/admin/mentorships", label: t("mentorships"), icon: GitMerge },
     { href: "/settings", label: t("configuration"), icon: Settings },
   ];
 
   return (
     <nav className="lg:hidden fixed bottom-0 inset-x-0 z-50 bg-surface border-t border-white/[0.06] flex">
       {ITEMS.map(({ href, label, icon: Icon }) => {
-        const active = pathname === href || pathname.startsWith(`${href}/`);
+        const active = href === "/admin"
+          ? pathname === "/admin"
+          : pathname === href || pathname.startsWith(`${href}/`);
         return (
           <Link
             key={href}

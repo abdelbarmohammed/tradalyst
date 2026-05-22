@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Users, Settings, LogOut, Sun, Moon } from "lucide-react";
+import { Users, GitMerge, Settings, LogOut, Sun, Moon } from "lucide-react";
 import { logout } from "@/lib/auth";
 import { patch } from "@/lib/api";
 import { MARKETING_URL } from "@/lib/urls";
@@ -71,6 +71,7 @@ export default function AdminSidebar() {
 
   const NAV_ITEMS = [
     { href: "/admin", label: t("users"), icon: Users },
+    { href: "/admin/mentorships", label: t("mentorships"), icon: GitMerge },
     { href: "/settings", label: t("configuration"), icon: Settings },
   ];
 
@@ -103,7 +104,9 @@ export default function AdminSidebar() {
 
       <nav className="flex-1 px-2 py-4 space-y-[2px] overflow-y-auto">
         {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
-          const active = pathname === href || pathname.startsWith(`${href}/`);
+          const active = href === "/admin"
+            ? pathname === "/admin"
+            : pathname === href || pathname.startsWith(`${href}/`);
           return (
             <Link
               key={href}
