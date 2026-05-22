@@ -1,9 +1,9 @@
 ---
-title: "¿Qué Porcentaje de Traders Pierde Dinero? Estadísticas Reales 2026"
+title: "¿Qué Porcentaje de Traders Retail Pierde Dinero? Estadísticas 2026"
 seoTitle: "Porcentaje de Traders que Pierden Dinero: Estadísticas 2026"
 description: "Entre el 70-80% de traders retail pierde dinero según reguladores europeos. Analizamos las estadísticas reales, las causas y cómo evitar estar en ese grupo."
 date: "2026-05-15"
-lastModified: "2026-05-21"
+lastModified: "2026-05-22"
 author: "Tradalyst"
 category: "performance"
 keywords:
@@ -20,7 +20,7 @@ featuredImage: "/images/blog/porcentaje-traders-pierden.webp"
 featuredImageAlt: "Gráfico de barras mostrando el porcentaje de traders retail que pierde dinero por broker — Tradalyst"
 ---
 
-Entre el 70% y el 80% de los traders retail pierden dinero, según los datos publicados por los reguladores financieros europeos y estadounidenses. No es una estimación ni una opinión: es un número publicado obligatoriamente por cada broker en Europa como consecuencia de la regulación ESMA de 2018, y que puedes verificar en cualquier plataforma de CFDs esta misma tarde.
+El porcentaje de traders retail que pierden dinero según las estadísticas oficiales se sitúa entre el 74% y el 89%, según los datos publicados por los reguladores financieros europeos. No es una estimación ni una opinión: es un número publicado obligatoriamente por cada broker en Europa como consecuencia de la regulación ESMA de 2018, y que puedes verificar en cualquier plataforma de CFDs esta misma tarde.
 
 Lo que es más interesante que el número en sí es lo que hay detrás. Los reguladores no analizan por qué pierden — solo publican el porcentaje. Los estudios académicos sobre el tema apuntan a patrones conductuales repetibles: no es la estrategia lo que falla, es el comportamiento. Eso tiene una implicación directa: si el problema es conductual, es detectable, medible y modificable.
 
@@ -32,7 +32,14 @@ Este artículo analiza las estadísticas reales, qué las explica y qué diferen
 
 Desde agosto de 2018, la ESMA (Autoridad Europea de Valores y Mercados) obliga a todos los brokers europeos que ofrecen CFDs a publicar en su web el porcentaje de cuentas de clientes minoristas que pierde dinero. No es opcional. No es estimado. Es el porcentaje real calculado sobre el período anterior, actualizado periódicamente.
 
-Los datos actuales publicados por los principales brokers europeos son los siguientes:
+Los datos agregados por organismo regulador muestran los siguientes rangos para el período 2022-2026:
+
+| Regulador | % traders que pierde |
+|-----------|----------------------|
+| ESMA (Europa) | 74–89% |
+| FCA (Reino Unido) | 71–82% |
+
+A nivel de broker individual, los datos publicados actualmente son los siguientes:
 
 | Broker | Regulador | % cuentas minoristas que pierde dinero |
 |--------|-----------|---------------------------------------|
@@ -151,6 +158,10 @@ Si quieres calcular estas métricas sobre tu historial real, Tradalyst las calcu
 
 ## Preguntas frecuentes
 
+### ¿Qué porcentaje de traders pierde dinero?
+
+Entre el 74% y el 89% de los traders retail pierde dinero, según los datos publicados por los reguladores financieros europeos bajo la normativa ESMA. La cifra varía por broker, mercado y período, pero nunca ha bajado del 68% en ningún broker regulado europeo en ningún trimestre publicado desde 2018. En España específicamente, la CNMV documentó un 82,5% de inversores en CFDs con pérdidas netas en el período 2018-2020.
+
 ### ¿Qué porcentaje de traders gana dinero?
 
 Según los datos publicados por los brokers europeos bajo regulación ESMA, entre el 18% y el 32% de los traders retail son rentables en cualquier período dado. La cifra varía por broker y período, pero el rango consistente está entre el 20% y el 27%. Ser rentable de forma consistente — no solo en un trimestre favorable — es considerablemente más raro.
@@ -187,7 +198,7 @@ Si quieres saber en qué grupo estás, el primer paso es medir. El resto viene s
 
 ## Artículos relacionados
 
-- [Por qué el 80% de los traders pierde dinero (y no es lo que crees)](/blog/por-que-pierden-dinero-los-traders)
+- [Por qué el 74% de los traders pierde dinero (y no es lo que crees)](/blog/por-que-pierden-dinero-los-traders)
 - [Las métricas de trading que importan](/blog/metricas-trading)
 - [Qué es el FOMO trading y cómo evitarlo](/blog/fomo-trading)
 - [Qué es el revenge trading y cómo evitarlo](/blog/revenge-trading)

@@ -1,9 +1,9 @@
 ---
-title: "Por qué el 80% de los traders pierden dinero (y no es lo que crees)"
-seoTitle: "Por Qué el 80% de los Traders Pierde Dinero (Con Datos)"
+title: "Por qué el 74% de los traders pierde dinero (y no es lo que crees)"
+seoTitle: "Por Qué el 74% de los Traders Pierde Dinero"
 description: "Estadísticas reales sobre traders retail: por qué la mayoría pierde dinero y los patrones de comportamiento que lo explican. ¿Reconoces alguno?"
 date: "2026-04-14"
-lastModified: "2026-05-21"
+lastModified: "2026-05-22"
 author: "Tradalyst"
 category: "psychology"
 keywords:
@@ -21,13 +21,38 @@ featuredImage: "/images/blog/por-que-pierden-traders.webp"
 featuredImageAlt: "Estadística de pérdidas en traders retail — el 80% pierde dinero — Tradalyst"
 ---
 
-La estadística es conocida: entre el 70% y el 85% de los traders retail pierden dinero. Dependiendo del mercado y el período, algunos estudios elevan ese número al 90%.
+Las estadísticas de traders retail que pierden dinero son contundentes: entre el 74% y el 89% de los traders retail pierden dinero según los reguladores europeos. Dependiendo del mercado y el período, la ESMA sitúa el rango en el 74-89% de cuentas minoristas con pérdidas netas.
 
 La explicación habitual apunta a la falta de formación, a las comisiones, a la ventaja de los algoritmos institucionales o a la mala gestión del riesgo. Todas esas cosas contribuyen. Pero hay una causa más profunda que los datos muestran repetidamente y que casi nadie menciona directamente.
 
 **La mayoría de los traders no pierden por no saber qué hacer. Pierden por no hacer lo que saben.**
 
 La brecha entre conocimiento y ejecución es el problema real del trader retail — y es mucho más difícil de cerrar que aprender una estrategia nueva.
+
+---
+
+## Estadísticas oficiales: el porcentaje exacto que pierden los traders retail
+
+No hace falta confiar en estimaciones. Desde 2018, la regulación ESMA obliga a todos los brokers europeos que ofrecen CFDs a publicar el porcentaje real de cuentas minoristas que pierde dinero. Los datos son verificables en cualquier plataforma regulada.
+
+| Regulador | % traders que pierde |
+|-----------|----------------------|
+| ESMA (Europa) | 74–89% |
+| FCA (Reino Unido) | 71–82% |
+
+Dentro de esos rangos, los datos más recientes publicados por los principales brokers europeos muestran porcentajes entre el 68% y el 82%, con una media ponderada consistentemente superior al 74%.
+
+### Datos de la ESMA
+
+La ESMA (Autoridad Europea de Valores y Mercados) impuso en agosto de 2018 la obligación de publicar el porcentaje de cuentas minoristas con pérdidas en cada período. Los análisis acumulados desde entonces muestran un rango del **74% al 89%** según el broker, el mercado y el período. La cifra nunca ha bajado del 68% en ningún broker regulado europeo en ningún trimestre publicado.
+
+### Datos de la FCA en Reino Unido
+
+La FCA (Financial Conduct Authority) publicó en 2017 un estudio sobre el comportamiento de los clientes de CFDs. Sus conclusiones principales: el **82% de las cuentas estudiadas** cerraron el período con pérdidas, la pérdida media fue de 2.200£ por cuenta, y el volumen de operaciones no correlacionó positivamente con la rentabilidad.
+
+### Datos de la CNMV en España
+
+La CNMV publicó en 2020 un análisis del período 2018-2020 que encontró que el **82,5% de los inversores españoles** en CFDs cerró con pérdidas netas. El dato más relevante: el porcentaje era consistente entre traders con experiencia declarada y novatos — la experiencia autopercibida no protege de las pérdidas.
 
 ---
 
@@ -157,7 +182,7 @@ Los traders consistentemente rentables tienen tres cosas: un proceso de revisió
 
 ## Conclusión
 
-**El 80% de los traders pierden dinero** no porque el mercado sea un sistema diseñado para arruinarlos — aunque la asimetría de información existe. Pierden porque operan sin ventaja estadística comprobada, porque sus sesgos cognitivos sabotean su ejecución y porque no tienen los datos necesarios para identificar y corregir sus patrones.
+**El 74% de los traders pierden dinero** no porque el mercado sea un sistema diseñado para arruinarlos — aunque la asimetría de información existe. Pierden porque operan sin ventaja estadística comprobada, porque sus sesgos cognitivos sabotean su ejecución y porque no tienen los datos necesarios para identificar y corregir sus patrones.
 
 La solución no es más formación sobre estrategias. Es datos sobre tu propio comportamiento, un proceso de revisión sistemático y reglas que protejan tu cuenta de tus peores versiones.
 

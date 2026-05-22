@@ -1,9 +1,9 @@
 ---
 title: "Las métricas de trading que importan (y las que solo distraen)"
-seoTitle: "Métricas de Trading Esenciales: Win Rate, R:R y Más (2026)"
-description: "Descubre las 5 métricas que todo trader debe calcular. Win rate, ratio R:R, profit factor y drawdown explicados con ejemplos reales. Analiza las tuyas gratis."
+seoTitle: "Métricas de Trading: Win Rate, R:R y Profit Factor"
+description: "Aprende a calcular las métricas de trading más importantes: win rate, ratio R:R, profit factor y drawdown. Con ejemplos reales y fórmulas."
 date: "2026-04-10"
-lastModified: "2026-05-21"
+lastModified: "2026-05-22"
 author: "Tradalyst"
 category: "performance"
 keywords:
@@ -23,7 +23,7 @@ featuredImage: "/images/blog/metricas-trading.webp"
 featuredImageAlt: "Dashboard con métricas de trading — win rate, drawdown y profit factor — Tradalyst"
 ---
 
-El análisis de **métricas trading** empieza, para la mayoría de los traders, con la pregunta equivocada: ¿cuánto gané este mes? El P&L total no te dice si eres buen trader. Solo te dice si ganaste o perdiste dinero en un período concreto.
+El análisis de las **métricas de trading** empieza, para la mayoría de los traders, con la pregunta equivocada: ¿cuánto gané este mes? El P&L total no te dice si eres buen trader. Solo te dice si ganaste o perdiste dinero en un período concreto.
 
 Un trader puede ganar dinero en un mes con una estrategia que tiene un ratio riesgo/recompensa negativo, simplemente porque tuvo suerte en unas pocas operaciones grandes. Esa estrategia lo arruinará en seis meses. Otro trader puede perder dinero en un mes con una estrategia estadísticamente sólida, simplemente porque el mercado estuvo en un régimen desfavorable para su setup. Esa estrategia lo hará rentable a largo plazo si la ejecuta con consistencia.
 
@@ -167,7 +167,53 @@ El drawdown no es solo un número de rendimiento — es un parámetro de supervi
 
 ---
 
-## Cómo interpretar tu ratio R:R cuando el mercado cambia
+## Cómo calcular cada métrica paso a paso
+
+Tener las fórmulas en un solo lugar facilita el cálculo manual. Aquí tienes las cinco métricas de trading fundamentales con el procedimiento exacto.
+
+**Win Rate**
+
+Fórmula: (Operaciones ganadoras ÷ Total de operaciones cerradas) × 100
+
+Ejemplo: 34 operaciones ganadoras sobre 60 cerradas → Win Rate = (34 ÷ 60) × 100 = **56,7%**
+
+Solo se cuentan operaciones cerradas con resultado definitivo. Las operaciones abiertas no entran en el cálculo.
+
+**Ratio Riesgo/Recompensa (R:R)**
+
+Fórmula antes de entrar: (Precio objetivo − Precio entrada) ÷ (Precio entrada − Stop loss)
+
+Ejemplo: entrada en 100€, stop en 97€, objetivo en 106€ → R:R = (106 − 100) ÷ (100 − 97) = 6 ÷ 3 = **1:2**
+
+R:R realizado (post-trade): Ganancia media de las operaciones ganadoras ÷ Pérdida media de las perdedoras. Si el realizado es sistemáticamente inferior al planificado, estás cerrando ganadoras antes del objetivo.
+
+**Profit Factor**
+
+Fórmula: Suma de todas las ganancias brutas ÷ Suma de todas las pérdidas brutas
+
+Ejemplo: ganancias brutas totales de 3.200€, pérdidas brutas totales de 1.800€ → Profit Factor = 3.200 ÷ 1.800 = **1,78**
+
+Usa siempre importes brutos (antes de comisiones) para mantener la comparabilidad entre períodos con distinto volumen de operaciones.
+
+**Drawdown Máximo**
+
+Fórmula: (Pico máximo de capital − Valle mínimo posterior) ÷ Pico máximo × 100
+
+Ejemplo: cuenta en 15.000€, cae a 11.700€ antes de recuperarse → Drawdown = (15.000 − 11.700) ÷ 15.000 × 100 = **22%**
+
+Para calcularlo sobre toda tu historia, identifica todos los picos de la curva de capital y el valle mínimo posterior a cada uno. El drawdown máximo es el mayor descenso pico-a-valle de toda la serie.
+
+**Valor Esperado (Expected Value)**
+
+Fórmula: (Win Rate × Ganancia media) − (Loss Rate × Pérdida media)
+
+Ejemplo: win rate 54%, ganancia media 110€, pérdida media 70€ → EV = (0,54 × 110) − (0,46 × 70) = 59,4 − 32,2 = **+27,2€ por operación**
+
+Un valor esperado positivo confirma que tu ventaja estadística es real. Con EV negativo, una racha ganadora solo puede ser ruido estadístico — el sistema pierde dinero a largo plazo aunque algunos meses sean buenos.
+
+---
+
+## Cómo leer tus métricas cuando el mercado cambia
 
 El ratio R:R no es un número fijo — debe ajustarse cuando cambia el régimen de mercado.
 
@@ -178,6 +224,10 @@ El ratio R:R no es un número fijo — debe ajustarse cuando cambia el régimen 
 **El impacto de la volatilidad:** En períodos de alta volatilidad (eventos macro, noticias), el stop debe ampliarse para absorber el ruido. Si amplías el stop sin reducir el tamaño de posición para mantener el mismo riesgo monetario, el R:R matemático cae pero el riesgo real no cambia.
 
 **La regla práctica:** Si el régimen de mercado de esta semana es diferente al de las últimas cuatro, revisa tus **métricas de trading** por régimen antes de asumir que cualquier deterioro es de ejecución. Puede ser simplemente que el mercado cambió y tu sistema está diseñado para otro entorno.
+
+**Drawdown en mercados de alta volatilidad:** Cuando la volatilidad se dispara (eventos macro, datos económicos clave), el drawdown típico se amplía aunque la estrategia no haya cambiado. Antes de concluir que hay un problema de ejecución, compara el drawdown actual con la volatilidad del mercado en el mismo período. Un drawdown del 8% en una semana con volatilidad el doble de lo normal puede ser perfectamente consistente con tu historial.
+
+**Profit factor por régimen:** Calcula el profit factor separado por períodos de tendencia vs. períodos laterales. Si la diferencia es mayor del 30%, tienes una estrategia de tendencia (o de rango) disfrazada de estrategia universal. Operar fuera del régimen correcto destruye las métricas aunque el sistema sea bueno.
 
 ---
 
@@ -261,6 +311,34 @@ La diferencia entre calcular métricas a mano y tenerlas calculadas automáticam
 
 ---
 
+## Métricas que el 90% de traders ignora
+
+Las cinco métricas anteriores son conocidas. Las siguientes raramente aparecen en los diarios de trading retail, pero son las que explican la diferencia entre un trader mediocre y uno consistente.
+
+**Tasa de seguimiento del plan**
+
+Porcentaje de operaciones en las que seguiste el plan al 100%: sin mover el stop, sin cerrar antes del objetivo, sin modificar el tamaño. Si no tienes este dato, no puedes distinguir si el problema es la estrategia o la ejecución.
+
+Cómo medirla: en cada operación, marca una sola variable — "plan seguido" o "plan modificado". Después de 30 operaciones, calcula el P&L medio de cada categoría por separado. En casi todos los casos, la diferencia es significativa.
+
+**Coste real del comportamiento impulsivo**
+
+El revenge trading y el FOMO no destruyen cuentas por el trade individual — las destruyen por el patrón acumulado. Mide cuánto pierde tu cuenta en los días donde registraste al menos una operación emocional no planificada, comparado con tu pérdida media diaria en días normales. Ese ratio es el coste real de los días malos — y suele ser entre dos y cuatro veces la pérdida habitual.
+
+**Win rate por estado emocional**
+
+¿Cuánto ganas cuando estás confiado frente a cuando tienes FOMO o estás en revenge? Esta segmentación revela que no existe "un" win rate: hay múltiples win rates según el estado emocional en el momento de entrar. Datos de traders que usan Tradalyst muestran consistentemente win rates del 20-25% en operaciones de FOMO frente al 55-65% en operaciones planificadas. La brecha es el número más accionable de todo tu análisis.
+
+**Operativas fuera del horario de ventaja**
+
+Si has identificado que rindes mejor entre las 9:00 y las 12:00, ¿qué porcentaje de tus operaciones cae fuera de ese horario? Un 40% de operaciones en horario de bajo rendimiento puede explicar por qué el P&L global no refleja la calidad de tus mejores sesiones. Reducir la operativa a las horas de ventaja es una de las intervenciones más sencillas y con mayor impacto.
+
+**R:R realizado vs. planificado por semana**
+
+La diferencia sistemática entre el R:R que planeas antes de entrar y el que realmente consigues es la medida más directa de tus errores de gestión de posición. Si la diferencia es mayor de 0,3 puntos de forma consistente, estás o bien moviendo stops demasiado pronto o bien cerrando ganadoras antes del objetivo — ambos son hábitos corregibles con datos.
+
+---
+
 ## Cómo interpretar las métricas en conjunto
 
 Ninguna métrica funciona en aislamiento. El cuadro completo:
@@ -277,25 +355,29 @@ Si el profit factor es bajo pero la consistencia de ejecución es alta, el probl
 
 ## Preguntas frecuentes sobre métricas trading
 
+### ¿Qué es el win rate en trading?
+
+El win rate es el porcentaje de operaciones que cierras con beneficio respecto al total de operaciones cerradas. Se calcula dividiendo las operaciones ganadoras entre el total y multiplicando por 100. Un win rate del 55% significa que 55 de cada 100 operaciones cerradas termina en positivo. Por sí solo no determina la rentabilidad — necesitas combinarlo con el ratio R:R para saber si la estrategia tiene ventaja matemática real.
+
 ### ¿Qué métricas son más importantes en trading?
 
 Las cinco métricas fundamentales son: win rate segmentado (no global), ratio riesgo/recompensa calculado antes de entrar, profit factor para evaluar la ventaja estadística real, drawdown máximo para gestionar el riesgo de ruina, y consistencia de ejecución para distinguir si el problema es la estrategia o el comportamiento. El P&L total no está en esta lista porque no diagnostica nada por sí solo: solo describe el resultado, no las causas.
 
-### ¿Cómo se calcula el ratio riesgo beneficio?
+### ¿Cuánto win rate necesito para ser rentable?
 
-El ratio riesgo/beneficio se calcula dividiendo la ganancia potencial entre el riesgo asumido. Fórmula: R:R = (Precio objetivo − Precio entrada) / (Precio entrada − Stop loss). Si tu stop está a 40 puntos de la entrada y tu objetivo a 80 puntos, el R:R es 1:2. Este cálculo debe hacerse siempre antes de entrar — el R:R calculado después del resultado no sirve para tomar la decisión de entrada.
+Depende directamente de tu ratio R:R. La fórmula del punto de equilibrio es: Win Rate mínimo = 1 ÷ (1 + R:R). Con R:R 1:1, necesitas ganar el 50%. Con R:R 1:2, basta con el 33%. Con R:R 1:3, el 25%. Esto significa que puedes perder el 75% de tus operaciones y seguir siendo rentable si tu R:R medio es 1:3. El reto psicológico es aguantar las pérdidas consecutivas que implica ese porcentaje de operaciones perdedoras sin abandonar el sistema.
 
-### ¿Qué es el profit factor en trading?
+### ¿Qué es el ratio riesgo beneficio?
 
-El profit factor es la suma de todas tus ganancias brutas dividida entre la suma de todas tus pérdidas brutas. Un valor de 1.0 significa equilibrio exacto. Por encima de 1.5 indica ventaja estadística real. Por encima de 2.0 es excelente para trading discrecional. Se calcula sobre el total histórico de operaciones — cuantas más operaciones incluyas, más fiable es el número resultante.
+El ratio riesgo/beneficio (R:R) mide cuánto ganas de media por cada euro que arriesgas en una operación. Se calcula antes de entrar: (Precio objetivo − Precio entrada) ÷ (Precio entrada − Stop loss). Un R:R de 1:2 significa que por cada euro arriesgado, ganas dos cuando el trade funciona. Es la métrica de trading que más influye en el punto de equilibrio de cualquier estrategia — un R:R favorable puede hacer rentable un sistema con win rate inferior al 40%.
 
-### ¿Cuántas operaciones necesito para tener estadísticas fiables?
+### ¿Qué es el profit factor?
 
-Para que las métricas trading sean estadísticamente significativas necesitas un mínimo de 30 operaciones — aunque 50-100 es lo ideal. Con menos de 30, el win rate y el profit factor pueden fluctuar enormemente por puro azar. Un profit factor de 2.5 sobre 15 operaciones no significa nada concreto. El mismo número sobre 100 operaciones es una señal sólida. En la práctica, necesitas entre 1 y 3 meses de trading activo antes de poder hacer diagnósticos fiables sobre tu estrategia.
+El profit factor es la suma de todas tus ganancias brutas dividida entre la suma de todas tus pérdidas brutas. Un valor de 1,0 significa equilibrio exacto. Por encima de 1,5 indica ventaja estadística real. Por encima de 2,0 es excelente para trading discrecional. Es más robusto que el win rate porque incorpora tanto la frecuencia como la magnitud de cada operación — un profit factor de 1,8 sobre 100 operaciones es una señal sólida aunque el win rate sea del 40%.
 
-### ¿Qué win rate necesito para ser rentable?
+### ¿Cómo mejorar mis métricas de trading?
 
-Depende de tu ratio R:R. La fórmula del punto de equilibrio es: Win Rate mínimo = 1 / (1 + R:R). Con R:R 1:1, necesitas ganar el 50%. Con R:R 1:2, necesitas ganar el 33%. Con R:R 1:3, basta con ganar el 25%. Esto significa que puedes perder el 75% de tus operaciones y seguir siendo rentable si tu R:R medio es 1:3. El problema es que un R:R alto requiere más paciencia para mantener las posiciones abiertas — psicológicamente más difícil, pero matemáticamente más eficiente.
+El proceso más efectivo tiene cuatro pasos: primero, calcular las métricas actuales sobre las últimas 50-100 operaciones (win rate, R:R realizado, profit factor). Segundo, segmentar por estado emocional, horario y activo para identificar dónde están las pérdidas concentradas. Tercero, implantar una regla específica para el segmento con peor rendimiento — no un cambio de estrategia global, sino una corrección quirúrgica. Cuarto, medir de nuevo tras 30-40 operaciones para ver si el cambio tuvo efecto. La mejora sin medición es solo esperanza.
 
 ---
 
@@ -314,5 +396,5 @@ Con estas métricas calculadas sobre tus propios datos, tienes el mapa completo 
 ## Artículos relacionados
 
 - [Cómo llevar un diario de trading efectivo](/blog/diario-de-trading)
-- [Por qué el 80% de los traders pierden dinero](/blog/por-que-pierden-dinero-los-traders)
+- [Por qué el 74% de los traders pierde dinero](/blog/por-que-pierden-dinero-los-traders)
 - [Qué es el FOMO trading y cómo evitarlo](/blog/fomo-trading)
