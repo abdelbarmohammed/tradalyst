@@ -170,3 +170,39 @@ html.light .divide-white\/\[0\.06\] > * + * { border-color: rgba(0,0,0,0.06); }
 html.light .recharts-cartesian-axis-tick-value { fill: #6b7280 !important; }
 html.light .recharts-cartesian-grid-horizontal line,
 html.light .recharts-cartesian-grid-vertical line { stroke: rgba(0,0,0,0.06) !important; }
+
+/* ── Heatmap card: separator + responsive layout ─────────────────────────── */
+.heatmap-separator {
+  border-left: 1px solid rgba(255, 255, 255, 0.06);
+  padding-left: 40px;
+}
+
+html.light .heatmap-separator {
+  border-left: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+@media (max-width: 1023px) {
+  .heatmap-separator {
+    border-left: none;
+    padding-left: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding-top: 20px;
+  }
+
+  html.light .heatmap-separator {
+    border-left: none;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+  }
+}
+
+/* Stats panel: 2-col grid on mobile, single col on desktop */
+.heatmap-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+@media (min-width: 1024px) {
+  .heatmap-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}

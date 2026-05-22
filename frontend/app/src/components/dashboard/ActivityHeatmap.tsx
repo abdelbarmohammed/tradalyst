@@ -6,9 +6,9 @@ import { useTranslations, useLocale } from "next-intl";
 import type { HeatmapDay } from "@/types";
 
 const WEEKS = 26;
-const CELL = 12;
 const GAP = 2;
 const DAY_LABEL_W = 14;
+const SWATCH = 10;
 
 const DOW_NAMES_EN = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const DOW_NAMES_ES = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
@@ -89,7 +89,7 @@ export default function ActivityHeatmap({ data, loading }: Props) {
 
   if (loading) {
     return (
-      <div className="card p-5">
+      <div className="card p-6">
         <div className="skeleton h-3 w-24 mb-4 rounded-sm" />
         <div className="skeleton w-full h-[120px] rounded-sm" />
       </div>
@@ -175,22 +175,17 @@ export default function ActivityHeatmap({ data, loading }: Props) {
     weeks.push(week);
   }
 
-  const gridWidth = WEEKS * (CELL + GAP) - GAP;
-
-  const statRow = (
-    label: string,
-    value: string | null,
-    valueColor?: string
-  ) => (
+  const statRow = (label: string, value: string | null, valueColor?: string) => (
     <div
       key={label}
       style={{
         display: "flex",
         justifyContent: "space-between",
-        alignItems: "baseline",
-        padding: "8px 0",
+        alignItems: "center",
+        padding: "10px 0",
         borderBottom: "1px solid var(--border-subtle)",
         gap: 8,
+        minHeight: 40,
       }}
     >
       <span
@@ -219,172 +214,140 @@ export default function ActivityHeatmap({ data, loading }: Props) {
   );
 
   return (
-    <div className="card p-5">
-      <p className="font-mono text-[10px] uppercase tracking-eyebrow text-muted mb-3">
-        {t("heatmapTitle")}
-      </p>
+    <div className="card" style={{ padding: 24 }}>
+      {/* Two-column layout: stacks on mobile, side-by-side on desktop */}
+      <div className="grid grid-cols-1 gap-0 lg:grid-cols-[58fr_42fr] lg:gap-10">
 
-      <div className="flex gap-6 items-start">
-        {/* Left: heatmap grid + legend */}
-        <div className="flex-1 min-w-0">
-          <div className="overflow-x-auto">
-            <div style={{ minWidth: DAY_LABEL_W + 4 + gridWidth }}>
-              {/* Month labels row */}
-              <div
-                style={{
-                  marginLeft: DAY_LABEL_W + 4,
-                  position: "relative",
-                  height: 16,
-                  width: gridWidth,
-                  marginBottom: 4,
-                }}
+        {/* ── LEFT COLUMN: title + heatmap grid + legend ── */}
+        <div className="min-w-0">
+          <p
+            className="font-mono text-[10px] uppercase text-muted"
+            style={{ letterSpacing: "0.1em", marginBottom: 16 }}
+          >
+            {t("heatmapTitle")}
+          </p>
+
+          {/* Month labels row — aligned with the cell grid start */}
+          <div
+            style={{
+              marginLeft: DAY_LABEL_W + GAP + 2,
+              marginBottom: 4,
+              display: "grid",
+              gridTemplateColumns: `repeat(${WEEKS}, 1fr)`,
+              gap: GAP,
+              overflow: "hidden",
+            }}
+          >
+            {monthLabels.map(({ weekIndex, label }) => (
+              <span
+                key={`${label}-${weekIndex}`}
+                className="font-mono text-[9px] text-muted"
+                style={{ gridColumnStart: weekIndex + 1, whiteSpace: "nowrap", overflow: "hidden" }}
               >
-                {monthLabels.map(({ weekIndex, label }) => (
-                  <span
-                    key={`${label}-${weekIndex}`}
-                    className="font-mono text-[9px] text-muted absolute"
-                    style={{ left: weekIndex * (CELL + GAP) }}
-                  >
-                    {label}
-                  </span>
-                ))}
-              </div>
+                {label}
+              </span>
+            ))}
+          </div>
 
-              {/* Day labels + cell grid */}
-              <div style={{ display: "flex", gap: 4 }}>
+          {/* DOW labels + cell grid — flex row, both stretch to same height */}
+          <div style={{ display: "flex", gap: GAP + 2, alignItems: "stretch" }}>
+            {/* Day-of-week labels: grid rows match cell rows via 1fr */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateRows: "repeat(7, 1fr)",
+                gap: GAP,
+                width: DAY_LABEL_W,
+                flexShrink: 0,
+              }}
+            >
+              {DAYS.map((label, i) => (
                 <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: GAP,
-                    width: DAY_LABEL_W,
-                    flexShrink: 0,
-                  }}
+                  key={`${label}-${i}`}
+                  className="font-mono text-muted flex items-center justify-end"
+                  style={{ fontSize: 8, opacity: i % 2 === 0 ? 1 : 0 }}
                 >
-                  {DAYS.map((label, i) => (
+                  {label}
+                </div>
+              ))}
+            </div>
+
+            {/* Heatmap cells: CSS grid fills the full left-column width */}
+            <div
+              style={{
+                flex: 1,
+                display: "grid",
+                gridTemplateColumns: `repeat(${WEEKS}, 1fr)`,
+                gridAutoFlow: "column",
+                gridTemplateRows: "repeat(7, auto)",
+                gap: GAP,
+              }}
+            >
+              {weeks.flatMap((week) =>
+                week.map((iso) => {
+                  const hit = byDate.get(iso);
+                  const hasData = !!hit && hit.tradeCount > 0;
+                  const isToday = iso === todayISO;
+
+                  return (
                     <div
-                      key={`${label}-${i}`}
-                      className="font-mono text-muted flex items-center justify-end"
-                      style={{
-                        height: CELL,
-                        fontSize: 8,
-                        opacity: i % 2 === 0 ? 1 : 0,
+                      key={iso}
+                      title={iso}
+                      onClick={() => {
+                        if (hasData) router.push(`/journal?date=${iso}`);
                       }}
-                    >
-                      {label}
-                    </div>
-                  ))}
-                </div>
-
-                <div style={{ display: "flex", gap: GAP }}>
-                  {weeks.map((week, wi) => (
-                    <div
-                      key={wi}
-                      style={{ display: "flex", flexDirection: "column", gap: GAP }}
-                    >
-                      {week.map((iso) => {
-                        const hit = byDate.get(iso);
-                        const hasData = !!hit && hit.tradeCount > 0;
-                        const isToday = iso === todayISO;
-
-                        return (
-                          <div
-                            key={iso}
-                            title={iso}
-                            onClick={() => {
-                              if (hasData) router.push(`/journal?date=${iso}`);
-                            }}
-                            onMouseEnter={(e) => {
-                              if (!hit) return;
-                              const rect = e.currentTarget.getBoundingClientRect();
-                              setTooltip({
-                                day: hit,
-                                x: rect.left + rect.width / 2,
-                                y: rect.top,
-                              });
-                            }}
-                            onMouseLeave={() => setTooltip(null)}
-                            style={{
-                              width: CELL,
-                              height: CELL,
-                              borderRadius: 2,
-                              flexShrink: 0,
-                              cursor: hasData ? "pointer" : "default",
-                              backgroundColor: hasData
-                                ? heatColor(hit.pnl, maxAbs)
-                                : "var(--surface)",
-                              border: isToday
-                                ? "1px solid var(--text-secondary)"
-                                : "1px solid var(--border)",
-                              boxSizing: "border-box",
-                              transition: "opacity 0.15s",
-                            }}
-                          />
-                        );
-                      })}
-                    </div>
-                  ))}
-                </div>
-              </div>
+                      onMouseEnter={(e) => {
+                        if (!hit) return;
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        setTooltip({ day: hit, x: rect.left + rect.width / 2, y: rect.top });
+                      }}
+                      onMouseLeave={() => setTooltip(null)}
+                      style={{
+                        aspectRatio: "1",
+                        borderRadius: 2,
+                        cursor: hasData ? "pointer" : "default",
+                        backgroundColor: hasData
+                          ? heatColor(hit!.pnl, maxAbs)
+                          : "var(--surface)",
+                        border: isToday
+                          ? "1px solid var(--text-secondary)"
+                          : "1px solid var(--border)",
+                        boxSizing: "border-box",
+                        transition: "opacity 0.15s",
+                      }}
+                    />
+                  );
+                })
+              )}
             </div>
           </div>
 
           {/* Legend */}
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-4">
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2" style={{ marginTop: 12 }}>
             <div className="flex items-center gap-[3px]">
-              <span className="font-mono text-[8px] text-muted mr-1">
-                {t("heatmapLessLabel")}
-              </span>
+              <span className="font-mono text-[8px] text-muted mr-1">{t("heatmapLessLabel")}</span>
               {[0.3, 0.5, 0.7, 0.85, 1.0].map((o) => (
-                <div
-                  key={o}
-                  style={{
-                    width: CELL,
-                    height: CELL,
-                    borderRadius: 2,
-                    background: `rgba(47,172,102,${o})`,
-                    flexShrink: 0,
-                  }}
-                />
+                <div key={o} style={{ width: SWATCH, height: SWATCH, borderRadius: 2, background: `rgba(47,172,102,${o})`, flexShrink: 0 }} />
               ))}
-              <span className="font-mono text-[8px] text-muted ml-1">
-                {t("heatmapMoreLabel")}
-              </span>
+              <span className="font-mono text-[8px] text-muted ml-1">{t("heatmapMoreLabel")}</span>
             </div>
             <div className="flex items-center gap-[3px]">
-              <span className="font-mono text-[8px] text-muted mr-1">
-                {t("heatmapLessLabel")}
-              </span>
+              <span className="font-mono text-[8px] text-muted mr-1">{t("heatmapLessLabel")}</span>
               {[0.3, 0.5, 0.7, 0.85, 1.0].map((o) => (
-                <div
-                  key={o}
-                  style={{
-                    width: CELL,
-                    height: CELL,
-                    borderRadius: 2,
-                    background: `rgba(240,96,96,${o})`,
-                    flexShrink: 0,
-                  }}
-                />
+                <div key={o} style={{ width: SWATCH, height: SWATCH, borderRadius: 2, background: `rgba(240,96,96,${o})`, flexShrink: 0 }} />
               ))}
-              <span className="font-mono text-[8px] text-muted ml-1">
-                {t("heatmapMoreLabel")}
-              </span>
+              <span className="font-mono text-[8px] text-muted ml-1">{t("heatmapMoreLabel")}</span>
             </div>
           </div>
         </div>
 
-        {/* Right: stats panel — hidden on mobile */}
-        <div className="hidden lg:block flex-shrink-0" style={{ width: "35%" }}>
+        {/* ── RIGHT COLUMN: summary stats ── */}
+        {/* heatmap-separator handles: border-left + padding-left on desktop,
+            border-top + padding-top on mobile (see globals.css)              */}
+        <div className="heatmap-separator" style={{ alignSelf: "start" }}>
           <p
-            style={{
-              fontFamily: "var(--font-ibm-plex-mono)",
-              fontSize: 10,
-              color: "var(--text-muted)",
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
-              marginBottom: 16,
-            }}
+            className="font-mono text-[10px] uppercase text-muted"
+            style={{ letterSpacing: "0.1em", marginBottom: 20 }}
           >
             {tH("summary")}
           </p>
@@ -392,35 +355,19 @@ export default function ActivityHeatmap({ data, loading }: Props) {
           {tradingDaysCount === 0 ? (
             <p className="font-mono text-[11px] text-muted">—</p>
           ) : (
-            <>
+            <div className="heatmap-stats-grid">
               {statRow(tH("daysTraded"), String(tradingDaysCount))}
-              {statRow(
-                tH("bestDay"),
-                bestDay ? formatDayStat(bestDay, locale) : null,
-                "#2fac66"
-              )}
-              {statRow(
-                tH("worstDay"),
-                worstDay ? formatDayStat(worstDay, locale) : null,
-                "#f06060"
-              )}
-              {statRow(
-                tH("winStreak"),
-                bestStreak > 0 ? `${bestStreak} ${tH("days")}` : "—",
-                "#2fac66"
-              )}
-              {statRow(
-                tH("loseStreak"),
-                worstStreak > 0 ? `${worstStreak} ${tH("days")}` : "—",
-                "#f06060"
-              )}
+              {statRow(tH("bestDay"), bestDay ? formatDayStat(bestDay, locale) : null, "#2fac66")}
+              {statRow(tH("worstDay"), worstDay ? formatDayStat(worstDay, locale) : null, "#f06060")}
+              {statRow(tH("winStreak"), bestStreak > 0 ? `${bestStreak} ${tH("days")}` : "—", "#2fac66")}
+              {statRow(tH("loseStreak"), worstStreak > 0 ? `${worstStreak} ${tH("days")}` : "—", "#f06060")}
               {statRow(tH("mostActive"), mostActiveDow)}
-            </>
+            </div>
           )}
         </div>
       </div>
 
-      {/* Tooltip */}
+      {/* ── Tooltip ── */}
       {tooltip && (
         <div
           className="fixed z-50 pointer-events-none"
@@ -438,10 +385,7 @@ export default function ActivityHeatmap({ data, loading }: Props) {
         >
           <div
             className="w-52 p-3 shadow-xl"
-            style={{
-              backgroundColor: "var(--elevated)",
-              border: "1px solid var(--border)",
-            }}
+            style={{ backgroundColor: "var(--elevated)", border: "1px solid var(--border)" }}
           >
             <p className="font-mono text-[9px] text-muted mb-2 capitalize leading-tight">
               {formatTooltipDate(tooltip.day.date, locale)}
@@ -473,17 +417,13 @@ export default function ActivityHeatmap({ data, loading }: Props) {
                 </span>
               </div>
             )}
-            {tooltip.day.emotions &&
-              Object.keys(tooltip.day.emotions).length > 0 && (
-                <p className="font-mono text-[9px] text-muted leading-relaxed">
-                  {Object.entries(tooltip.day.emotions)
-                    .map(
-                      ([e, c]) =>
-                        `${EMOTION_LABELS[e] ?? e}${c > 1 ? ` ×${c}` : ""}`
-                    )
-                    .join(" · ")}
-                </p>
-              )}
+            {tooltip.day.emotions && Object.keys(tooltip.day.emotions).length > 0 && (
+              <p className="font-mono text-[9px] text-muted leading-relaxed">
+                {Object.entries(tooltip.day.emotions)
+                  .map(([e, c]) => `${EMOTION_LABELS[e] ?? e}${c > 1 ? ` ×${c}` : ""}`)
+                  .join(" · ")}
+              </p>
+            )}
           </div>
         </div>
       )}
