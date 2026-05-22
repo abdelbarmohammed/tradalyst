@@ -169,6 +169,7 @@ function PerfilTab({ user, onUpdated }: { user: UserProfile; onUpdated: (u: User
 // ── Tab: Seguridad ────────────────────────────────────────────────────────────
 
 function SeguridadTab() {
+  const t = useTranslations("settings.security");
   const [current, setCurrent] = useState("");
   const [newPwd, setNewPwd]   = useState("");
   const [confirm, setConfirm] = useState("");
@@ -179,8 +180,8 @@ function SeguridadTab() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    if (newPwd !== confirm) { setError("Las contraseñas no coinciden."); return; }
-    if (newPwd.length < 8)  { setError("La nueva contraseña debe tener al menos 8 caracteres."); return; }
+    if (newPwd !== confirm) { setError(t("errorMatch")); return; }
+    if (newPwd.length < 8)  { setError(t("errorLength")); return; }
     setSaving(true);
     setSuccess(false);
     try {
@@ -188,7 +189,7 @@ function SeguridadTab() {
       setSuccess(true);
       setCurrent(""); setNewPwd(""); setConfirm("");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al cambiar la contraseña.");
+      setError(err instanceof Error ? err.message : t("errorUpdate"));
     } finally {
       setSaving(false);
     }
@@ -196,19 +197,19 @@ function SeguridadTab() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
-      {success && <SaveBanner message="Contraseña actualizada correctamente." />}
+      {success && <SaveBanner message={t("updated")} />}
       {error && <ErrorBanner message={error} />}
-      <Field label="Contraseña actual">
+      <Field label={t("currentPassword")}>
         <input type="password" value={current} onChange={(e) => setCurrent(e.target.value)} className={inputCls} autoComplete="current-password" />
       </Field>
-      <Field label="Nueva contraseña">
+      <Field label={t("newPassword")}>
         <input type="password" value={newPwd} onChange={(e) => setNewPwd(e.target.value)} className={inputCls} autoComplete="new-password" />
       </Field>
-      <Field label="Confirmar nueva contraseña">
+      <Field label={t("confirmPassword")}>
         <input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} className={inputCls} autoComplete="new-password" />
       </Field>
       <button type="submit" disabled={saving || !current || !newPwd || !confirm} className="font-sans text-[13px] font-semibold bg-green hover:bg-green-hover text-white px-6 py-[9px] transition-colors disabled:opacity-50">
-        {saving ? "Actualizando…" : "Actualizar contraseña"}
+        {saving ? t("updating") : t("update")}
       </button>
     </form>
   );
@@ -217,6 +218,7 @@ function SeguridadTab() {
 // ── Tab: Mentor (trader view) ─────────────────────────────────────────────────
 
 function MentorTab() {
+  const t = useTranslations("settings.mentor");
   const [requests, setRequests] = useState<MentorRequest[]>([]);
   const [assignment, setAssignment] = useState<MentorAssignment | null>(null);
   const [loading, setLoading] = useState(true);
@@ -232,9 +234,9 @@ function MentorTab() {
         setRequests(reqs.results);
         setAssignment(asgn);
       })
-      .catch((err) => setError(err instanceof Error ? err.message : "Error al cargar datos."))
+      .catch((err) => setError(err instanceof Error ? err.message : t("errorLoad")))
       .finally(() => setLoading(false));
-  }, []);
+  }, [t]);
 
   async function handleAccept(requestId: number) {
     setActionError(null);
@@ -243,7 +245,7 @@ function MentorTab() {
       setAssignment(asgn);
       setRequests((prev) => prev.filter((r) => r.id !== requestId));
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : "Error al aceptar.");
+      setActionError(err instanceof Error ? err.message : t("errorAccept"));
     }
   }
 
@@ -253,7 +255,7 @@ function MentorTab() {
       await post(`/api/mentors/requests/${requestId}/reject/`, {});
       setRequests((prev) => prev.filter((r) => r.id !== requestId));
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : "Error al rechazar.");
+      setActionError(err instanceof Error ? err.message : t("errorReject"));
     }
   }
 
@@ -264,7 +266,7 @@ function MentorTab() {
       await del(`/api/mentors/assignments/${assignment.id}/`);
       setAssignment(null);
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : "Error al revocar acceso.");
+      setActionError(err instanceof Error ? err.message : t("errorRevoke"));
     }
   }
 
@@ -281,10 +283,9 @@ function MentorTab() {
       {error && <ErrorBanner message={error} />}
       {actionError && <ErrorBanner message={actionError} />}
 
-      {/* Incoming pending requests */}
       {requests.length > 0 && (
         <div className="card p-5 space-y-3">
-          <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted">Solicitudes recibidas</p>
+          <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted">{t("receivedRequests")}</p>
           {requests.map((req) => (
             <div key={req.id} className="flex items-center justify-between gap-3 py-2 border-b border-white/[0.05] last:border-0">
               <div className="min-w-0">
@@ -299,14 +300,14 @@ function MentorTab() {
                   className="flex items-center gap-1 font-mono text-[10px] bg-green hover:bg-green-hover text-white px-3 py-[6px] transition-colors"
                 >
                   <UserCheck size={11} />
-                  Aceptar
+                  {t("accept")}
                 </button>
                 <button
                   onClick={() => handleReject(req.id)}
                   className="flex items-center gap-1 font-mono text-[10px] border border-white/[0.10] text-muted hover:text-primary px-3 py-[6px] transition-colors"
                 >
                   <X size={11} />
-                  Rechazar
+                  {t("reject")}
                 </button>
               </div>
             </div>
@@ -314,9 +315,8 @@ function MentorTab() {
         </div>
       )}
 
-      {/* Current mentor */}
       <div className="card p-5">
-        <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted mb-3">Mentor asignado</p>
+        <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted mb-3">{t("assignedMentor")}</p>
         {assignment ? (
           <div className="space-y-3">
             <div>
@@ -324,7 +324,7 @@ function MentorTab() {
                 {assignment.mentor_detail.display_name || assignment.mentor_detail.email}
               </p>
               <p className="font-mono text-[10px] text-muted mt-[2px]">
-                {assignment.mentor_detail.email} · Desde {formatDateMedium(assignment.created_at)}
+                {assignment.mentor_detail.email} · {t("since")} {formatDateMedium(assignment.created_at)}
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -333,27 +333,25 @@ function MentorTab() {
                 className="flex items-center gap-2 font-mono text-[11px] border border-white/[0.10] text-secondary hover:text-primary px-3 py-[7px] transition-colors"
               >
                 <BookOpen size={12} />
-                Ver operaciones de mi mentor
+                {t("viewTrades")}
               </Link>
             </div>
             <button
               onClick={handleRevoke}
               className="font-mono text-[10px] text-muted hover:text-loss transition-colors underline"
             >
-              Revocar acceso
+              {t("revoke")}
             </button>
           </div>
         ) : requests.length === 0 ? (
           <div className="space-y-2">
-            <p className="font-sans text-[13px] text-secondary">No tienes ningún mentor asignado.</p>
-            <p className="font-mono text-[11px] text-muted">
-              Comparte tu email con un mentor para que te envíe una solicitud de seguimiento.
-            </p>
+            <p className="font-sans text-[13px] text-secondary">{t("noMentor")}</p>
+            <p className="font-mono text-[11px] text-muted">{t("noMentorHint")}</p>
           </div>
         ) : (
           <div className="flex items-center gap-2">
             <Clock size={12} className="text-muted" />
-            <p className="font-sans text-[13px] text-secondary">Tienes solicitudes pendientes de revisar.</p>
+            <p className="font-sans text-[13px] text-secondary">{t("pendingToReview")}</p>
           </div>
         )}
       </div>
@@ -364,11 +362,13 @@ function MentorTab() {
 // ── Tab: Mis alumnos (mentor view) ────────────────────────────────────────────
 
 function MisAlumnosTab() {
+  const t = useTranslations("settings.students");
+  const tNav = useTranslations("nav");
   return (
     <div className="max-w-md">
       <p className="font-sans text-[13px] text-secondary">
-        Gestiona tus alumnos desde la sección{" "}
-        <Link href="/mentor" className="text-green hover:underline">Mis alumnos</Link>.
+        {t("text")}{" "}
+        <Link href="/mentor" className="text-green hover:underline">{tNav("myStudents")}</Link>.
       </p>
     </div>
   );
@@ -377,6 +377,7 @@ function MisAlumnosTab() {
 // ── Tab: Plan ─────────────────────────────────────────────────────────────────
 
 function PlanTab({ user, onRefresh }: { user: UserProfile; onRefresh: () => void }) {
+  const t = useTranslations("settings.plan");
   const isPro = user.plan === "pro";
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -385,6 +386,9 @@ function PlanTab({ user, onRefresh }: { user: UserProfile; onRefresh: () => void
   const [error, setError] = useState<string | null>(null);
 
   const upgradeStatus = searchParams.get("upgrade");
+
+  const FEATURES_PRO = [t("featPro0"), t("featPro1"), t("featPro2"), t("featPro3"), t("featPro4")];
+  const FEATURES_FREE = [t("featFree0"), t("featFree1"), t("featFree2"), t("featFree3")];
 
   useEffect(() => {
     if (upgradeStatus === "success") {
@@ -400,7 +404,7 @@ function PlanTab({ user, onRefresh }: { user: UserProfile; onRefresh: () => void
       const data = await post<{ url: string }>("/api/billing/create-checkout-session/", {});
       window.location.href = data.url;
     } catch (err) {
-      setError(err instanceof Error ? err.message : "No se pudo iniciar el pago. Inténtalo de nuevo.");
+      setError(err instanceof Error ? err.message : t("errorUpgrade"));
       setCheckoutLoading(false);
     }
   }
@@ -412,7 +416,7 @@ function PlanTab({ user, onRefresh }: { user: UserProfile; onRefresh: () => void
       const data = await get<{ url: string }>("/api/billing/portal/");
       window.location.href = data.url;
     } catch (err) {
-      setError(err instanceof Error ? err.message : "No se pudo abrir el portal. Inténtalo de nuevo.");
+      setError(err instanceof Error ? err.message : t("errorPortal"));
       setPortalLoading(false);
     }
   }
@@ -420,18 +424,18 @@ function PlanTab({ user, onRefresh }: { user: UserProfile; onRefresh: () => void
   return (
     <div className="space-y-4 max-w-md">
       {upgradeStatus === "success" && (
-        <SaveBanner message="¡Bienvenido a Pro! Tu suscripción está activa." />
+        <SaveBanner message={t("welcomePro")} />
       )}
       {upgradeStatus === "cancelled" && (
         <div className="flex items-center gap-2 p-3 border border-white/[0.10] bg-surface/50">
-          <p className="font-sans text-[12px] text-secondary">Pago cancelado. Puedes intentarlo de nuevo cuando quieras.</p>
+          <p className="font-sans text-[12px] text-secondary">{t("paymentCancelled")}</p>
         </div>
       )}
       {error && <ErrorBanner message={error} />}
 
       <div className="card p-5">
         <div className="flex items-center justify-between mb-4">
-          <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted">Plan actual</p>
+          <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted">{t("currentPlan")}</p>
           <span className={`font-mono text-[10px] px-3 py-[3px] border ${isPro ? "border-green/40 text-green bg-green/10" : "border-white/[0.12] text-secondary"}`}>
             {isPro ? "PRO" : "FREE"}
           </span>
@@ -439,9 +443,9 @@ function PlanTab({ user, onRefresh }: { user: UserProfile; onRefresh: () => void
 
         {isPro ? (
           <div className="space-y-4">
-            <p className="font-sans text-[13px] text-secondary">Tienes acceso completo a todas las funciones de Tradalyst.</p>
+            <p className="font-sans text-[13px] text-secondary">{t("hasAccess")}</p>
             <ul className="space-y-[6px]">
-              {["Insights de IA ilimitados", "Chat con IA sin límite", "Analítica avanzada", "Vista mentor incluida", "Forex y acciones en tiempo real"].map((feat) => (
+              {FEATURES_PRO.map((feat) => (
                 <li key={feat} className="flex items-center gap-2 font-sans text-[12px] text-secondary">
                   <Check size={11} className="text-green flex-shrink-0" />
                   {feat}
@@ -454,16 +458,14 @@ function PlanTab({ user, onRefresh }: { user: UserProfile; onRefresh: () => void
               className="flex items-center gap-2 font-mono text-[11px] text-muted hover:text-secondary transition-colors underline disabled:opacity-50"
             >
               <ExternalLink size={11} />
-              {portalLoading ? "Abriendo portal…" : "Gestionar suscripción"}
+              {portalLoading ? t("openingPortal") : t("manageSubscription")}
             </button>
           </div>
         ) : (
           <div className="space-y-4">
-            <p className="font-sans text-[13px] text-secondary">
-              Actualiza a Pro para desbloquear análisis de IA ilimitados, vista mentor y precios de forex en tiempo real.
-            </p>
+            <p className="font-sans text-[13px] text-secondary">{t("upgradePrompt")}</p>
             <ul className="space-y-[6px]">
-              {["3 insights de IA al mes → Ilimitados", "Vista mentor → Incluida", "Precios forex/acciones → Tiempo real", "Analítica avanzada → Desbloqueada"].map((feat) => (
+              {FEATURES_FREE.map((feat) => (
                 <li key={feat} className="flex items-center gap-2 font-sans text-[12px] text-secondary">
                   <Sparkles size={11} className="text-green flex-shrink-0" />
                   {feat}
@@ -476,9 +478,9 @@ function PlanTab({ user, onRefresh }: { user: UserProfile; onRefresh: () => void
                 disabled={checkoutLoading}
                 className="flex items-center gap-2 font-sans text-[13px] font-semibold bg-green hover:bg-green-hover text-white px-5 py-[9px] transition-colors disabled:opacity-50"
               >
-                {checkoutLoading ? "Redirigiendo…" : "Probar 7 días gratis · €9,99/mes"}
+                {checkoutLoading ? t("redirecting") : t("trial")}
               </button>
-              <p className="font-mono text-[9px] text-muted">Sin tarjeta hasta que decidas continuar.</p>
+              <p className="font-mono text-[9px] text-muted">{t("noCard")}</p>
             </div>
           </div>
         )}
@@ -490,6 +492,7 @@ function PlanTab({ user, onRefresh }: { user: UserProfile; onRefresh: () => void
 // ── Tab: Cuenta ───────────────────────────────────────────────────────────────
 
 function CuentaTab() {
+  const t = useTranslations("settings.data");
   const [exporting, setExporting] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState("");
@@ -501,15 +504,15 @@ function CuentaTab() {
       const res = await get<PaginatedTrades>("/api/trades/?page_size=10000&ordering=entry_time");
       const trades = res.results;
       const header = ["id","pair","direction","entry_price","exit_price","quantity","pnl","result","emotion","entry_time","exit_time","notes"].join(",");
-      const rows = trades.map((t: Trade) =>
-        [t.id,t.pair,t.direction,t.entry_price,t.exit_price??"",t.quantity,t.pnl??"",t.result??"",t.emotion??"",t.entry_time,t.exit_time??"",`"${(t.notes??"").replace(/"/g,'""')}"`].join(",")
+      const rows = trades.map((tr: Trade) =>
+        [tr.id,tr.pair,tr.direction,tr.entry_price,tr.exit_price??"",tr.quantity,tr.pnl??"",tr.result??"",tr.emotion??"",tr.entry_time,tr.exit_time??"",`"${(tr.notes??"").replace(/"/g,'""')}"`].join(",")
       );
       const csv = [header, ...rows].join("\n");
       const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `tradalyst_operaciones_${new Date().toISOString().slice(0,10)}.csv`;
+      link.download = `tradalyst_trades_${new Date().toISOString().slice(0,10)}.csv`;
       link.click();
       URL.revokeObjectURL(url);
     } catch { /* ignore */ } finally {
@@ -518,7 +521,7 @@ function CuentaTab() {
   }
 
   async function handleDelete() {
-    if (deleteConfirm !== "ELIMINAR") return;
+    if (deleteConfirm !== t("deleteWord")) return;
     setDeleting(true);
     try {
       await logout();
@@ -536,53 +539,68 @@ function CuentaTab() {
             <button onClick={() => setShowDeleteModal(false)} className="absolute top-4 right-4 text-muted hover:text-primary">
               <X size={14} />
             </button>
-            <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-loss mb-3">Eliminar cuenta</p>
-            <p className="font-sans text-[13px] text-primary mb-2">Esta acción es permanente e irreversible.</p>
+            <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-loss mb-3">{t("deleteModalTitle")}</p>
+            <p className="font-sans text-[13px] text-primary mb-2">{t("deleteModalBody")}</p>
             <p className="font-sans text-[12px] text-muted mb-4">
-              Se eliminarán todos tus datos. Escribe <strong className="text-primary">ELIMINAR</strong> para confirmar.
+              {t("deleteModalBody")}{" "}
+              <strong className="text-primary">{t("deleteWord")}</strong>
             </p>
-            <input type="text" value={deleteConfirm} onChange={(e) => setDeleteConfirm(e.target.value)} placeholder="ELIMINAR" className={`${inputCls} mb-4`} />
+            <input type="text" value={deleteConfirm} onChange={(e) => setDeleteConfirm(e.target.value)} placeholder={t("deleteWord")} className={`${inputCls} mb-4`} />
             <div className="flex gap-2">
-              <button onClick={() => setShowDeleteModal(false)} className="flex-1 font-sans text-[13px] border border-white/[0.12] text-secondary py-[9px] hover:text-primary transition-colors">Cancelar</button>
-              <button onClick={handleDelete} disabled={deleteConfirm !== "ELIMINAR" || deleting} className="flex-1 font-sans text-[13px] font-semibold bg-loss/80 hover:bg-loss text-white py-[9px] transition-colors disabled:opacity-40">
-                {deleting ? "Eliminando…" : "Eliminar cuenta"}
+              <button onClick={() => setShowDeleteModal(false)} className="flex-1 font-sans text-[13px] border border-white/[0.12] text-secondary py-[9px] hover:text-primary transition-colors">{t("cancel")}</button>
+              <button onClick={handleDelete} disabled={deleteConfirm !== t("deleteWord") || deleting} className="flex-1 font-sans text-[13px] font-semibold bg-loss/80 hover:bg-loss text-white py-[9px] transition-colors disabled:opacity-40">
+                {deleting ? t("deleting") : t("deleteButton")}
               </button>
             </div>
           </div>
         </div>
       )}
       <div className="max-w-md">
-        {/* Export */}
         <div className="card p-5">
-          <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted mb-2">Exportar datos</p>
-          <p className="font-sans text-[12px] text-muted mb-4">Descarga todas tus operaciones en formato CSV (derecho de portabilidad RGPD).</p>
+          <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted mb-2">{t("exportTitle")}</p>
+          <p className="font-sans text-[12px] text-muted mb-4">{t("exportNote")}</p>
           <button onClick={handleExport} disabled={exporting} className="flex items-center gap-2 font-sans text-[13px] font-semibold border border-white/[0.12] text-secondary hover:text-primary px-5 py-[9px] transition-colors disabled:opacity-50">
             <Download size={13} />
-            {exporting ? "Exportando…" : "Exportar operaciones CSV"}
+            {exporting ? t("exporting") : t("exportButton")}
           </button>
         </div>
 
-        {/* Danger zone separator */}
         <div className="flex items-center gap-4 mt-12 mb-6">
           <hr className="flex-1" style={{ borderColor: "rgba(217,64,64,0.25)" }} />
-          <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-loss shrink-0">Zona de peligro</span>
+          <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-loss shrink-0">{t("dangerZone")}</span>
           <hr className="flex-1" style={{ borderColor: "rgba(217,64,64,0.25)" }} />
         </div>
 
-        {/* Delete account */}
         <div className="card p-5">
-          <p className="font-sans text-[13px] text-primary mb-1">Eliminar cuenta</p>
-          <p className="font-sans text-[12px] text-muted mb-4">Esta acción es permanente e irreversible. Se eliminarán todos tus datos.</p>
+          <p className="font-sans text-[13px] text-primary mb-1">{t("deleteTitle")}</p>
+          <p className="font-sans text-[12px] text-muted mb-4">{t("deleteNote")}</p>
           <button
             onClick={() => setShowDeleteModal(true)}
             className="flex items-center gap-2 font-sans text-[13px] font-semibold border border-loss text-loss hover:bg-loss hover:text-white px-5 py-[9px] transition-colors"
           >
             <Trash2 size={13} />
-            Eliminar cuenta
+            {t("deleteButton")}
           </button>
         </div>
       </div>
     </>
+  );
+}
+
+// ── Tab: Plataforma (admin only) ──────────────────────────────────────────────
+
+function PlataformaTab() {
+  const t = useTranslations("settings.platform");
+  return (
+    <div className="max-w-md space-y-4">
+      <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted">{t("title")}</p>
+      <Link
+        href="/admin"
+        className="inline-flex items-center gap-2 font-mono text-[11px] border border-white/[0.10] text-secondary hover:text-primary px-4 py-[9px] transition-colors"
+      >
+        {t("link")}
+      </Link>
+    </div>
   );
 }
 
@@ -607,9 +625,17 @@ export default function SettingsPage() {
   useEffect(() => { fetchUser(); }, [fetchUser]);
 
   const isMentor = user?.role === "mentor";
+  const isAdmin  = user?.role === "admin";
   const tNav = useTranslations("nav");
 
-  const TABS = isMentor
+  const TABS = isAdmin
+    ? [
+        { value: "perfil",      label: t("tabProfile") },
+        { value: "seguridad",   label: t("tabSecurity") },
+        { value: "plataforma",  label: t("tabPlatform") },
+        { value: "cuenta",      label: t("tabData") },
+      ]
+    : isMentor
     ? [
         { value: "perfil",     label: t("tabProfile") },
         { value: "seguridad",  label: t("tabSecurity") },
@@ -620,7 +646,7 @@ export default function SettingsPage() {
         { value: "perfil",    label: t("tabProfile") },
         { value: "seguridad", label: t("tabSecurity") },
         { value: "mentor",    label: t("tabMentor") },
-        { value: "plan",      label: "Plan" },
+        { value: "plan",      label: t("tabPlan") },
         { value: "cuenta",    label: t("tabData") },
       ];
 
@@ -650,12 +676,13 @@ export default function SettingsPage() {
           </div>
         ) : (
           <>
-            {tab === "perfil"    && user && <PerfilTab user={user} onUpdated={setUser} />}
-            {tab === "seguridad" && <SeguridadTab />}
-            {tab === "mentor"    && !isMentor && <MentorTab />}
-            {tab === "alumnos"   && isMentor && <MisAlumnosTab />}
-            {tab === "plan"      && !isMentor && user && <PlanTab user={user} onRefresh={fetchUser} />}
-            {tab === "cuenta"    && <CuentaTab />}
+            {tab === "perfil"      && user && <PerfilTab user={user} onUpdated={setUser} />}
+            {tab === "seguridad"   && <SeguridadTab />}
+            {tab === "mentor"      && !isMentor && !isAdmin && <MentorTab />}
+            {tab === "alumnos"     && isMentor && <MisAlumnosTab />}
+            {tab === "plan"        && !isMentor && !isAdmin && user && <PlanTab user={user} onRefresh={fetchUser} />}
+            {tab === "plataforma"  && isAdmin && <PlataformaTab />}
+            {tab === "cuenta"      && <CuentaTab />}
           </>
         )}
       </div>

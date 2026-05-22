@@ -33,7 +33,7 @@ html.light {
   --elevated:      #ffffff;
   --text-primary:  #0f1110;
   --text-secondary:#4b5563;
-  --text-muted:    #9ca3af;
+  --text-muted:    #6b7280;
   --border:        rgba(0,0,0,0.08);
   --border-subtle: rgba(0,0,0,0.06);
   --border-strong: rgba(0,0,0,0.14);
@@ -155,5 +155,18 @@ html.light .bg-white\/\[0\.06\] { background-color: rgba(0,0,0,0.04); }
 html.light .bg-white\/\[0\.07\] { background-color: rgba(0,0,0,0.05); }
 html.light .bg-white\/\[0\.08\] { background-color: rgba(0,0,0,0.05); }
 
+html.light .hover\:bg-white\/\[0\.03\]:hover { background-color: rgba(0,0,0,0.02); }
 html.light .hover\:bg-white\/\[0\.05\]:hover { background-color: rgba(0,0,0,0.04); }
 html.light .hover\:bg-white\/\[0\.07\]:hover { background-color: rgba(0,0,0,0.05); }
+
+html.light .bg-white\/\[0\.03\] { background-color: rgba(0,0,0,0.02); }
+
+/* Divide utilities: target the generated child border-color */
+html.light .divide-white\/\[0\.04\] > * + * { border-color: rgba(0,0,0,0.04); }
+html.light .divide-white\/\[0\.05\] > * + * { border-color: rgba(0,0,0,0.05); }
+html.light .divide-white\/\[0\.06\] > * + * { border-color: rgba(0,0,0,0.06); }
+
+/* Recharts axis tick color in light mode */
+html.light .recharts-cartesian-axis-tick-value { fill: #6b7280 !important; }
+html.light .recharts-cartesian-grid-horizontal line,
+html.light .recharts-cartesian-grid-vertical line { stroke: rgba(0,0,0,0.06) !important; }

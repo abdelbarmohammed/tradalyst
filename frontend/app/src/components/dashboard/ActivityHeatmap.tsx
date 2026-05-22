@@ -10,6 +10,7 @@ const CELL = 12;
 const GAP = 2;
 const DAY_LABEL_W = 14;
 
+const DOW_NAMES_EN = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const DOW_NAMES_ES = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
 
 interface TooltipState {
@@ -45,14 +46,14 @@ function getMonthShort(month0: number, locale: string): string {
   );
 }
 
-function formatDayStat(day: HeatmapDay): string {
+function formatDayStat(day: HeatmapDay, locale: string): string {
   const sign = day.pnl >= 0 ? "+" : "−";
   const abs = Math.abs(day.pnl).toFixed(0);
   const [y, m, d] = day.date.split("-").map(Number);
-  const dateStr = new Date(y, m - 1, d).toLocaleDateString("es-ES", {
-    day: "numeric",
-    month: "short",
-  });
+  const dateStr = new Date(y, m - 1, d).toLocaleDateString(
+    locale === "en" ? "en-US" : "es-ES",
+    { day: "numeric", month: "short" }
+  );
   return `${sign}€${abs} · ${dateStr}`;
 }
 
@@ -65,6 +66,7 @@ export default function ActivityHeatmap({ data, loading }: Props) {
   const router = useRouter();
   const locale = useLocale();
   const t = useTranslations("dashboard");
+  const tH = useTranslations("heatmap");
   const tJournal = useTranslations("journal");
 
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
@@ -133,7 +135,8 @@ export default function ActivityHeatmap({ data, loading }: Props) {
     dowCounts[dow] += d.tradeCount;
   }
   const maxDowIdx = dowCounts.indexOf(Math.max(...dowCounts));
-  const mostActiveDow = tradingDays.length > 0 ? DOW_NAMES_ES[maxDowIdx] : null;
+  const DOW_NAMES = locale === "en" ? DOW_NAMES_EN : DOW_NAMES_ES;
+  const mostActiveDow = tradingDays.length > 0 ? DOW_NAMES[maxDowIdx] : null;
 
   // ── Grid construction ──────────────────────────────────────────────────────
 
@@ -177,7 +180,7 @@ export default function ActivityHeatmap({ data, loading }: Props) {
   const statRow = (
     label: string,
     value: string | null,
-    color: string = "#e8ebe8"
+    valueColor?: string
   ) => (
     <div
       key={label}
@@ -186,7 +189,7 @@ export default function ActivityHeatmap({ data, loading }: Props) {
         justifyContent: "space-between",
         alignItems: "baseline",
         padding: "8px 0",
-        borderBottom: "1px solid rgba(255,255,255,0.04)",
+        borderBottom: "1px solid var(--border-subtle)",
         gap: 8,
       }}
     >
@@ -194,7 +197,7 @@ export default function ActivityHeatmap({ data, loading }: Props) {
         style={{
           fontFamily: "var(--font-ibm-plex-sans)",
           fontSize: 13,
-          color: "#9ca3af",
+          color: "var(--text-secondary)",
           flexShrink: 0,
         }}
       >
@@ -204,7 +207,7 @@ export default function ActivityHeatmap({ data, loading }: Props) {
         style={{
           fontFamily: "var(--font-ibm-plex-mono)",
           fontSize: 13,
-          color,
+          color: valueColor ?? "var(--text-primary)",
           textAlign: "right",
           minWidth: 0,
           wordBreak: "break-word",
@@ -377,44 +380,41 @@ export default function ActivityHeatmap({ data, loading }: Props) {
             style={{
               fontFamily: "var(--font-ibm-plex-mono)",
               fontSize: 10,
-              color: "#9ca3af",
+              color: "var(--text-muted)",
               letterSpacing: "0.1em",
               textTransform: "uppercase",
               marginBottom: 16,
             }}
           >
-            RESUMEN
+            {tH("summary")}
           </p>
 
           {tradingDaysCount === 0 ? (
             <p className="font-mono text-[11px] text-muted">—</p>
           ) : (
             <>
-              {statRow("Días operados", String(tradingDaysCount))}
+              {statRow(tH("daysTraded"), String(tradingDaysCount))}
               {statRow(
-                "Mejor día",
-                bestDay ? formatDayStat(bestDay) : null,
+                tH("bestDay"),
+                bestDay ? formatDayStat(bestDay, locale) : null,
                 "#2fac66"
               )}
               {statRow(
-                "Peor día",
-                worstDay ? formatDayStat(worstDay) : null,
+                tH("worstDay"),
+                worstDay ? formatDayStat(worstDay, locale) : null,
                 "#f06060"
               )}
               {statRow(
-                "Racha ganadora",
-                bestStreak > 0 ? `${bestStreak} días` : "—",
+                tH("winStreak"),
+                bestStreak > 0 ? `${bestStreak} ${tH("days")}` : "—",
                 "#2fac66"
               )}
               {statRow(
-                "Racha perdedora",
-                worstStreak > 0 ? `${worstStreak} días` : "—",
+                tH("loseStreak"),
+                worstStreak > 0 ? `${worstStreak} ${tH("days")}` : "—",
                 "#f06060"
               )}
-              {statRow(
-                "Día más activo",
-                mostActiveDow,
-              )}
+              {statRow(tH("mostActive"), mostActiveDow)}
             </>
           )}
         </div>
@@ -460,7 +460,7 @@ export default function ActivityHeatmap({ data, loading }: Props) {
             </p>
             {tooltip.day.bestTrade && (
               <div className="flex items-center gap-1 mb-[6px]">
-                <span className="font-mono text-[9px] text-muted">Mejor:</span>
+                <span className="font-mono text-[9px] text-muted">{tH("best")}</span>
                 <span className="font-mono text-[9px] text-secondary font-semibold">
                   {tooltip.day.bestTrade.pair}
                 </span>

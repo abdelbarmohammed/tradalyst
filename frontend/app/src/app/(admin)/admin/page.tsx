@@ -144,7 +144,7 @@ export default function AdminPage() {
                 </defs>
                 <XAxis
                   dataKey="date"
-                  tick={{ fontSize: 9, fontFamily: "IBM Plex Mono", fill: "rgba(255,255,255,0.3)" }}
+                  tick={{ fontSize: 9, fontFamily: "IBM Plex Mono", fill: "var(--text-muted)" }}
                   tickLine={false}
                   axisLine={false}
                   tickFormatter={(v: string) => v.slice(5)}
