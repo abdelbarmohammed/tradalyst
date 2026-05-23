@@ -185,15 +185,16 @@ export default function ActivityHeatmap({ data, loading }: Props) {
         padding: "10px 0",
         borderBottom: "1px solid var(--border-subtle)",
         gap: 8,
-        minHeight: 40,
+        minHeight: 44,
       }}
     >
       <span
         style={{
           fontFamily: "var(--font-ibm-plex-sans)",
-          fontSize: 13,
+          fontSize: 12,
           color: "var(--text-secondary)",
           flexShrink: 0,
+          whiteSpace: "nowrap",
         }}
       >
         {label}
@@ -201,11 +202,11 @@ export default function ActivityHeatmap({ data, loading }: Props) {
       <span
         style={{
           fontFamily: "var(--font-ibm-plex-mono)",
-          fontSize: 13,
+          fontSize: 12,
           color: valueColor ?? "var(--text-primary)",
           textAlign: "right",
-          minWidth: 0,
-          wordBreak: "break-word",
+          flexShrink: 0,
+          whiteSpace: "nowrap",
         }}
       >
         {value ?? "—"}
@@ -226,6 +227,10 @@ export default function ActivityHeatmap({ data, loading }: Props) {
           >
             {t("heatmapTitle")}
           </p>
+
+          {/* Horizontal scroll wrapper for mobile — prevents heatmap from squishing below 330px */}
+          <div className="overflow-x-auto lg:overflow-visible">
+            <div style={{ minWidth: 330 }}>
 
           {/* Month labels row — aligned with the cell grid start */}
           <div
@@ -319,6 +324,9 @@ export default function ActivityHeatmap({ data, loading }: Props) {
                   );
                 })
               )}
+            </div>
+          </div>
+
             </div>
           </div>
 

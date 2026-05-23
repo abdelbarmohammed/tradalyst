@@ -195,14 +195,7 @@ html.light .heatmap-separator {
   }
 }
 
-/* Stats panel: 2-col grid on mobile, single col on desktop */
+/* Stats panel: single column list at all breakpoints */
 .heatmap-stats-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-}
-
-@media (min-width: 1024px) {
-  .heatmap-stats-grid {
-    grid-template-columns: 1fr;
-  }
+  display: block;
 }
