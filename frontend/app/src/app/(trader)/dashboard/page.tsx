@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Plus, AlertCircle } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import { get } from "@/lib/api";
-import { formatPnl, formatPct, formatRR, formatCount, getGreeting, formatDateLong } from "@/lib/format";
+import { formatPnl, formatPct, formatRR, formatCount, getGreeting, formatDateLong, sanitizeDisplayName } from "@/lib/format";
 import type {
   UserProfile, Trade, PaginatedTrades,
   TradeStats, AiInsight, DateRange, PnlPoint, HeatmapDay,
@@ -206,7 +206,7 @@ export default function DashboardPage() {
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="font-sans text-[22px] font-bold text-primary leading-tight">
-            {getGreeting(locale)}{user?.display_name ? `, ${user.display_name.split(" ")[0]}` : ""}.
+            {getGreeting(locale)}{user?.display_name ? `, ${sanitizeDisplayName(user.display_name).split(" ")[0]}` : ""}.
           </h1>
           <p className="font-mono text-[11px] text-muted mt-[3px]">
             {formatDateLong(new Date(), dateLocale)}

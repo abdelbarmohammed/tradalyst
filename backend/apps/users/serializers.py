@@ -1,9 +1,21 @@
+import re
 import logging
+from django.utils.html import strip_tags
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from .models import CustomUser
 
 logger = logging.getLogger(__name__)
+
+
+def _sanitize_display_name(value: str) -> str:
+    """Strip HTML tags and dangerous patterns from a display name."""
+    clean = strip_tags(value)
+    clean = clean.replace("<", "").replace(">", "")
+    # Remove common injection patterns case-insensitively
+    clean = re.sub(r"javascript:", "", clean, flags=re.IGNORECASE)
+    clean = re.sub(r"on\w+=", "", clean, flags=re.IGNORECASE)
+    return clean.strip()
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -13,6 +25,14 @@ class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ("email", "display_name", "role", "password", "password_confirm", "language_preference")
+
+    def validate_display_name(self, value: str) -> str:
+        clean = _sanitize_display_name(value)
+        if len(clean) < 2:
+            raise serializers.ValidationError("Display name must be at least 2 characters.")
+        if len(clean) > 50:
+            raise serializers.ValidationError("Display name must be 50 characters or less.")
+        return clean
 
     def validate_role(self, role: str) -> str:
         if role == "admin":
@@ -38,6 +58,14 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ("id", "email", "display_name", "bio", "role", "plan", "onboarding_completed", "date_joined", "language_preference", "theme_preference", "pinned_assets")
         read_only_fields = ("id", "email", "role", "plan", "date_joined")
+
+    def validate_display_name(self, value: str) -> str:
+        clean = _sanitize_display_name(value)
+        if len(clean) < 2:
+            raise serializers.ValidationError("Display name must be at least 2 characters.")
+        if len(clean) > 50:
+            raise serializers.ValidationError("Display name must be 50 characters or less.")
+        return clean
 
 
 class AdminUserSerializer(serializers.ModelSerializer):

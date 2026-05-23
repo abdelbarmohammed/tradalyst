@@ -129,6 +129,21 @@ export function formatRelative(date: Date | string): string {
   return formatDateMedium(date);
 }
 
+// ── Display name sanitisation ─────────────────────────────────────────────────
+
+/** Strip HTML tags and injection patterns from a user-supplied display name. */
+export function sanitizeDisplayName(name: string): string {
+  if (!name) return "";
+  return name
+    .replace(/<[^>]*>/g, "")        // strip HTML tags
+    .replace(/&lt;/g, "")
+    .replace(/&gt;/g, "")
+    .replace(/javascript:/gi, "")   // remove js: URIs
+    .replace(/on\w+=/gi, "")        // remove inline event handlers
+    .trim()
+    .slice(0, 50);
+}
+
 // ── Greeting ──────────────────────────────────────────────────────────────────
 
 /** "Buenos días" / "Good morning" — locale: "es" or "en" */

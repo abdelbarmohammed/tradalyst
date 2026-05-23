@@ -1,6 +1,7 @@
 import logging
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
+from django.utils.html import strip_tags
 
 logger = logging.getLogger(__name__)
 
@@ -74,6 +75,11 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     class Meta:
         db_table = "users_customuser"
+
+    def clean(self) -> None:
+        """Strip HTML tags from display_name before any full_clean() call (admin, forms)."""
+        if self.display_name:
+            self.display_name = strip_tags(self.display_name).strip()[:50]
 
     def __str__(self) -> str:
         return self.email
