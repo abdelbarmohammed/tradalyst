@@ -84,4 +84,4 @@ class MentorAnnotationSerializer(serializers.ModelSerializer):
     class Meta:
         model = MentorAnnotation
         fields = ("id", "trade", "mentor", "mentor_email", "body", "created_at", "updated_at")
-        read_only_fields = ("id", "mentor", "created_at", "updated_at")
+        read_only_fields = ("id", "trade", "mentor", "created_at", "updated_at")
