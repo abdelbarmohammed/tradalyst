@@ -442,6 +442,26 @@
     "errorQuantity": "Invalid quantity.",
     "errorSave": "Failed to save. Please try again."
   },
+  "csvImport": {
+    "title": "Import trades CSV",
+    "step": "Step {step} of 3",
+    "step1Title": "Select file",
+    "step2Title": "Preview",
+    "step3Title": "Result",
+    "dragDrop": "Drag your CSV here or click to select",
+    "maxLimit": "Max. 5 MB · 1,000 rows",
+    "downloadTemplate": "Download CSV template",
+    "emptyRows": "{count} empty rows",
+    "previewNote": "Showing up to 5 preview rows",
+    "back": "Back",
+    "processing": "Importing…",
+    "confirmButton": "Confirm import",
+    "importComplete": "Import complete",
+    "noTrades": "No trades imported",
+    "partialSuccess": "{imported} imported · {skipped} skipped",
+    "errorsLabel": "Errors",
+    "close": "Close"
+  },
   "common": {
     "loading": "Loading…",
     "loadingText": "Loading…",

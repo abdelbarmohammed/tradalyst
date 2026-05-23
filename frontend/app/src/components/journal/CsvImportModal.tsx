@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { X, Upload, FileText, AlertCircle, CheckCircle2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -25,6 +26,8 @@ interface Props {
 }
 
 export default function CsvImportModal({ onClose, onImported }: Props) {
+  const t = useTranslations("csvImport");
+
   const [step, setStep] = useState<Step>(1);
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<PreviewRow[]>([]);
@@ -109,6 +112,9 @@ export default function CsvImportModal({ onClose, onImported }: Props) {
     }
   }
 
+  const stepLabel =
+    step === 1 ? t("step1Title") : step === 2 ? t("step2Title") : t("step3Title");
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/60" onClick={onClose} />
@@ -122,10 +128,9 @@ export default function CsvImportModal({ onClose, onImported }: Props) {
           style={{ borderBottom: "1px solid var(--border)" }}
         >
           <div>
-            <p className="font-sans text-[14px] font-semibold text-primary">Importar operaciones CSV</p>
+            <p className="font-sans text-[14px] font-semibold text-primary">{t("title")}</p>
             <p className="font-mono text-[10px] text-muted mt-[2px]">
-              Paso {step} de 3 —{" "}
-              {step === 1 ? "Seleccionar archivo" : step === 2 ? "Previsualizar" : "Resultado"}
+              {t("step", { step })} — {stepLabel}
             </p>
           </div>
           <button onClick={onClose} className="text-muted hover:text-primary transition-colors">
@@ -138,7 +143,7 @@ export default function CsvImportModal({ onClose, onImported }: Props) {
           {step === 1 && (
             <div className="space-y-4">
               <div
-                className={`border-2 border-dashed p-8 text-center cursor-pointer transition-colors ${dragOver ? "border-green/60" : "border-[var(--border-strong)]"}`}
+                className={`border-2 border-dashed p-8 text-center cursor-pointer transition-colors`}
                 onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
                 onDragLeave={() => setDragOver(false)}
                 onDrop={handleDrop}
@@ -146,8 +151,8 @@ export default function CsvImportModal({ onClose, onImported }: Props) {
                 style={{ borderColor: dragOver ? "rgba(47,172,102,0.6)" : "var(--border-strong)" }}
               >
                 <Upload size={20} className="mx-auto mb-3 text-muted" />
-                <p className="font-sans text-[13px] text-secondary">Arrastra tu CSV aquí o haz clic para seleccionar</p>
-                <p className="font-mono text-[10px] text-muted mt-1">Máx. 5 MB · 1.000 filas</p>
+                <p className="font-sans text-[13px] text-secondary">{t("dragDrop")}</p>
+                <p className="font-mono text-[10px] text-muted mt-1">{t("maxLimit")}</p>
               </div>
               <input
                 ref={fileInputRef}
@@ -161,7 +166,7 @@ export default function CsvImportModal({ onClose, onImported }: Props) {
                 className="flex items-center gap-2 font-mono text-[11px] text-muted hover:text-primary transition-colors"
               >
                 <FileText size={12} />
-                Descargar plantilla CSV
+                {t("downloadTemplate")}
               </button>
             </div>
           )}
@@ -172,7 +177,9 @@ export default function CsvImportModal({ onClose, onImported }: Props) {
                 <FileText size={14} className="text-muted" />
                 <span className="font-mono text-[12px] text-secondary truncate">{file?.name}</span>
                 {errorCount > 0 && (
-                  <span className="ml-auto font-mono text-[10px] text-loss shrink-0">{errorCount} filas vacías</span>
+                  <span className="ml-auto font-mono text-[10px] text-loss shrink-0">
+                    {t("emptyRows", { count: errorCount })}
+                  </span>
                 )}
               </div>
 
@@ -201,7 +208,7 @@ export default function CsvImportModal({ onClose, onImported }: Props) {
                   </tbody>
                 </table>
               </div>
-              <p className="font-mono text-[10px] text-muted">Mostrando hasta 5 filas de previsualización</p>
+              <p className="font-mono text-[10px] text-muted">{t("previewNote")}</p>
 
               <div className="flex gap-2 pt-2">
                 <button
@@ -209,14 +216,14 @@ export default function CsvImportModal({ onClose, onImported }: Props) {
                   className="flex-1 font-sans text-[13px] py-[9px] text-secondary transition-colors hover:text-primary"
                   style={{ border: "1px solid var(--border)" }}
                 >
-                  Volver
+                  {t("back")}
                 </button>
                 <button
                   onClick={handleImport}
                   disabled={importing}
                   className="flex-1 font-sans text-[13px] font-semibold bg-green hover:bg-green-hover text-white py-[9px] transition-colors disabled:opacity-50"
                 >
-                  {importing ? "Importando…" : "Confirmar importación"}
+                  {importing ? t("processing") : t("confirmButton")}
                 </button>
               </div>
             </div>
@@ -232,10 +239,10 @@ export default function CsvImportModal({ onClose, onImported }: Props) {
                 )}
                 <div>
                   <p className="font-sans text-[14px] font-semibold text-primary">
-                    {result.imported > 0 ? "Importación completada" : "Sin operaciones importadas"}
+                    {result.imported > 0 ? t("importComplete") : t("noTrades")}
                   </p>
                   <p className="font-mono text-[12px] text-secondary mt-1">
-                    {result.imported} importadas · {result.skipped} omitidas
+                    {t("partialSuccess", { imported: result.imported, skipped: result.skipped })}
                   </p>
                 </div>
               </div>
@@ -245,7 +252,7 @@ export default function CsvImportModal({ onClose, onImported }: Props) {
                   className="p-3 space-y-1"
                   style={{ backgroundColor: "rgba(240,96,96,0.06)", border: "1px solid rgba(240,96,96,0.2)" }}
                 >
-                  <p className="font-mono text-[10px] uppercase tracking-[0.08em] text-loss mb-2">Errores</p>
+                  <p className="font-mono text-[10px] uppercase tracking-[0.08em] text-loss mb-2">{t("errorsLabel")}</p>
                   {result.errors.map((e, i) => (
                     <p key={i} className="font-mono text-[11px] text-secondary">{e}</p>
                   ))}
@@ -256,7 +263,7 @@ export default function CsvImportModal({ onClose, onImported }: Props) {
                 onClick={onClose}
                 className="w-full font-sans text-[13px] font-semibold bg-green hover:bg-green-hover text-white py-[9px] transition-colors"
               >
-                Cerrar
+                {t("close")}
               </button>
             </div>
           )}

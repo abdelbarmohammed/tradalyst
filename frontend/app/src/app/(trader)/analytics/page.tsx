@@ -702,7 +702,7 @@ export default function AnalyticsPage() {
           <ResponsiveContainer width="100%" height={240}>
             <AreaChart
               data={drawdownPoints}
-              margin={{ top: 20, right: 16, bottom: 40, left: 0 }}
+              margin={{ top: 30, right: 16, bottom: 40, left: 0 }}
             >
               <defs>
                 <linearGradient id="dd-grad" x1="0" y1="0" x2="0" y2="1">
@@ -784,8 +784,9 @@ export default function AnalyticsPage() {
                   stroke="#f06060"
                   strokeWidth={2}
                   label={{
-                    value: `Máx: −€${Math.abs(maxDrawdownPoint.value).toFixed(0)}`,
-                    position: "bottom",
+                    value: t("maxDrawdown", { value: Math.abs(maxDrawdownPoint.value).toFixed(0) }),
+                    position: "top",
+                    dy: -10,
                     fill: "#f06060",
                     fontSize: 11,
                     fontFamily: "IBM Plex Mono",

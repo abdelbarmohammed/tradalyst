@@ -442,6 +442,26 @@
     "errorQuantity": "Cantidad inválida.",
     "errorSave": "Error al guardar. Inténtalo de nuevo."
   },
+  "csvImport": {
+    "title": "Importar operaciones CSV",
+    "step": "Paso {step} de 3",
+    "step1Title": "Seleccionar archivo",
+    "step2Title": "Previsualizar",
+    "step3Title": "Resultado",
+    "dragDrop": "Arrastra tu CSV aquí o haz clic para seleccionar",
+    "maxLimit": "Máx. 5 MB · 1.000 filas",
+    "downloadTemplate": "Descargar plantilla CSV",
+    "emptyRows": "{count} filas vacías",
+    "previewNote": "Mostrando hasta 5 filas de previsualización",
+    "back": "Volver",
+    "processing": "Importando…",
+    "confirmButton": "Confirmar importación",
+    "importComplete": "Importación completada",
+    "noTrades": "Sin operaciones importadas",
+    "partialSuccess": "{imported} importadas · {skipped} omitidas",
+    "errorsLabel": "Errores",
+    "close": "Cerrar"
+  },
   "common": {
     "loading": "Cargando…",
     "loadingText": "Cargando…",
