@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from apps.users.authentication import CookieJWTAuthentication
 from apps.users.models import CustomUser, Plan
+from apps.users.permissions import IsTrader
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +34,7 @@ def _get_or_create_customer(user: CustomUser) -> str:
 
 @api_view(["POST"])
 @authentication_classes([CookieJWTAuthentication])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsTrader])
 def create_checkout_session(request: Request) -> Response:
     """Create a Stripe Checkout session for the PRO plan."""
     if not settings.STRIPE_SECRET_KEY or not settings.STRIPE_PRO_PRICE_ID:
@@ -62,7 +63,7 @@ def create_checkout_session(request: Request) -> Response:
 
 @api_view(["GET"])
 @authentication_classes([CookieJWTAuthentication])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsTrader])
 def create_portal_session(request: Request) -> Response:
     """Create a Stripe Customer Portal session for managing the subscription."""
     if not settings.STRIPE_SECRET_KEY:
@@ -100,7 +101,7 @@ def webhook(request: Request) -> Response:
 
     try:
         event = stripe.Webhook.construct_event(payload, sig_header, settings.STRIPE_WEBHOOK_SECRET)
-    except stripe.errors.SignatureVerificationError:
+    except stripe.error.SignatureVerificationError:
         logger.warning("Stripe webhook signature verification failed.")
         return Response({"error": "Invalid signature."}, status=status.HTTP_400_BAD_REQUEST)
     except ValueError:

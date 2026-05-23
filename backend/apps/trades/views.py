@@ -47,6 +47,12 @@ class TradeStatsView(APIView):
     def get(self, request: Request) -> Response:
         """Return aggregate trading statistics for the authenticated trader."""
         qs = Trade.objects.filter(user=request.user)
+        after = request.query_params.get("entry_time_after")
+        before = request.query_params.get("entry_time_before")
+        if after:
+            qs = qs.filter(entry_time__date__gte=after)
+        if before:
+            qs = qs.filter(entry_time__date__lte=before)
         closed = qs.exclude(pnl__isnull=True)
 
         winning = closed.filter(result=TradeResult.WIN).count()
