@@ -141,6 +141,7 @@ class MentorTraderListView(generics.ListAPIView):
             MentorAssignment.objects
             .filter(mentor=self.request.user, is_active=True)
             .select_related("trader")
+            .order_by("-created_at")
         )
 
 
