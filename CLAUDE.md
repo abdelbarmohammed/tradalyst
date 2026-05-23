@@ -2,7 +2,7 @@
 
 > This file is read automatically by Claude Code on every session.
 > Keep it accurate. Update it when decisions change.
-> Last updated: 2026-04
+> Last updated: 2026-05
 
 ---
 
@@ -43,6 +43,7 @@ Cloudflare handles DNS and SSL.
 | Database | PostgreSQL |
 | Auth | djangorestframework-simplejwt (httpOnly cookies) |
 | AI | Claude API — `claude-sonnet-4-6` |
+| i18n | next-intl — messages at `frontend/app/messages/{en,es}.json` |
 | Reverse proxy | Nginx (production only — Hetzner VPS) |
 | External APIs | CoinGecko (crypto) + Finnhub (stocks/forex) |
 | DNS + CDN | Cloudflare |
@@ -127,7 +128,7 @@ tradalyst/
 │   │   ├── src/app/             ← Next.js App Router pages
 │   │   ├── src/components/
 │   │   ├── src/lib/blog.ts      ← Markdown blog renderer
-│   │   └── src/content/blog/    ← .md blog posts (4 minimum at launch)
+│   │   └── src/content/blog/    ← .md blog posts (13 live, ES + EN)
 │   └── app/                     ← app.tradalyst.com
 │       ├── src/app/             ← Next.js App Router pages
 │       ├── src/components/
@@ -137,7 +138,10 @@ tradalyst/
 │       │   ├── auth.ts          ← Token management (httpOnly cookies)
 │       │   └── format.ts        ← Number/date formatters
 │       ├── src/middleware.ts    ← Edge auth + role enforcement
-│       └── src/types/
+│       ├── src/types/
+│       └── messages/
+│           ├── en.json          ← English i18n strings
+│           └── es.json          ← Spanish i18n strings
 │
 ├── nginx/                       ← Production only (Hetzner VPS)
 │   └── conf.d/
@@ -155,7 +159,9 @@ tradalyst/
 │   └── runbooks/                ← Deploy, seed, rollback procedures
 │
 └── tools/
-    ├── scripts/                 ← seed_db.py, export_schema.sh
+    ├── scripts/
+    │   ├── seed_demo.py         ← Seeds demo account (Alex García, trader@tradalyst.com)
+    │   └── topup_trades.py      ← Fills trade gap from last trade to today
     └── prompts/                 ← Claude prompt templates
         ├── weekly-insight.txt
         └── chat-system.txt
@@ -238,7 +244,11 @@ who picks it up — not just the original author.
   the component genuinely needs browser APIs or interactivity
 - **Error boundaries** — every page-level component wrapped in error boundary
 - **Loading states** — every async operation has a skeleton or spinner state
-- **No inline styles** — Tailwind classes only, never `style={{}}`
+- **Prefer Tailwind classes** — use `style={{}}` only for dynamic/computed
+  values (e.g. percentages from data, CSS variables that Tailwind can't express)
+- **i18n via next-intl** — all user-facing strings use `useTranslations("namespace")`.
+  Never hardcode Spanish or English strings in JSX. Add keys to both
+  `messages/en.json` and `messages/es.json` before using them.
 - **Component naming** — PascalCase for components, camelCase for functions
   and variables, SCREAMING_SNAKE_CASE for constants
 
@@ -254,6 +264,9 @@ who picks it up — not just the original author.
   never in source code, never in version control
 - **`.env.example` always updated** — when adding a new env var,
   add it to `.env.example` with an empty value and a comment
+- **DRF browsable API disabled in production** — `production.py` sets
+  `DEFAULT_RENDERER_CLASSES` to `JSONRenderer` only. Development keeps
+  `BrowsableAPIRenderer` for local debugging.
 
 ### Git Standards
 
@@ -264,10 +277,11 @@ who picks it up — not just the original author.
   docs: update API endpoint reference
   refactor: extract Claude prompt to template file
   chore: add missing type hints to serializers
+  security: disable DRF browsable API in production
+  seo: update meta tags and content for GSC target pages
   ```
-- **One feature per branch** — never commit directly to `main`
-- **Branch naming:** `feat/trade-export`, `fix/pnl-calculation`
-- **No commits with broken tests or linting errors**
+- This is a solo project — commits go directly to `main`.
+- **No commits with broken builds or TypeScript errors**
 
 ---
 
@@ -292,6 +306,13 @@ who picks it up — not just the original author.
   TRADE_SUMMARY_DAYS = 90        # Days of history in AI chat context
   WATCHLIST_MAX_ASSETS = 8       # Max pinned assets per user
   ```
+
+### Pagination
+- Default paginator: `core/pagination.py` — `StandardResultsPagination`
+- `page_size = 20`, `max_page_size = 2000`
+- Dashboard fetches trades with `page_size=500` and computes stats
+  client-side from the results array. Stats correctness depends on
+  `max_page_size` being ≥ the page_size requested — do not lower it.
 
 ### External APIs
 - **Never call CoinGecko or Finnhub from the frontend**
@@ -326,6 +347,15 @@ who picks it up — not just the original author.
 - `middleware.ts` reads JWT role and redirects wrong-role requests before render
 - Login redirect by role: trader → `/dashboard`, mentor → `/mentor`,
   admin → `/admin`
+
+### Settings Page — Role-Aware Tabs
+The `/settings` page renders different tabs per role:
+- **admin** → Profile, Security, Platform, Data
+- **mentor** → Profile, Security, My Students, Data
+- **trader** → Profile, Security, Mentor, Plan, Data
+
+Never show the Plan tab to admins or mentors. The Platform tab
+(link to `/admin`) is admin-only.
 
 ---
 
@@ -369,6 +399,7 @@ Full schema: `docs/architecture/database_schema.md`
 | Watchlist | `/api/watchlist/` | Trader + Mentor |
 | Mentors | `/api/mentors/` | Trader + Mentor |
 | Users | `/api/users/` | Admin + self |
+| Admin | `/api/admin/` | Admin only |
 
 Full endpoint list: `docs/architecture/api_endpoints.md`
 
@@ -382,6 +413,10 @@ Full endpoint list: `docs/architecture/api_endpoints.md`
 **Loss:** `#d94040` (light bg) / `#f06060` (dark bg) — ONLY for negative P&L
 **Never:** Purple, blue, amber, gradients on buttons/backgrounds, border-radius > 6px
 **Fonts:** IBM Plex Sans (UI) + IBM Plex Mono (all numbers, prices, timestamps)
+
+**Light mode muted text:** `--text-muted: #6b7280` (not `#9ca3af` — fails WCAG AA on light bg).
+White-opacity Tailwind classes (`border-white/[0.06]` etc.) must be overridden
+in `globals.css` for light mode — Tailwind generates hardcoded `rgba(255,255,255,X)`.
 
 Full design system: `tradalyst-brand-identity.html`
 
@@ -415,9 +450,7 @@ See `.env.example` in each directory for the full list.
 ## What Is Not Built Yet
 
 - Final logo mark (wordmark exists, icon mark pending)
-- Mentor pages full spec (`/mentor/*`)
-- Admin pages full spec (`/admin/*`)
-- Mobile responsive behaviour
+- Mobile responsive behaviour (partially done — heatmap and admin responsive, rest TBD)
 - Payment/subscription integration (Stripe — planned, not yet specced)
 - Privacy policy + Terms pages (required for RGPD)
 
@@ -442,5 +475,6 @@ See `.env.example` in each directory for the full list.
 - No rounded corners larger than 2px on cards, 0px preferred
 - No emoji in UI — use Lucide icons only
 - No placeholder/lorem text in any component
-- No generic "feature card with icon + title + description" 
+- No generic "feature card with icon + title + description"
   layouts — make data the visual instead
+- No hardcoded Spanish text in JSX — always use `useTranslations()`
