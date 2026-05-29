@@ -26,7 +26,8 @@
       "errorCredentials": "Incorrect email or password.",
       "errorSuspended": "Your account has been suspended. Contact support.",
       "errorGeneral": "Sign in failed. Please try again.",
-      "errorNetwork": "Could not reach the server."
+      "errorNetwork": "Could not reach the server.",
+      "forgotPassword": "Forgot your password?"
     },
     "register": {
       "title": "Create account",
@@ -64,6 +65,38 @@
       "req8chars": "At least 8 characters",
       "reqNumber": "At least one number",
       "reqUppercase": "At least one uppercase letter"
+    },
+    "forgotPassword": {
+      "title": "Reset your password",
+      "subtitle": "Enter your email and we'll send you a reset link.",
+      "email": "Email",
+      "submit": "Send reset link",
+      "submitting": "Sending…",
+      "backToLogin": "Back to login",
+      "successTitle": "Check your email",
+      "successBody": "If an account exists with that email, you'll receive a link shortly.",
+      "checkSpam": "Check your spam folder too.",
+      "errorGeneral": "Something went wrong. Please try again.",
+      "errorNetwork": "Could not reach the server."
+    },
+    "resetPassword": {
+      "title": "New password",
+      "password": "New password",
+      "passwordConfirm": "Confirm new password",
+      "submit": "Change password",
+      "submitting": "Changing password…",
+      "req8chars": "At least 8 characters",
+      "reqUppercase": "One uppercase letter",
+      "reqNumber": "One number",
+      "successTitle": "Password updated",
+      "successBody": "Your password has been changed. Redirecting to login…",
+      "goToLogin": "Go to login",
+      "expiredTitle": "Link expired",
+      "expiredBody": "This link has expired or has already been used.",
+      "requestNewLink": "Request a new link",
+      "errorPasswordMatch": "Passwords do not match.",
+      "errorGeneral": "Something went wrong. Please try again.",
+      "errorNetwork": "Could not reach the server."
     }
   },
   "dashboard": {

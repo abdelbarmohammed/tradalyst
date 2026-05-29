@@ -7,8 +7,10 @@ interface JwtPayload {
   exp: number;
 }
 
-// Routes accessible without authentication
-const PUBLIC_PATHS = new Set(["/login", "/registro", "/recuperar-contrasena"]);
+// Routes accessible without authentication (exact match)
+const PUBLIC_PATHS = new Set(["/login", "/registro", "/recuperar-contrasena", "/forgot-password"]);
+// Routes accessible without authentication (prefix match)
+const PUBLIC_PREFIXES = ["/reset-password/"];
 
 // Role → allowed path prefixes
 const ROLE_PATHS: Record<string, string[]> = {
@@ -34,9 +36,13 @@ export function middleware(request: NextRequest) {
 
   const token = request.cookies.get("access_token")?.value;
 
+  const isPublic =
+    PUBLIC_PATHS.has(pathname) ||
+    PUBLIC_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+
   // No token — redirect to login unless already on a public path
   if (!token) {
-    if (PUBLIC_PATHS.has(pathname)) return NextResponse.next();
+    if (isPublic) return NextResponse.next();
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("redirect", pathname);
@@ -59,8 +65,8 @@ export function middleware(request: NextRequest) {
 
   const { role } = payload;
 
-  // Authenticated user on login/registro → redirect to their home
-  if (PUBLIC_PATHS.has(pathname)) {
+  // Authenticated user on a public path → redirect to their home
+  if (isPublic) {
     return NextResponse.redirect(new URL(ROLE_HOME[role] ?? "/dashboard", request.url));
   }
 

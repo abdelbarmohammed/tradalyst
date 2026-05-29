@@ -26,7 +26,8 @@
       "errorCredentials": "Email o contraseña incorrectos.",
       "errorSuspended": "Tu cuenta ha sido suspendida. Contacta con soporte.",
       "errorGeneral": "Error al iniciar sesión. Inténtalo de nuevo.",
-      "errorNetwork": "No se pudo conectar con el servidor."
+      "errorNetwork": "No se pudo conectar con el servidor.",
+      "forgotPassword": "¿Olvidaste tu contraseña?"
     },
     "register": {
       "title": "Crear cuenta",
@@ -64,6 +65,38 @@
       "req8chars": "8 caracteres mínimo",
       "reqNumber": "Al menos un número",
       "reqUppercase": "Al menos una mayúscula"
+    },
+    "forgotPassword": {
+      "title": "Recupera tu contraseña",
+      "subtitle": "Introduce tu email y te enviaremos un enlace para restablecer tu contraseña.",
+      "email": "Email",
+      "submit": "Enviar enlace",
+      "submitting": "Enviando…",
+      "backToLogin": "Volver al inicio de sesión",
+      "successTitle": "Revisa tu correo",
+      "successBody": "Si existe una cuenta con ese email, recibirás un enlace en breve.",
+      "checkSpam": "Revisa también tu carpeta de spam.",
+      "errorGeneral": "Algo salió mal. Inténtalo de nuevo.",
+      "errorNetwork": "No se pudo conectar con el servidor."
+    },
+    "resetPassword": {
+      "title": "Nueva contraseña",
+      "password": "Nueva contraseña",
+      "passwordConfirm": "Confirmar nueva contraseña",
+      "submit": "Cambiar contraseña",
+      "submitting": "Cambiando contraseña…",
+      "req8chars": "Mínimo 8 caracteres",
+      "reqUppercase": "Una mayúscula",
+      "reqNumber": "Un número",
+      "successTitle": "Contraseña actualizada",
+      "successBody": "Tu contraseña ha sido cambiada correctamente. Redirigiendo al inicio de sesión…",
+      "goToLogin": "Ir al inicio de sesión",
+      "expiredTitle": "Enlace expirado",
+      "expiredBody": "Este enlace ha expirado o ya fue utilizado.",
+      "requestNewLink": "Solicitar un nuevo enlace",
+      "errorPasswordMatch": "Las contraseñas no coinciden.",
+      "errorGeneral": "Algo salió mal. Inténtalo de nuevo.",
+      "errorNetwork": "No se pudo conectar con el servidor."
     }
   },
   "dashboard": {

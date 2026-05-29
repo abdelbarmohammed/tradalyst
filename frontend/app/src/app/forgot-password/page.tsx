@@ -1,20 +1,13 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { AlertCircle, Sun, Moon } from "lucide-react";
+import { AlertCircle, CheckCircle, Sun, Moon } from "lucide-react";
 import { MARKETING_URL } from "@/lib/urls";
-import type { UserProfile } from "@/types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
-
-const ROLE_HOME: Record<string, string> = {
-  trader: "/dashboard",
-  mentor: "/mentor",
-  admin: "/admin",
-};
 
 const inputCls =
   "w-full bg-elevated border border-white/[0.10] px-4 py-[11px] font-mono text-[13px] text-primary placeholder:text-muted focus:outline-none focus:border-white/25 transition-colors";
@@ -69,54 +62,35 @@ function ThemeToggle() {
   );
 }
 
-function LoginForm() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const t = useTranslations("auth.login");
+export default function ForgotPasswordPage() {
+  const t = useTranslations("auth.forgotPassword");
 
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!email.trim() || !password) return;
+    if (!email.trim()) return;
 
     setLoading(true);
     setError(null);
 
     try {
-      const res = await fetch(`${API_BASE}/api/auth/login/`, {
+      const res = await fetch(`${API_BASE}/api/auth/forgot-password/`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim(), password }),
+        body: JSON.stringify({ email: email.trim().toLowerCase() }),
       });
 
       if (res.ok) {
-        const user: UserProfile = await res.json();
-        const theme = user.theme_preference ?? "dark";
-        document.cookie = `THEME=${theme};path=/;max-age=31536000`;
-        document.documentElement.classList.remove("light", "dark");
-        document.documentElement.classList.add(theme);
-        const destination =
-          searchParams.get("redirect") ?? ROLE_HOME[user.role] ?? "/dashboard";
-        router.push(destination);
+        setSubmitted(true);
         return;
       }
 
-      if (res.status === 401 || res.status === 400) {
-        setError(t("errorCredentials"));
-        return;
-      }
-
-      const body = await res.json().catch(() => ({}));
-      if (res.status === 403 && body?.detail?.toLowerCase().includes("suspendida")) {
-        setError(t("errorSuspended"));
-      } else {
-        setError(t("errorGeneral"));
-      }
+      setError(t("errorGeneral"));
     } catch {
       setError(t("errorNetwork"));
     } finally {
@@ -125,90 +99,10 @@ function LoginForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3" noValidate>
-      {error && (
-        <div className="flex items-center gap-2 p-3 border border-loss/30 bg-loss/[0.06] mb-1">
-          <AlertCircle size={13} className="text-loss flex-shrink-0" />
-          <p className="font-sans text-[12px] text-loss">{error}</p>
-        </div>
-      )}
-
-      <div className="flex flex-col gap-1">
-        <label className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted">
-          {t("email")}
-        </label>
-        <input
-          type="email"
-          autoComplete="email"
-          value={email}
-          onChange={(e) => { setEmail(e.target.value); setError(null); }}
-          placeholder="tu@email.com"
-          className={inputCls}
-          disabled={loading}
-        />
-      </div>
-
-      <div className="flex flex-col gap-1">
-        <div className="flex items-center justify-between">
-          <label className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted">
-            {t("password")}
-          </label>
-          <Link
-            href="/forgot-password"
-            className="font-sans text-[12px] text-muted hover:text-green transition-colors"
-          >
-            {t("forgotPassword")}
-          </Link>
-        </div>
-        <input
-          type="password"
-          autoComplete="current-password"
-          value={password}
-          onChange={(e) => { setPassword(e.target.value); setError(null); }}
-          placeholder="••••••••"
-          className={inputCls}
-          disabled={loading}
-        />
-      </div>
-
-      <button
-        type="submit"
-        disabled={loading || !email.trim() || !password}
-        className="w-full mt-2 font-sans text-[13px] font-semibold bg-green hover:bg-green-hover text-white py-[11px] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        {loading ? t("submitting") : t("submit")}
-      </button>
-
-      <p className="font-mono text-[11px] text-muted text-center pt-1">
-        {t("noAccount")}{" "}
-        <Link href="/registro" className="text-green hover:underline">
-          {t("register")}
-        </Link>
-      </p>
-    </form>
-  );
-}
-
-export default function LoginPage() {
-  const t = useTranslations("auth.login");
-  const router = useRouter();
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const lang = params.get("lang");
-    if (lang === "en" || lang === "es") {
-      const current = document.cookie.match(/NEXT_LOCALE=([^;]+)/)?.[1];
-      if (current !== lang) {
-        document.cookie = `NEXT_LOCALE=${lang};path=/;max-age=31536000`;
-        router.refresh();
-      }
-    }
-  }, [router]);
-
-  return (
     <div className="relative min-h-screen bg-base flex items-center justify-center p-4">
       <ThemeToggle />
       <LanguageToggle />
+
       <div className="w-full max-w-[360px]">
         <div className="flex justify-center mb-8">
           <a href={MARKETING_URL} aria-label="Tradalyst — inicio">
@@ -233,12 +127,73 @@ export default function LoginPage() {
         </div>
 
         <div className="bg-surface border border-white/[0.08] p-6">
-          <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted mb-5">
-            {t("title")}
-          </p>
-          <Suspense fallback={null}>
-            <LoginForm />
-          </Suspense>
+          {submitted ? (
+            <div className="text-center py-2">
+              <CheckCircle size={32} className="text-green mx-auto mb-4" />
+              <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted mb-3">
+                {t("successTitle")}
+              </p>
+              <p className="font-sans text-[13px] text-secondary leading-relaxed mb-6">
+                {t("successBody")}
+              </p>
+              <p className="font-sans text-[12px] text-muted mb-6">
+                {t("checkSpam")}
+              </p>
+              <Link
+                href="/login"
+                className="font-sans text-[12px] text-muted hover:text-green transition-colors"
+              >
+                ← {t("backToLogin")}
+              </Link>
+            </div>
+          ) : (
+            <>
+              <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted mb-1">
+                {t("title")}
+              </p>
+              <p className="font-sans text-[12px] text-muted mb-5 leading-relaxed">
+                {t("subtitle")}
+              </p>
+
+              <form onSubmit={handleSubmit} className="space-y-3" noValidate>
+                {error && (
+                  <div className="flex items-center gap-2 p-3 border border-loss/30 bg-loss/[0.06]">
+                    <AlertCircle size={13} className="text-loss flex-shrink-0" />
+                    <p className="font-sans text-[12px] text-loss">{error}</p>
+                  </div>
+                )}
+
+                <div className="flex flex-col gap-1">
+                  <label className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted">
+                    {t("email")}
+                  </label>
+                  <input
+                    type="email"
+                    autoComplete="email"
+                    value={email}
+                    onChange={(e) => { setEmail(e.target.value); setError(null); }}
+                    placeholder="tu@email.com"
+                    className={inputCls}
+                    disabled={loading}
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading || !email.trim()}
+                  className="w-full mt-2 font-sans text-[13px] font-semibold bg-green hover:bg-green-hover text-white py-[11px] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? t("submitting") : t("submit")}
+                </button>
+
+                <p className="font-sans text-[12px] text-muted text-center pt-1">
+                  <Link href="/login" className="hover:text-green transition-colors">
+                    ← {t("backToLogin")}
+                  </Link>
+                </p>
+              </form>
+            </>
+          )}
         </div>
       </div>
     </div>

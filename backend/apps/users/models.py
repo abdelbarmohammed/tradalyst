@@ -1,7 +1,11 @@
 import logging
+import uuid
+from datetime import timedelta
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
+from django.utils import timezone
 from django.utils.html import strip_tags
+from core.constants import PASSWORD_RESET_TOKEN_EXPIRY_HOURS
 
 logger = logging.getLogger(__name__)
 
@@ -83,3 +87,29 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self) -> str:
         return self.email
+
+
+def _password_reset_token_expiry() -> "timezone.datetime":
+    return timezone.now() + timedelta(hours=PASSWORD_RESET_TOKEN_EXPIRY_HOURS)
+
+
+class PasswordResetToken(models.Model):
+    """Single-use token for password reset. Expires after PASSWORD_RESET_TOKEN_EXPIRY_HOURS hours."""
+
+    user = models.ForeignKey(
+        CustomUser, on_delete=models.CASCADE, related_name="password_reset_tokens"
+    )
+    token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    used = models.BooleanField(default=False)
+    expires_at = models.DateTimeField(default=_password_reset_token_expiry)
+
+    class Meta:
+        db_table = "users_passwordresettoken"
+
+    def is_valid(self) -> bool:
+        """Return True if the token has not been used and has not expired."""
+        return not self.used and timezone.now() < self.expires_at
+
+    def __str__(self) -> str:
+        return f"PasswordResetToken({self.user.email}, used={self.used})"

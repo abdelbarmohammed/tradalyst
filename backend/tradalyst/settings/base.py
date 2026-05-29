@@ -29,6 +29,9 @@ FINNHUB_API_KEY: str = config("FINNHUB_API_KEY", default="")
 STRIPE_SECRET_KEY: str = config("STRIPE_SECRET_KEY", default="")
 STRIPE_WEBHOOK_SECRET: str = config("STRIPE_WEBHOOK_SECRET", default="")
 STRIPE_PRO_PRICE_ID: str = config("STRIPE_PRO_PRICE_ID", default="")
+SENDGRID_API_KEY: str = config("SENDGRID_API_KEY", default="")
+FROM_EMAIL: str = config("FROM_EMAIL", default="noreply@tradalyst.com")
+FRONTEND_URL: str = config("FRONTEND_URL", default="http://localhost:3001")
 
 # ALLOWED_HOSTS is set per environment — base leaves it empty on purpose.
 ALLOWED_HOSTS: list[str] = []
