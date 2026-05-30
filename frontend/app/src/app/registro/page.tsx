@@ -123,7 +123,11 @@ export default function RegistroPage() {
   function validate(): boolean {
     const errs: Record<string, string> = {};
     if (!name.trim())        errs.name     = t("validationName");
-    if (!email.trim())       errs.email    = t("validationEmail");
+    if (!email.trim()) {
+      errs.email = t("validationEmail");
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      errs.email = t("validationEmailFormat");
+    }
     if (password.length < 8) errs.password = t("validationPassword");
     if (password !== confirm) errs.confirm  = t("validationPasswordMatch");
     if (!terms)              errs.terms    = t("validationTerms");
@@ -164,7 +168,12 @@ export default function RegistroPage() {
 
       const body = await res.json().catch(() => ({}));
       if (body?.email) {
-        setFieldErrors({ email: t("errorEmailTaken") });
+        const apiErr = Array.isArray(body.email) ? body.email[0] : String(body.email);
+        if (/valid email/i.test(apiErr)) {
+          setFieldErrors({ email: t("validationEmailFormat") });
+        } else {
+          setFieldErrors({ email: t("errorEmailTaken") });
+        }
       } else if (body?.password) {
         setFieldErrors({ password: Array.isArray(body.password) ? body.password[0] : body.password });
       } else {

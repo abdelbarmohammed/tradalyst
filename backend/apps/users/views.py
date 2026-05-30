@@ -196,8 +196,8 @@ class AdminUserListView(generics.ListAPIView):
         return qs
 
 
-class AdminUserDetailView(generics.RetrieveUpdateAPIView):
-    """Admin: view or modify any user (suspend, change role)."""
+class AdminUserDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """Admin: view, modify, or delete any user."""
 
     permission_classes = [IsAdmin]
     serializer_class = AdminUserSerializer

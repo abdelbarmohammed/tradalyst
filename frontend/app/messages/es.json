@@ -61,6 +61,7 @@
       "errorEmailTaken": "Ya existe una cuenta con este email.",
       "validationName": "El nombre es obligatorio.",
       "validationEmail": "El email es obligatorio.",
+      "validationEmailFormat": "Introduce un email válido.",
       "validationPassword": "Mínimo 8 caracteres.",
       "validationPasswordMatch": "Las contraseñas no coinciden.",
       "validationTerms": "Debes aceptar los términos para continuar.",

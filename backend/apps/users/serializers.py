@@ -34,6 +34,20 @@ class RegisterSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Display name must be 50 characters or less.")
         return clean
 
+    def validate_email(self, value: str) -> str:
+        from django.core.validators import validate_email as django_validate_email
+        from django.core.exceptions import ValidationError as DjangoValidationError
+
+        try:
+            django_validate_email(value)
+        except DjangoValidationError:
+            raise serializers.ValidationError("Enter a valid email address.")
+
+        if CustomUser.objects.filter(email=value).exists():
+            raise serializers.ValidationError("An account with this email already exists.")
+
+        return value
+
     def validate_role(self, role: str) -> str:
         if role == "admin":
             raise serializers.ValidationError("No puedes registrarte como administrador.")
@@ -67,6 +81,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Display name must be 50 characters or less.")
         return clean
 
+    def validate_bio(self, value: str) -> str:
+        return strip_tags(value or "")
+
 
 class AdminUserSerializer(serializers.ModelSerializer):
     trade_count = serializers.SerializerMethodField()
@@ -82,6 +99,9 @@ class AdminUserSerializer(serializers.ModelSerializer):
             "trade_count", "last_active", "mentor_name", "student_count",
         )
         read_only_fields = ("id", "email", "date_joined")
+
+    def validate_bio(self, value: str) -> str:
+        return strip_tags(value or "")
 
     def get_trade_count(self, obj: CustomUser) -> int:
         ann = getattr(obj, "trade_count_ann", None)

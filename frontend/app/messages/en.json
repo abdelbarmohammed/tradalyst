@@ -61,6 +61,7 @@
       "errorEmailTaken": "An account with this email already exists.",
       "validationName": "Name is required.",
       "validationEmail": "Email is required.",
+      "validationEmailFormat": "Enter a valid email address.",
       "validationPassword": "Minimum 8 characters.",
       "validationPasswordMatch": "Passwords do not match.",
       "validationTerms": "You must accept the terms to continue.",
