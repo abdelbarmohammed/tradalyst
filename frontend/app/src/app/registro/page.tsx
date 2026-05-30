@@ -249,8 +249,6 @@ export default function RegistroPage() {
             </p>
           </div>
         ) : (
-
-        {/* Card */}
         <div className="bg-surface border border-white/[0.08] p-6">
           <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted mb-5">
             {t("title")}
