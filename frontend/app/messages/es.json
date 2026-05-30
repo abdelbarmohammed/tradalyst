@@ -27,7 +27,14 @@
       "errorSuspended": "Tu cuenta ha sido suspendida. Contacta con soporte.",
       "errorGeneral": "Error al iniciar sesión. Inténtalo de nuevo.",
       "errorNetwork": "No se pudo conectar con el servidor.",
-      "forgotPassword": "¿Olvidaste tu contraseña?"
+      "forgotPassword": "¿Olvidaste tu contraseña?",
+      "errorNotVerified": "Debes verificar tu email antes de iniciar sesión.",
+      "resendVerification": "Reenviar email de verificación",
+      "resendEmailPlaceholder": "tu@email.com",
+      "resendSubmit": "Enviar",
+      "resendSending": "Enviando…",
+      "resendSent": "Revisa tu correo para el nuevo enlace de verificación.",
+      "resendCancel": "Cancelar"
     },
     "register": {
       "title": "Crear cuenta",
@@ -64,7 +71,14 @@
       "strengthStrong": "Fuerte",
       "req8chars": "8 caracteres mínimo",
       "reqNumber": "Al menos un número",
-      "reqUppercase": "Al menos una mayúscula"
+      "reqUppercase": "Al menos una mayúscula",
+      "verifyTitle": "Revisa tu correo",
+      "verifyBody": "Te enviamos un enlace de verificación a {email}.",
+      "verifySpam": "Revisa también tu carpeta de spam.",
+      "verifyResendQuestion": "¿No lo recibiste?",
+      "verifyResendLink": "Reenviar",
+      "verifyResending": "Enviando…",
+      "verifyResent": "¡Email enviado!"
     },
     "forgotPassword": {
       "title": "Recupera tu contraseña",
@@ -97,6 +111,15 @@
       "errorPasswordMatch": "Las contraseñas no coinciden.",
       "errorGeneral": "Algo salió mal. Inténtalo de nuevo.",
       "errorNetwork": "No se pudo conectar con el servidor."
+    },
+    "verification": {
+      "verifying": "Verificando tu cuenta…",
+      "successTitle": "¡Cuenta verificada!",
+      "successBody": "Tu cuenta ha sido verificada correctamente. Redirigiendo…",
+      "goToOnboarding": "Continuar →",
+      "expiredTitle": "Este enlace ha expirado",
+      "expiredBody": "El enlace de verificación ha expirado o ya fue utilizado.",
+      "requestNewLink": "Solicitar nuevo enlace"
     }
   },
   "dashboard": {

@@ -12,3 +12,6 @@ CSV_IMPORT_MAX_SIZE_BYTES = 5242880  # 5 MB
 
 PASSWORD_RESET_TOKEN_EXPIRY_HOURS = 1   # Reset link valid for this many hours
 PASSWORD_RESET_MAX_REQUESTS_PER_HOUR = 3  # Max reset requests per email per hour
+
+EMAIL_VERIFICATION_TOKEN_EXPIRY_HOURS = 24   # Verification link valid for 24 hours
+EMAIL_VERIFICATION_MAX_REQUESTS_PER_HOUR = 3  # Max resend requests per email per hour

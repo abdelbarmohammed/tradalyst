@@ -10,7 +10,7 @@ interface JwtPayload {
 // Routes accessible without authentication (exact match)
 const PUBLIC_PATHS = new Set(["/login", "/registro", "/recuperar-contrasena", "/forgot-password"]);
 // Routes accessible without authentication (prefix match)
-const PUBLIC_PREFIXES = ["/reset-password/"];
+const PUBLIC_PREFIXES = ["/reset-password/", "/verify-email/"];
 
 // Role → allowed path prefixes
 const ROLE_PATHS: Record<string, string[]> = {

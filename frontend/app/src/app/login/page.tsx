@@ -78,6 +78,11 @@ function LoginForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [notVerified, setNotVerified] = useState(false);
+  const [showResend, setShowResend] = useState(false);
+  const [resendEmail, setResendEmail] = useState("");
+  const [resending, setResending] = useState(false);
+  const [resent, setResent] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -85,6 +90,7 @@ function LoginForm() {
 
     setLoading(true);
     setError(null);
+    setNotVerified(false);
 
     try {
       const res = await fetch(`${API_BASE}/api/auth/login/`, {
@@ -112,6 +118,11 @@ function LoginForm() {
       }
 
       const body = await res.json().catch(() => ({}));
+      if (res.status === 403 && body?.error === "email_not_verified") {
+        setNotVerified(true);
+        setResendEmail(email.trim());
+        return;
+      }
       if (res.status === 403 && body?.detail?.toLowerCase().includes("suspendida")) {
         setError(t("errorSuspended"));
       } else {
@@ -124,12 +135,74 @@ function LoginForm() {
     }
   }
 
+  async function handleResend() {
+    setResending(true);
+    try {
+      await fetch(`${API_BASE}/api/auth/resend-verification/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: resendEmail.trim() }),
+      });
+      setResent(true);
+      setShowResend(false);
+    } catch {
+      // silently fail — always show success per security pattern
+    } finally {
+      setResending(false);
+    }
+  }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-3" noValidate>
       {error && (
         <div className="flex items-center gap-2 p-3 border border-loss/30 bg-loss/[0.06] mb-1">
           <AlertCircle size={13} className="text-loss flex-shrink-0" />
           <p className="font-sans text-[12px] text-loss">{error}</p>
+        </div>
+      )}
+
+      {notVerified && (
+        <div className="flex items-start gap-2 p-3 border border-loss/30 bg-loss/[0.06] mb-1">
+          <AlertCircle size={13} className="text-loss flex-shrink-0 mt-[2px]" />
+          <div className="flex-1 min-w-0">
+            <p className="font-sans text-[12px] text-loss mb-2">{t("errorNotVerified")}</p>
+            {resent ? (
+              <p className="font-sans text-[12px] text-green">{t("resendSent")}</p>
+            ) : showResend ? (
+              <div className="flex gap-2">
+                <input
+                  type="email"
+                  value={resendEmail}
+                  onChange={(e) => setResendEmail(e.target.value)}
+                  placeholder={t("resendEmailPlaceholder")}
+                  className="flex-1 bg-elevated border border-white/[0.10] px-3 py-[5px] font-mono text-[12px] text-primary focus:outline-none min-w-0"
+                />
+                <button
+                  type="button"
+                  onClick={handleResend}
+                  disabled={resending || !resendEmail.trim()}
+                  className="font-sans text-[12px] bg-green text-white px-3 py-[5px] disabled:opacity-50 flex-shrink-0"
+                >
+                  {resending ? t("resendSending") : t("resendSubmit")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowResend(false)}
+                  className="font-sans text-[12px] text-muted hover:text-primary transition-colors flex-shrink-0"
+                >
+                  {t("resendCancel")}
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowResend(true)}
+                className="font-sans text-[12px] text-muted hover:text-green transition-colors underline"
+              >
+                {t("resendVerification")}
+              </button>
+            )}
+          </div>
         </div>
       )}
 
@@ -141,7 +214,7 @@ function LoginForm() {
           type="email"
           autoComplete="email"
           value={email}
-          onChange={(e) => { setEmail(e.target.value); setError(null); }}
+          onChange={(e) => { setEmail(e.target.value); setError(null); setNotVerified(false); }}
           placeholder="tu@email.com"
           className={inputCls}
           disabled={loading}
@@ -164,7 +237,7 @@ function LoginForm() {
           type="password"
           autoComplete="current-password"
           value={password}
-          onChange={(e) => { setPassword(e.target.value); setError(null); }}
+          onChange={(e) => { setPassword(e.target.value); setError(null); setNotVerified(false); }}
           placeholder="••••••••"
           className={inputCls}
           disabled={loading}

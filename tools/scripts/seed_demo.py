@@ -287,6 +287,7 @@ def get_or_create_user(
         user.set_password(password)
         user.display_name = display_name
         user.onboarding_completed = True
+        user.is_verified = True
         user.save()
         logger.info(f"  Updated existing: {email}")
     except CustomUser.DoesNotExist:
@@ -299,6 +300,7 @@ def get_or_create_user(
         if is_staff:
             user.is_staff = True
         user.onboarding_completed = True
+        user.is_verified = True
         user.save()
         logger.info(f"  Created: {email} ({role})")
     return user

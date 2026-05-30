@@ -5,7 +5,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.db import models
 from django.utils import timezone
 from django.utils.html import strip_tags
-from core.constants import PASSWORD_RESET_TOKEN_EXPIRY_HOURS
+from core.constants import PASSWORD_RESET_TOKEN_EXPIRY_HOURS, EMAIL_VERIFICATION_TOKEN_EXPIRY_HOURS
 
 logger = logging.getLogger(__name__)
 
@@ -59,6 +59,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     role = models.CharField(max_length=10, choices=Role.choices, default=Role.TRADER)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    is_verified = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)
     onboarding_completed = models.BooleanField(default=False)
     theme_preference = models.CharField(
@@ -113,3 +114,29 @@ class PasswordResetToken(models.Model):
 
     def __str__(self) -> str:
         return f"PasswordResetToken({self.user.email}, used={self.used})"
+
+
+def _email_verification_token_expiry() -> "timezone.datetime":
+    return timezone.now() + timedelta(hours=EMAIL_VERIFICATION_TOKEN_EXPIRY_HOURS)
+
+
+class EmailVerificationToken(models.Model):
+    """Single-use token for email verification. Expires after EMAIL_VERIFICATION_TOKEN_EXPIRY_HOURS hours."""
+
+    user = models.ForeignKey(
+        CustomUser, on_delete=models.CASCADE, related_name="email_verification_tokens"
+    )
+    token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    used = models.BooleanField(default=False)
+    expires_at = models.DateTimeField(default=_email_verification_token_expiry)
+
+    class Meta:
+        db_table = "users_emailverificationtoken"
+
+    def is_valid(self) -> bool:
+        """Return True if the token has not been used and has not expired."""
+        return not self.used and timezone.now() < self.expires_at
+
+    def __str__(self) -> str:
+        return f"EmailVerificationToken({self.user.email}, used={self.used})"

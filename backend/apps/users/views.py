@@ -15,10 +15,11 @@ from core.constants import (
     ACCESS_TOKEN_LIFETIME_MINUTES,
     REFRESH_TOKEN_LIFETIME_DAYS,
     PASSWORD_RESET_MAX_REQUESTS_PER_HOUR,
+    EMAIL_VERIFICATION_MAX_REQUESTS_PER_HOUR,
 )
 from .authentication import TradalystRefreshToken
-from .email_service import send_password_reset_email
-from .models import CustomUser, PasswordResetToken
+from .email_service import send_password_reset_email, send_verification_email
+from .models import CustomUser, EmailVerificationToken, PasswordResetToken
 from .permissions import IsAdmin
 from .serializers import (
     RegisterSerializer,
@@ -67,10 +68,15 @@ class RegisterView(APIView):
         serializer = RegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        refresh = TradalystRefreshToken.for_user(user)
-        response = Response(UserProfileSerializer(user).data, status=status.HTTP_201_CREATED)
-        _set_auth_cookies(response, refresh)
-        return response
+        token = EmailVerificationToken.objects.create(user=user)
+        try:
+            send_verification_email(user, token)
+        except Exception:
+            pass
+        return Response(
+            {"message": "Cuenta creada. Revisa tu email para verificarla."},
+            status=status.HTTP_201_CREATED,
+        )
 
 
 class LoginView(APIView):
@@ -88,6 +94,14 @@ class LoginView(APIView):
             return Response(
                 {"detail": "Invalid credentials."},
                 status=status.HTTP_401_UNAUTHORIZED,
+            )
+        if not user.is_verified:
+            return Response(
+                {
+                    "error": "email_not_verified",
+                    "message": "Verifica tu email antes de iniciar sesión.",
+                },
+                status=status.HTTP_403_FORBIDDEN,
             )
         refresh = TradalystRefreshToken.for_user(user)
         response = Response(UserProfileSerializer(user).data)
@@ -296,3 +310,69 @@ class ResetPasswordView(APIView):
             logger.warning("Could not blacklist outstanding tokens for user %s: %s", user.email, exc)
 
         return Response({"detail": "Contraseña actualizada correctamente."})
+
+
+_RESEND_SAFE_RESPONSE = {
+    "message": "Si existe una cuenta con ese email, recibirás un enlace de verificación en breve."
+}
+
+
+class VerifyEmailView(APIView):
+    """GET /api/auth/verify-email/<token>/ — verify email address and issue JWT cookies."""
+
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request: Request, token: str) -> Response:
+        try:
+            verification_token = EmailVerificationToken.objects.select_related("user").get(token=token)
+        except (EmailVerificationToken.DoesNotExist, ValueError):
+            return Response({"detail": "Token inválido."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not verification_token.is_valid():
+            return Response({"detail": "Token expirado o ya utilizado."}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = verification_token.user
+        user.is_verified = True
+        user.save(update_fields=["is_verified"])
+
+        verification_token.used = True
+        verification_token.save(update_fields=["used"])
+
+        refresh = TradalystRefreshToken.for_user(user)
+        response = Response(UserProfileSerializer(user).data)
+        _set_auth_cookies(response, refresh)
+        return response
+
+
+class ResendVerificationView(APIView):
+    """POST /api/auth/resend-verification/ — send a new email verification link."""
+
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request: Request) -> Response:
+        email = (request.data.get("email") or "").strip().lower()
+        if not email:
+            return Response(_RESEND_SAFE_RESPONSE)
+
+        try:
+            user = CustomUser.objects.get(email=email)
+        except CustomUser.DoesNotExist:
+            return Response(_RESEND_SAFE_RESPONSE)
+
+        if user.is_verified:
+            return Response(_RESEND_SAFE_RESPONSE)
+
+        one_hour_ago = timezone.now() - timedelta(hours=1)
+        recent_count = EmailVerificationToken.objects.filter(
+            user=user, created_at__gte=one_hour_ago
+        ).count()
+        if recent_count >= EMAIL_VERIFICATION_MAX_REQUESTS_PER_HOUR:
+            return Response(_RESEND_SAFE_RESPONSE)
+
+        token = EmailVerificationToken.objects.create(user=user)
+        try:
+            send_verification_email(user, token)
+        except Exception:
+            pass
+
+        return Response(_RESEND_SAFE_RESPONSE)

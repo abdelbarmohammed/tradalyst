@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { AlertCircle, BarChart2, GraduationCap, Check, Sun, Moon } from "lucide-react";
+import { AlertCircle, BarChart2, CheckCircle, GraduationCap, Check, Sun, Moon } from "lucide-react";
 import { MARKETING_URL } from "@/lib/urls";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -100,6 +100,10 @@ export default function RegistroPage() {
   const [error, setError]     = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+  const [registered, setRegistered] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState("");
+  const [resending, setResending] = useState(false);
+  const [resent, setResent] = useState(false);
 
   const strengthLabels = [
     t("strengthVeryWeak"),
@@ -153,7 +157,8 @@ export default function RegistroPage() {
       });
 
       if (res.ok) {
-        router.push(role === "mentor" ? "/mentor" : "/onboarding");
+        setRegisteredEmail(email.trim());
+        setRegistered(true);
         return;
       }
 
@@ -169,6 +174,22 @@ export default function RegistroPage() {
       setError(t("errorNetwork"));
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleResend() {
+    setResending(true);
+    try {
+      await fetch(`${API_BASE}/api/auth/resend-verification/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: registeredEmail }),
+      });
+      setResent(true);
+    } catch {
+      // silently fail — always show success per security pattern
+    } finally {
+      setResending(false);
     }
   }
 
@@ -199,6 +220,35 @@ export default function RegistroPage() {
             </svg>
           </a>
         </div>
+
+        {registered ? (
+          <div className="bg-surface border border-white/[0.08] p-6 text-center py-8">
+            <CheckCircle size={32} className="text-green mx-auto mb-4" />
+            <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted mb-3">
+              {t("verifyTitle")}
+            </p>
+            <p className="font-sans text-[13px] text-secondary leading-relaxed mb-2">
+              {t("verifyBody", { email: registeredEmail })}
+            </p>
+            <p className="font-sans text-[12px] text-muted mb-6">
+              {t("verifySpam")}
+            </p>
+            <p className="font-sans text-[12px] text-muted">
+              {t("verifyResendQuestion")}{" "}
+              {resent ? (
+                <span className="text-green">{t("verifyResent")}</span>
+              ) : (
+                <button
+                  onClick={handleResend}
+                  disabled={resending}
+                  className="text-green hover:underline disabled:opacity-50 transition-colors"
+                >
+                  {resending ? t("verifyResending") : t("verifyResendLink")}
+                </button>
+              )}
+            </p>
+          </div>
+        ) : (
 
         {/* Card */}
         <div className="bg-surface border border-white/[0.08] p-6">
@@ -420,6 +470,7 @@ export default function RegistroPage() {
             </p>
           </form>
         </div>
+        )}
       </div>
     </div>
   );

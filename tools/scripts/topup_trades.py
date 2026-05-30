@@ -152,6 +152,9 @@ def main() -> None:
     logger.info("═══════════════════════════════════")
 
     trader = CustomUser.objects.get(email=TRADER_EMAIL)
+    if not trader.is_verified:
+        trader.is_verified = True
+        trader.save(update_fields=["is_verified"])
     last_trade = Trade.objects.filter(user=trader).order_by("-entry_time").first()
 
     if not last_trade:

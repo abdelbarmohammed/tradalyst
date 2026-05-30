@@ -3,7 +3,7 @@ from django.conf import settings
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 
-from .models import CustomUser, PasswordResetToken
+from .models import CustomUser, EmailVerificationToken, PasswordResetToken
 
 logger = logging.getLogger(__name__)
 
@@ -144,4 +144,71 @@ def send_password_reset_email(user: CustomUser, token: PasswordResetToken) -> No
         logger.info("Password reset email sent to %s (status %s)", user.email, response.status_code)
     except Exception as exc:
         logger.error("Failed to send password reset email to %s: %s", user.email, exc)
+        raise
+
+
+def send_verification_email(user: CustomUser, token: EmailVerificationToken) -> None:
+    """Send a branded email-verification email via SendGrid."""
+    verify_url = f"{settings.FRONTEND_URL}/verify-email/{token.token}"
+    is_english = getattr(user, "language_preference", "es") == "en"
+    name = user.display_name or ("there" if is_english else "")
+
+    if is_english:
+        subject = "Verify your account — Tradalyst"
+        button_text = "Verify account"
+        greeting = f"Hi {name},"
+        body_line1 = "Thanks for signing up for Tradalyst. Click the button below to verify your email address."
+        body_line2 = "This link expires in 24 hours."
+        disclaimer = "If you didn't create an account, you can safely ignore this email."
+        footer = "The Tradalyst team"
+    else:
+        subject = "Verifica tu cuenta — Tradalyst"
+        button_text = "Verificar cuenta"
+        greeting = f"Hola {name},"
+        body_line1 = "Gracias por registrarte en Tradalyst. Haz clic en el botón para verificar tu dirección de email."
+        body_line2 = "Este enlace expira en 24 horas."
+        disclaimer = "Si no creaste una cuenta, puedes ignorar este correo."
+        footer = "El equipo de Tradalyst"
+
+    plain_text = (
+        f"{greeting}\n\n"
+        f"{body_line1}\n\n"
+        f"{body_line2}\n\n"
+        f"{verify_url}\n\n"
+        f"{disclaimer}\n\n"
+        f"{footer}"
+    )
+
+    html_content = _build_html(
+        greeting=greeting,
+        body_line1=body_line1,
+        body_line2=body_line2,
+        button_text=button_text,
+        reset_url=verify_url,
+        disclaimer=disclaimer,
+        footer=footer,
+    )
+
+    message = Mail(
+        from_email=settings.FROM_EMAIL,
+        to_emails=user.email,
+        subject=subject,
+        plain_text_content=plain_text,
+        html_content=html_content,
+    )
+
+    if not settings.SENDGRID_API_KEY:
+        logger.warning(
+            "SENDGRID_API_KEY not configured — skipping verification email to %s. Verify URL: %s",
+            user.email,
+            verify_url,
+        )
+        return
+
+    try:
+        client = SendGridAPIClient(settings.SENDGRID_API_KEY)
+        response = client.send(message)
+        logger.info("Verification email sent to %s (status %s)", user.email, response.status_code)
+    except Exception as exc:
+        logger.error("Failed to send verification email to %s: %s", user.email, exc)
         raise

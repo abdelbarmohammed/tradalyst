@@ -27,7 +27,14 @@
       "errorSuspended": "Your account has been suspended. Contact support.",
       "errorGeneral": "Sign in failed. Please try again.",
       "errorNetwork": "Could not reach the server.",
-      "forgotPassword": "Forgot your password?"
+      "forgotPassword": "Forgot your password?",
+      "errorNotVerified": "You must verify your email before signing in.",
+      "resendVerification": "Resend verification email",
+      "resendEmailPlaceholder": "your@email.com",
+      "resendSubmit": "Send",
+      "resendSending": "Sending…",
+      "resendSent": "Check your email for a new verification link.",
+      "resendCancel": "Cancel"
     },
     "register": {
       "title": "Create account",
@@ -64,7 +71,14 @@
       "strengthStrong": "Strong",
       "req8chars": "At least 8 characters",
       "reqNumber": "At least one number",
-      "reqUppercase": "At least one uppercase letter"
+      "reqUppercase": "At least one uppercase letter",
+      "verifyTitle": "Check your email",
+      "verifyBody": "We sent a verification link to {email}.",
+      "verifySpam": "Check your spam folder too.",
+      "verifyResendQuestion": "Didn't receive it?",
+      "verifyResendLink": "Resend",
+      "verifyResending": "Sending…",
+      "verifyResent": "Email sent!"
     },
     "forgotPassword": {
       "title": "Reset your password",
@@ -97,6 +111,15 @@
       "errorPasswordMatch": "Passwords do not match.",
       "errorGeneral": "Something went wrong. Please try again.",
       "errorNetwork": "Could not reach the server."
+    },
+    "verification": {
+      "verifying": "Verifying your account…",
+      "successTitle": "Account verified!",
+      "successBody": "Your account has been successfully verified. Redirecting…",
+      "goToOnboarding": "Continue →",
+      "expiredTitle": "This link has expired",
+      "expiredBody": "The verification link has expired or has already been used.",
+      "requestNewLink": "Request a new link"
     }
   },
   "dashboard": {
