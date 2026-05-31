@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Plus, Eye, Pencil, Trash2, ChevronLeft, ChevronRight, AlertCircle, X, Upload, ArrowRight } from "lucide-react";
 import { useTranslations } from "next-intl";
-import Link from "next/link";
 import { get, del } from "@/lib/api";
 import { formatDateShort, formatPnl } from "@/lib/format";
 import type { Trade, PaginatedTrades, UserProfile } from "@/types";
