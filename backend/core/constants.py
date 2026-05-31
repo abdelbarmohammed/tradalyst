@@ -4,6 +4,10 @@ CHAT_HISTORY_LIMIT = 10        # Last N messages sent to Claude as context
 TRADE_SUMMARY_DAYS = 90        # Days of trade history included in AI chat context
 WATCHLIST_MAX_ASSETS = 8       # Maximum pinned assets per user
 
+FREE_PLAN_INSIGHTS_PER_MONTH = 1   # Max AI insight generations per calendar month on Free
+FREE_PLAN_CHAT_MESSAGES_MAX = 20   # Max total user-sent chat messages on Free (all-time)
+FREE_PLAN_TRADES_MAX = 50          # Max total trades on Free plan
+
 ACCESS_TOKEN_LIFETIME_MINUTES = 15
 REFRESH_TOKEN_LIFETIME_DAYS = 7
 

@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.users.permissions import IsTrader, IsTraderOrMentor
+from apps.users.plan_limits import check_plan_limit
 from .models import AiInsight, ChatMessage
 from .serializers import AiInsightSerializer, ChatMessageSerializer, ChatInputSerializer
 from .services.claude import ClaudeService
@@ -29,6 +30,9 @@ class InsightGenerateView(APIView):
     permission_classes = [IsTraderOrMentor]
 
     def post(self, request: Request) -> Response:
+        limit = check_plan_limit(request.user, "insight_generate")
+        if limit:
+            return limit
         try:
             insight = ClaudeService().generate_weekly_insight(request.user)
         except ValueError as exc:
@@ -58,6 +62,9 @@ class ChatSendView(APIView):
     permission_classes = [IsTraderOrMentor]
 
     def post(self, request: Request) -> Response:
+        limit = check_plan_limit(request.user, "chat_send")
+        if limit:
+            return limit
         serializer = ChatInputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         try:

@@ -3,11 +3,12 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Plus, Eye, Pencil, Trash2, ChevronLeft, ChevronRight, AlertCircle, X, Upload } from "lucide-react";
+import { Plus, Eye, Pencil, Trash2, ChevronLeft, ChevronRight, AlertCircle, X, Upload, ArrowRight } from "lucide-react";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 import { get, del } from "@/lib/api";
 import { formatDateShort, formatPnl } from "@/lib/format";
-import type { Trade, PaginatedTrades } from "@/types";
+import type { Trade, PaginatedTrades, UserProfile } from "@/types";
 import CsvImportModal from "@/components/journal/CsvImportModal";
 
 // ── Filter types ──────────────────────────────────────────────────────────────
@@ -200,6 +201,9 @@ export default function JournalPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [userPlan, setUserPlan] = useState<"free" | "pro" | null>(null);
+  const [totalTradeCount, setTotalTradeCount] = useState<number | null>(null);
+
   const [deleteTarget, setDeleteTarget] = useState<Trade | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
@@ -248,6 +252,15 @@ export default function JournalPage() {
     if (date && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
       setFilters((f) => ({ ...f, after: `${date}T00:00:00`, before: `${date}T23:59:59` }));
     }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    get<UserProfile>("/api/users/me/")
+      .then((profile) => setUserPlan(profile.plan ?? "free"))
+      .catch(() => {});
+    get<{ count: number; results: Trade[] }>("/api/trades/?page_size=1")
+      .then((res) => setTotalTradeCount(res.count))
+      .catch(() => {});
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -369,6 +382,19 @@ export default function JournalPage() {
             </Link>
           </div>
         </div>
+
+        {/* ── Free plan trade count warning ── */}
+        {userPlan === "free" && totalTradeCount !== null && totalTradeCount >= 40 && (
+          <Link
+            href="/settings?tab=plan"
+            className="flex items-center justify-between gap-2 px-4 py-[9px] border border-white/[0.08] bg-elevated hover:border-white/[0.16] transition-colors group"
+          >
+            <p className="font-mono text-[10px] text-muted group-hover:text-secondary transition-colors">
+              {t("freePlanWarning", { count: totalTradeCount })}
+            </p>
+            <ArrowRight size={11} className="text-muted flex-shrink-0 group-hover:text-green transition-colors" />
+          </Link>
+        )}
 
         {/* ── Error ── */}
         {error && (

@@ -12,6 +12,7 @@ from rest_framework.views import APIView
 
 from core.constants import CSV_IMPORT_MAX_ROWS, CSV_IMPORT_MAX_SIZE_BYTES
 from apps.users.permissions import IsTrader, IsTraderOrMentor
+from apps.users.plan_limits import check_plan_limit
 from .models import Trade, TradeResult, Direction, Emotion
 from .serializers import TradeSerializer, TradeStatsSerializer
 from .filters import TradeFilter
@@ -28,6 +29,12 @@ class TradeListCreateView(generics.ListCreateAPIView):
 
     def get_queryset(self) -> QuerySet:
         return Trade.objects.filter(user=self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        limit = check_plan_limit(request.user, "trade_create")
+        if limit:
+            return limit
+        return super().create(request, *args, **kwargs)
 
     def perform_create(self, serializer: TradeSerializer) -> None:
         serializer.save(user=self.request.user)

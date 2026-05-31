@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { Send, ChevronDown, ChevronUp, RefreshCw, AlertCircle } from "lucide-react";
+import { Send, ChevronDown, ChevronUp, RefreshCw, AlertCircle, ArrowRight } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { get, post } from "@/lib/api";
+import Link from "next/link";
+import { get, post, ApiError } from "@/lib/api";
 import { formatRelative } from "@/lib/format";
-import type { AiInsight, ChatMessage } from "@/types";
+import type { AiInsight, ChatMessage, UserProfile } from "@/types";
+import PlanLimitModal from "@/components/ui/PlanLimitModal";
 
 const AI_MIN_TRADES = 5;
 
@@ -65,6 +67,9 @@ function TypingBubble() {
 export default function AiPage() {
   const t = useTranslations("ai");
 
+  const [userPlan, setUserPlan] = useState<"free" | "pro" | null>(null);
+  const [planLimitMessage, setPlanLimitMessage] = useState<string | null>(null);
+
   const [insights, setInsights] = useState<AiInsight[]>([]);
   const [insightsLoading, setInsightsLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
@@ -104,6 +109,9 @@ export default function AiPage() {
   useEffect(() => {
     loadInsights();
     loadChat();
+    get<UserProfile>("/api/users/me/")
+      .then((profile) => setUserPlan(profile.plan ?? "free"))
+      .catch(() => {});
   }, [loadInsights, loadChat]);
 
   useEffect(() => {
@@ -117,7 +125,11 @@ export default function AiPage() {
       const insight = await post<AiInsight>("/api/analysis/insights/generate/", {});
       setInsights((prev) => [insight, ...prev]);
     } catch (err) {
-      setGenerateError(err instanceof Error ? err.message : t("generateError"));
+      if (err instanceof ApiError && err.errorCode === "plan_limit") {
+        setPlanLimitMessage(err.message);
+      } else {
+        setGenerateError(err instanceof Error ? err.message : t("generateError"));
+      }
     } finally {
       setGenerating(false);
     }
@@ -143,9 +155,15 @@ export default function AiPage() {
       const assistantMsg = await post<ChatMessage>("/api/analysis/chat/send/", { message: text });
       setMessages((prev) => [...prev, assistantMsg]);
     } catch (err) {
-      setSendError(err instanceof Error ? err.message : t("errorSend"));
-      setMessages((prev) => prev.filter((m) => m.id !== optimisticUser.id));
-      setInput(text);
+      if (err instanceof ApiError && err.errorCode === "plan_limit") {
+        setMessages((prev) => prev.filter((m) => m.id !== optimisticUser.id));
+        setInput(text);
+        setPlanLimitMessage(err.message);
+      } else {
+        setSendError(err instanceof Error ? err.message : t("errorSend"));
+        setMessages((prev) => prev.filter((m) => m.id !== optimisticUser.id));
+        setInput(text);
+      }
     } finally {
       setSending(false);
     }
@@ -163,165 +181,184 @@ export default function AiPage() {
   const previousInsights = insights.slice(1, 5);
 
   return (
-    <div className="max-w-[1200px] mx-auto">
-      <div className="flex flex-col lg:flex-row gap-4 h-[calc(100vh-100px)] min-h-[600px]">
+    <>
+      {planLimitMessage && (
+        <PlanLimitModal message={planLimitMessage} onClose={() => setPlanLimitMessage(null)} />
+      )}
 
-        {/* Left panel — Insights */}
-        <div className="lg:w-[40%] flex flex-col gap-4 overflow-y-auto lg:pr-1">
-
-          <div>
-            <h1 className="font-sans text-[22px] font-bold text-primary leading-tight">
-              {t("title")}
-            </h1>
-            <p className="font-mono text-[11px] text-muted mt-[3px]">
-              {t("subtitle")}
+      <div className="max-w-[1200px] mx-auto">
+        {/* Free plan banner */}
+        {userPlan === "free" && (
+          <Link
+            href="/settings?tab=plan"
+            className="flex items-center justify-between gap-2 px-4 py-[9px] mb-4 border border-white/[0.08] bg-elevated hover:border-white/[0.16] transition-colors group"
+          >
+            <p className="font-mono text-[10px] text-muted group-hover:text-secondary transition-colors">
+              {t("freeBanner")}
             </p>
+            <ArrowRight size={11} className="text-muted flex-shrink-0 group-hover:text-green transition-colors" />
+          </Link>
+        )}
+
+        <div className="flex flex-col lg:flex-row gap-4 h-[calc(100vh-100px)] min-h-[600px]">
+
+          {/* Left panel — Insights */}
+          <div className="lg:w-[40%] flex flex-col gap-4 overflow-y-auto lg:pr-1">
+
+            <div>
+              <h1 className="font-sans text-[22px] font-bold text-primary leading-tight">
+                {t("title")}
+              </h1>
+              <p className="font-mono text-[11px] text-muted mt-[3px]">
+                {t("subtitle")}
+              </p>
+            </div>
+
+            <div className="card p-5 flex flex-col gap-4">
+              <div className="flex items-center gap-2">
+                <span className="w-[7px] h-[7px] rounded-full bg-green animate-pulse flex-shrink-0" />
+                <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-green">
+                  {t("currentInsight")}
+                </span>
+              </div>
+
+              {insightsLoading ? (
+                <div className="space-y-2">
+                  <div className="skeleton h-3 w-full rounded-sm" />
+                  <div className="skeleton h-3 w-5/6 rounded-sm" />
+                  <div className="skeleton h-3 w-4/6 rounded-sm" />
+                </div>
+              ) : currentInsight ? (
+                <>
+                  <p className="font-sans text-[13px] text-secondary leading-relaxed">{currentInsight.content}</p>
+                  <p className="font-mono text-[9px] text-muted">
+                    {currentInsight.period_start} → {currentInsight.period_end} · {currentInsight.trade_count} ops · {formatRelative(currentInsight.created_at)}
+                  </p>
+                </>
+              ) : (
+                <div className="space-y-3">
+                  <p className="font-sans text-[13px] text-secondary leading-relaxed">
+                    {t("minTradesActivate", { count: AI_MIN_TRADES })}
+                  </p>
+                  <div className="h-[4px] bg-elevated rounded-full overflow-hidden">
+                    <div className="h-full bg-green/40 rounded-full" style={{ width: "20%" }} />
+                  </div>
+                </div>
+              )}
+
+              {generateError && (
+                <div className="flex items-center gap-2 p-2 border border-loss/30 bg-loss/[0.06]">
+                  <AlertCircle size={12} className="text-loss flex-shrink-0" />
+                  <p className="font-sans text-[11px] text-loss">{generateError}</p>
+                </div>
+              )}
+              <button
+                onClick={handleGenerate}
+                disabled={generating}
+                className="flex items-center justify-center gap-2 w-full font-sans text-[12px] font-semibold border border-white/[0.12] text-secondary hover:text-primary hover:border-white/20 py-[8px] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <RefreshCw size={12} className={generating ? "animate-spin" : ""} />
+                {generating ? t("generatingButton") : t("generateButton")}
+              </button>
+            </div>
+
+            {previousInsights.length > 0 && (
+              <div className="card">
+                <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted px-4 py-3 border-b border-white/[0.06]">
+                  {t("previousInsights")}
+                </p>
+                {previousInsights.map((ins) => (
+                  <InsightAccordion key={ins.id} insight={ins} />
+                ))}
+              </div>
+            )}
           </div>
 
-          <div className="card p-5 flex flex-col gap-4">
-            <div className="flex items-center gap-2">
-              <span className="w-[7px] h-[7px] rounded-full bg-green animate-pulse flex-shrink-0" />
+          {/* Right panel — Chat */}
+          <div className="lg:w-[60%] flex flex-col card overflow-hidden">
+
+            <div className="flex items-center gap-2 px-5 py-4 border-b border-white/[0.06] flex-shrink-0">
+              <span className="w-[7px] h-[7px] rounded-full bg-green animate-pulse" />
               <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-green">
-                {t("currentInsight")}
+                {t("chatHeader")}
               </span>
             </div>
 
-            {insightsLoading ? (
-              <div className="space-y-2">
-                <div className="skeleton h-3 w-full rounded-sm" />
-                <div className="skeleton h-3 w-5/6 rounded-sm" />
-                <div className="skeleton h-3 w-4/6 rounded-sm" />
-              </div>
-            ) : currentInsight ? (
-              <>
-                <p className="font-sans text-[13px] text-secondary leading-relaxed">{currentInsight.content}</p>
-                <p className="font-mono text-[9px] text-muted">
-                  {currentInsight.period_start} → {currentInsight.period_end} · {currentInsight.trade_count} ops · {formatRelative(currentInsight.created_at)}
-                </p>
-              </>
-            ) : (
-              <div className="space-y-3">
-                <p className="font-sans text-[13px] text-secondary leading-relaxed">
-                  {t("minTradesActivate", { count: AI_MIN_TRADES })}
-                </p>
-                <div className="h-[4px] bg-elevated rounded-full overflow-hidden">
-                  <div className="h-full bg-green/40 rounded-full" style={{ width: "20%" }} />
-                </div>
-              </div>
-            )}
-
-            {generateError && (
-              <div className="flex items-center gap-2 p-2 border border-loss/30 bg-loss/[0.06]">
-                <AlertCircle size={12} className="text-loss flex-shrink-0" />
-                <p className="font-sans text-[11px] text-loss">{generateError}</p>
-              </div>
-            )}
-            <button
-              onClick={handleGenerate}
-              disabled={generating}
-              className="flex items-center justify-center gap-2 w-full font-sans text-[12px] font-semibold border border-white/[0.12] text-secondary hover:text-primary hover:border-white/20 py-[8px] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <RefreshCw size={12} className={generating ? "animate-spin" : ""} />
-              {generating ? t("generatingButton") : t("generateButton")}
-            </button>
-          </div>
-
-          {previousInsights.length > 0 && (
-            <div className="card">
-              <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted px-4 py-3 border-b border-white/[0.06]">
-                {t("previousInsights")}
-              </p>
-              {previousInsights.map((ins) => (
-                <InsightAccordion key={ins.id} insight={ins} />
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Right panel — Chat */}
-        <div className="lg:w-[60%] flex flex-col card overflow-hidden">
-
-          <div className="flex items-center gap-2 px-5 py-4 border-b border-white/[0.06] flex-shrink-0">
-            <span className="w-[7px] h-[7px] rounded-full bg-green animate-pulse" />
-            <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-green">
-              {t("chatHeader")}
-            </span>
-          </div>
-
-          <div className="flex-1 overflow-y-auto p-5">
-            {chatLoading ? (
-              <div className="space-y-3">
-                {[...Array(3)].map((_, i) => (
-                  <div key={i} className={`flex ${i % 2 === 0 ? "justify-start" : "justify-end"}`}>
-                    <div className="skeleton h-14 w-48 rounded-sm" />
-                  </div>
-                ))}
-              </div>
-            ) : messages.length === 0 && !sending ? (
-              <div className="h-full flex flex-col items-center justify-center gap-5">
-                <div className="text-center">
-                  <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted mb-2">
-                    {t("suggestionsTitle")}
-                  </p>
-                  <p className="font-sans text-[13px] text-muted">
-                    {t("chatQuestion")}
-                  </p>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-md">
-                  {suggestedPrompts.map((prompt) => (
-                    <button
-                      key={prompt}
-                      onClick={() => { setInput(prompt); inputRef.current?.focus(); }}
-                      className="text-left px-4 py-3 bg-elevated border border-white/[0.06] hover:border-white/[0.12] font-sans text-[12px] text-secondary hover:text-primary transition-colors"
-                    >
-                      {prompt}
-                    </button>
+            <div className="flex-1 overflow-y-auto p-5">
+              {chatLoading ? (
+                <div className="space-y-3">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className={`flex ${i % 2 === 0 ? "justify-start" : "justify-end"}`}>
+                      <div className="skeleton h-14 w-48 rounded-sm" />
+                    </div>
                   ))}
                 </div>
-              </div>
-            ) : (
-              <>
-                {messages.map((msg) => <MessageBubble key={msg.id} msg={msg} />)}
-                {sending && <TypingBubble />}
-              </>
-            )}
-            <div ref={bottomRef} />
-          </div>
-
-          {sendError && (
-            <div className="flex items-center gap-2 px-5 py-2 border-t border-loss/20 bg-loss/[0.04]">
-              <AlertCircle size={12} className="text-loss" />
-              <p className="font-mono text-[10px] text-loss">{sendError}</p>
+              ) : messages.length === 0 && !sending ? (
+                <div className="h-full flex flex-col items-center justify-center gap-5">
+                  <div className="text-center">
+                    <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted mb-2">
+                      {t("suggestionsTitle")}
+                    </p>
+                    <p className="font-sans text-[13px] text-muted">
+                      {t("chatQuestion")}
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-md">
+                    {suggestedPrompts.map((prompt) => (
+                      <button
+                        key={prompt}
+                        onClick={() => { setInput(prompt); inputRef.current?.focus(); }}
+                        className="text-left px-4 py-3 bg-elevated border border-white/[0.06] hover:border-white/[0.12] font-sans text-[12px] text-secondary hover:text-primary transition-colors"
+                      >
+                        {prompt}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {messages.map((msg) => <MessageBubble key={msg.id} msg={msg} />)}
+                  {sending && <TypingBubble />}
+                </>
+              )}
+              <div ref={bottomRef} />
             </div>
-          )}
 
-          <div className="flex items-end gap-2 p-4 border-t border-white/[0.06] flex-shrink-0">
-            <textarea
-              ref={inputRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={t("chatInputHint")}
-              rows={1}
-              disabled={sending}
-              className="flex-1 bg-elevated border border-white/[0.10] px-3 py-[10px] font-sans text-[13px] text-primary placeholder:text-muted focus:outline-none focus:border-white/20 transition-colors resize-none leading-relaxed disabled:opacity-50"
-              style={{ minHeight: 42, maxHeight: 120 }}
-              onInput={(e) => {
-                const el = e.currentTarget;
-                el.style.height = "auto";
-                el.style.height = `${Math.min(el.scrollHeight, 120)}px`;
-              }}
-            />
-            <button
-              onClick={handleSend}
-              disabled={!input.trim() || sending}
-              className="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-green hover:bg-green-hover disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-            >
-              <Send size={14} className="text-white" />
-            </button>
+            {sendError && (
+              <div className="flex items-center gap-2 px-5 py-2 border-t border-loss/20 bg-loss/[0.04]">
+                <AlertCircle size={12} className="text-loss" />
+                <p className="font-mono text-[10px] text-loss">{sendError}</p>
+              </div>
+            )}
+
+            <div className="flex items-end gap-2 p-4 border-t border-white/[0.06] flex-shrink-0">
+              <textarea
+                ref={inputRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder={t("chatInputHint")}
+                rows={1}
+                disabled={sending}
+                className="flex-1 bg-elevated border border-white/[0.10] px-3 py-[10px] font-sans text-[13px] text-primary placeholder:text-muted focus:outline-none focus:border-white/20 transition-colors resize-none leading-relaxed disabled:opacity-50"
+                style={{ minHeight: 42, maxHeight: 120 }}
+                onInput={(e) => {
+                  const el = e.currentTarget;
+                  el.style.height = "auto";
+                  el.style.height = `${Math.min(el.scrollHeight, 120)}px`;
+                }}
+              />
+              <button
+                onClick={handleSend}
+                disabled={!input.trim() || sending}
+                className="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-green hover:bg-green-hover disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                <Send size={14} className="text-white" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

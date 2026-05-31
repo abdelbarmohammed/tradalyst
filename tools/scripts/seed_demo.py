@@ -55,6 +55,7 @@ ACCOUNTS = [
         "password": "Demo1234!",
         "role": "trader",
         "display_name": "Alex García",
+        "plan": "pro",
     },
     {
         "email": "mentor@tradalyst.com",
@@ -279,13 +280,15 @@ def d(value: float, decimals: int = 8) -> Decimal:
 
 
 def get_or_create_user(
-    email: str, password: str, role: str, display_name: str, is_staff: bool = False
+    email: str, password: str, role: str, display_name: str,
+    is_staff: bool = False, plan: str = "free",
 ) -> CustomUser:
-    """Get existing user or create new one. Always updates the password."""
+    """Get existing user or create new one. Always updates the password and plan."""
     try:
         user = CustomUser.objects.get(email=email)
         user.set_password(password)
         user.display_name = display_name
+        user.plan = plan
         user.onboarding_completed = True
         user.is_verified = True
         user.save()
@@ -299,6 +302,7 @@ def get_or_create_user(
         )
         if is_staff:
             user.is_staff = True
+        user.plan = plan
         user.onboarding_completed = True
         user.is_verified = True
         user.save()
@@ -680,6 +684,7 @@ def main() -> None:
             role=acc["role"],
             display_name=acc["display_name"],
             is_staff=acc.get("is_staff", False),
+            plan=acc.get("plan", "free"),
         )
     trader = users["trader"]
     mentor = users["mentor"]

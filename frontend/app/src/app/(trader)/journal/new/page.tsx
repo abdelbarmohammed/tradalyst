@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, AlertCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { post, get } from "@/lib/api";
+import { post, get, ApiError } from "@/lib/api";
 import type { Trade } from "@/types";
+import PlanLimitModal from "@/components/ui/PlanLimitModal";
 
 type Direction = "long" | "short";
 type MarketType = "crypto" | "forex" | "stocks";
@@ -106,6 +107,7 @@ export default function NewTradePage() {
   const [submitting, setSubmitting] = useState(false);
   const [fetchingPrice, setFetchingPrice] = useState(false);
   const [fetchedPrice, setFetchedPrice] = useState<number | null>(null);
+  const [planLimitMessage, setPlanLimitMessage] = useState<string | null>(null);
 
   function set<K extends keyof FormData>(key: K, value: FormData[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -183,13 +185,21 @@ export default function NewTradePage() {
       const trade = await post<Trade>("/api/trades/", payload);
       router.push(`/journal/${trade.id}`);
     } catch (err) {
-      setErrors({ general: err instanceof Error ? err.message : t("formErrorSave") });
+      if (err instanceof ApiError && err.errorCode === "plan_limit") {
+        setPlanLimitMessage(err.message);
+      } else {
+        setErrors({ general: err instanceof Error ? err.message : t("formErrorSave") });
+      }
     } finally {
       setSubmitting(false);
     }
   }
 
   return (
+    <>
+    {planLimitMessage && (
+      <PlanLimitModal message={planLimitMessage} onClose={() => setPlanLimitMessage(null)} />
+    )}
     <div className="max-w-[720px] mx-auto px-4 lg:px-0 pb-28 lg:pb-6 space-y-6">
 
       <div>
@@ -389,5 +399,6 @@ export default function NewTradePage() {
         </div>
       </form>
     </div>
+    </>
   );
 }

@@ -192,6 +192,7 @@
     "colActions": "Acciones",
     "tradeCountSingle": "1 operación",
     "tradeCountPlural": "{count} operaciones",
+    "freePlanWarning": "{count}/50 operaciones · Plan Free · Actualiza para operaciones ilimitadas →",
     "errorLoad": "Error al cargar las operaciones.",
     "retry": "Reintentar",
     "emptyState": "No hay operaciones con estos filtros.",
@@ -302,6 +303,7 @@
     "generating": "Generando…",
     "errorLoad": "Error al cargar.",
     "errorSend": "Error al enviar el mensaje.",
+    "freeBanner": "Estás en el plan Free · 1 análisis/mes · 20 mensajes de chat · Actualiza a Pro para análisis ilimitados →",
     "suggestedPrompts": [
       "¿Por qué sigo perdiendo en cortos?",
       "¿Cuál es mi mejor setup?",
@@ -741,5 +743,11 @@
     "successSuspended": "Cuenta suspendida.",
     "errorLoad": "Error al cargar el usuario.",
     "errorAction": "Error al ejecutar la acción."
+  },
+  "planLimit": {
+    "badge": "Plan Pro",
+    "title": "Función exclusiva de Pro",
+    "upgradeButton": "Actualizar a Pro →",
+    "dismissButton": "Ahora no"
   }
 }

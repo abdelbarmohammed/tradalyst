@@ -192,6 +192,7 @@
     "colActions": "Actions",
     "tradeCountSingle": "1 trade",
     "tradeCountPlural": "{count} trades",
+    "freePlanWarning": "{count}/50 trades · Free plan · Upgrade for unlimited →",
     "errorLoad": "Failed to load trades.",
     "retry": "Retry",
     "emptyState": "No trades match these filters.",
@@ -302,6 +303,7 @@
     "generating": "Generating…",
     "errorLoad": "Failed to load.",
     "errorSend": "Failed to send message.",
+    "freeBanner": "You're on the Free plan · 1 analysis/month · 20 chat messages · Upgrade to Pro for unlimited →",
     "suggestedPrompts": [
       "Why do I keep losing on shorts?",
       "What is my best setup?",
@@ -741,5 +743,11 @@
     "successSuspended": "Account suspended.",
     "errorLoad": "Failed to load user.",
     "errorAction": "Failed to execute action."
+  },
+  "planLimit": {
+    "badge": "Pro plan",
+    "title": "Exclusive Pro feature",
+    "upgradeButton": "Upgrade to Pro →",
+    "dismissButton": "Not now"
   }
 }
