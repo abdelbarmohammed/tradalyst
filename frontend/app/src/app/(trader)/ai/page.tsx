@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { Send, ChevronDown, ChevronUp, RefreshCw, AlertCircle, ArrowRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import ReactMarkdown from "react-markdown";
 import { get, post, ApiError } from "@/lib/api";
 import { formatRelative } from "@/lib/format";
 import type { AiInsight, ChatMessage, UserProfile } from "@/types";
@@ -31,7 +32,9 @@ function InsightAccordion({ insight }: { insight: AiInsight }) {
       </button>
       {open && (
         <div className="px-4 pb-4">
-          <p className="font-sans text-[12px] text-secondary leading-relaxed">{insight.content}</p>
+          <div className="prose prose-sm max-w-none">
+            <ReactMarkdown>{insight.content}</ReactMarkdown>
+          </div>
         </div>
       )}
     </div>
@@ -230,7 +233,9 @@ export default function AiPage() {
                 </div>
               ) : currentInsight ? (
                 <>
-                  <p className="font-sans text-[13px] text-secondary leading-relaxed">{currentInsight.content}</p>
+                  <div className="prose prose-sm max-w-none">
+                    <ReactMarkdown>{currentInsight.content}</ReactMarkdown>
+                  </div>
                   <p className="font-mono text-[9px] text-muted">
                     {currentInsight.period_start} → {currentInsight.period_end} · {currentInsight.trade_count} ops · {formatRelative(currentInsight.created_at)}
                   </p>

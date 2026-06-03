@@ -90,9 +90,50 @@ const config: Config = {
       width: {
         sidebar: "220px",
       },
+
+      // ── Typography plugin — wire to CSS variable tokens ───────────────────
+      typography: {
+        DEFAULT: {
+          css: {
+            color: "var(--text-secondary)",
+            maxWidth: "none",
+            "h1, h2, h3, h4, h5, h6": {
+              color: "var(--text-primary)",
+              fontFamily: "var(--font-ibm-plex-sans)",
+              fontWeight: "600",
+            },
+            strong: { color: "var(--text-primary)" },
+            a: { color: "#2fac66", textDecoration: "none", "&:hover": { textDecoration: "underline" } },
+            code: {
+              color: "var(--text-secondary)",
+              fontFamily: "var(--font-ibm-plex-mono)",
+              fontSize: "0.85em",
+              backgroundColor: "var(--elevated)",
+              padding: "0.1em 0.35em",
+              borderRadius: "2px",
+            },
+            "code::before": { content: '""' },
+            "code::after": { content: '""' },
+            pre: { backgroundColor: "var(--elevated)", color: "var(--text-secondary)" },
+            blockquote: {
+              color: "var(--text-muted)",
+              borderLeftColor: "var(--border)",
+            },
+            hr: { borderColor: "var(--border-subtle)" },
+            th: { color: "var(--text-primary)" },
+            td: { color: "var(--text-secondary)" },
+            "thead th": { color: "var(--text-primary)" },
+            "thead": { borderBottomColor: "var(--border)" },
+            "tbody tr": { borderBottomColor: "var(--border-subtle)" },
+            li: { color: "var(--text-secondary)" },
+            "li::marker": { color: "var(--text-muted)" },
+            p: { color: "var(--text-secondary)" },
+          },
+        },
+      },
     },
   },
-  plugins: [],
+  plugins: [require("@tailwindcss/typography")],
 };
 
 export default config;
