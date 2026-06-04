@@ -298,6 +298,10 @@ class TradeCSVImportView(APIView):
                 errors.append(f"Fila {i}: {exc}")
                 skipped += 1
 
+        limit_error = check_plan_limit(request.user, "trade_create")
+        if limit_error:
+            return limit_error
+
         if to_create:
             # Use save() per row so the auto-pnl logic in Trade.save() fires
             for trade in to_create:

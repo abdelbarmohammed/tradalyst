@@ -8,7 +8,7 @@ from core.constants import (
     FREE_PLAN_CHAT_MESSAGES_MAX,
     FREE_PLAN_TRADES_MAX,
 )
-from .models import Plan
+from .models import Plan, Role
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +19,9 @@ def check_plan_limit(user, feature: str) -> Response | None:
     Returns None when the action is allowed (Pro user, or Free user within limits).
     Import inside branches to avoid circular imports between apps.
     """
+    if user.role == Role.MENTOR:
+        return None
+
     if user.plan == Plan.PRO:
         return None
 
